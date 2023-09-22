@@ -1,0 +1,23 @@
+services:
+  server:
+    container_name: squealer-app
+    volumes:
+      - .:/app
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8000:8000
+  mongodb:
+    image: mongo:latest
+    container_name: squealer-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: site222332
+      MONGO_INITDB_ROOT_PASSWORD: cur3Ail5
+    volumes:
+      - mongodb-data:/data/db
+volumes:
+  mongodb-data:

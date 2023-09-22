@@ -1,7 +1,23 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
+const mongoose = require('mongoose');
+
+
+// Connect to MongoDB
+const username = 'site222332';
+const password = 'cur3Ail5';
+const host = 'mongodb';
+const databaseName = 'squealer';
+const mongoURL = `mongodb://${username}:${password}@${host}:27017/${databaseName}`;
+mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch((error) => {
+        console.error('Error connecting to MongoDB ZZ:', error);
+    });
 
 // Serve the static React build files
 let appBuildPath = path.join(__dirname, '../frontend/app/build');
@@ -23,5 +39,5 @@ app.get('/smm', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running`);
 });

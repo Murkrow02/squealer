@@ -7,7 +7,10 @@ import '@fontsource/roboto/700.css';
 import TabBar from './components/TabBar';
 function App() {
   return (
-      <TabBar/>
+      <div>
+        <h1>Uz</h1>
+        <TabBar/>
+      </div>
   );
 }
 
