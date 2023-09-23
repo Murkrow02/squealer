@@ -3,20 +3,17 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 8000;
 const mongoose = require('mongoose');
+const User = require("./models/user");
 
 
 // Connect to MongoDB
-const username = 'site222332';
-const password = 'cur3Ail5';
-const host = 'mongodb';
-const databaseName = 'squealer';
-const mongoURL = `mongodb://${username}:${password}@${host}:27017/${databaseName}`;
+const mongoURL = `mongodb://mongodb:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.10.6/squealer`;
 mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to MongoDB');
     })
     .catch((error) => {
-        console.error('Error connecting to MongoDB ZZ:', error);
+        console.error('Error connecting to MongoDB:', error);
     });
 
 // Serve the static React build files
@@ -37,7 +34,26 @@ app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
 
+app.get('/api/a', (req, res) => {
+    const User = require('./models/user'); // Import your model
+
+    const newUser = new User({
+        username: 'john_doe',
+        email: 'john@example.com',
+        age: 30,
+    });
+
+    newUser.save((err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log('User saved successfully!');
+        }
+    });
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running`);
 });
+

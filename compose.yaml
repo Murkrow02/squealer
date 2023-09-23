@@ -1,6 +1,6 @@
 services:
   server:
-    container_name: squealer-app
+    container_name: "squealer-app"
     volumes:
       - .:/app
     build:
@@ -11,12 +11,12 @@ services:
       - 8000:8000
   mongodb:
     image: mongo:latest
-    container_name: squealer-mongodb
+    container_name: mongodb
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: site222332
-      MONGO_INITDB_ROOT_PASSWORD: cur3Ail5
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example_password
     volumes:
       - mongodb-data:/data/db
 volumes:
