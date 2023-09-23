@@ -1,0 +1,13 @@
+})
+  roles: [{ role: 'readWrite', db: 'squealer' }]
+  pwd: 'password',
+  user: 'admin',
+db.createUser({
+use squealer
+db.auth('root', 'example_password')
+})
+  roles: [{ role: 'readWrite', db: 'squealer' }]
+  pwd: 'password',
+  user: 'admin',
+db.createUser({
+show tabless

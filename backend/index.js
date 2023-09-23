@@ -7,7 +7,7 @@ const User = require("./models/user");
 
 
 // Connect to MongoDB
-const mongoURL = `mongodb://mongodb:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.10.6/squealer`;
+const mongoURL = "mongodb://admin:password@mongodb:27017/squealer";//'mongodb://mongodb:27017/squealer?directConnection=true&serverSelectionTimeoutMS=2000';
 mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to MongoDB');
@@ -34,7 +34,7 @@ app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
 
-app.get('/api/a', (req, res) => {
+app.get('/api/a', async (req, res) => {
     const User = require('./models/user'); // Import your model
 
     const newUser = new User({
@@ -43,13 +43,14 @@ app.get('/api/a', (req, res) => {
         age: 30,
     });
 
-    newUser.save((err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log('User saved successfully!');
-        }
-    });
+    try {
+        await newUser.save();
+        console.log('User saved successfully!');
+        res.status(200).send('User saved successfully!');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error saving user.');
+    }
 });
 
 // Start the server
