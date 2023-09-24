@@ -20,6 +20,9 @@ RUN cd /app/backend && npm install
 # Build the frontend
 RUN cd /app/frontend/app && npm install && npm run build
 
+# Install nodemon
+#RUN npm install -g nodemon
+
 # Run the application as a non-root user.
 USER node
 
@@ -27,4 +30,5 @@ USER node
 EXPOSE 8000
 
 # Run the application.
+#CMD nodemon --max-old-space-size=4096 --delay 2 /app/backend/index.js
 CMD node /app/backend/index.js
