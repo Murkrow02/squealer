@@ -1,3 +1,11 @@
+:root {
+    --karma: #A966FF;
+    --primary: #23AAF5;
+    --primary-bg: #23B6F566;
+    --light-bg: #F4F4F4;
+    --text-light: #bebebe
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +18,14 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/*squeal-content-highlight*/
+.sch {
+    color:var(--primary);
+    cursor: pointer;
+}
+
+.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation5.MuiPopover-paper.css-1a6ja30 {
+    border-radius: 15px;
 }
