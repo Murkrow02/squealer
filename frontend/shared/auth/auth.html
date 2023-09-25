@@ -94,15 +94,19 @@
             // Replace 'YOUR_API_ENDPOINT' with the actual URL where you handle the login request
             axios.post('/api/login', { username, password })
                 .then(response => {
-                    // If login is successful, redirect to another URL
-                    if (response.data.success) {
-                        window.location.href = 'https://example.com/dashboard'; // Replace with your desired URL
-                    } else {
-                        alert('Login failed. Please check your credentials.');
-                    }
+
+                    //Save token in local storage
+                    localStorage.setItem('token', response.data.token);
+
+                    //Redirect to url provided by backend after successful login
+                    window.location.href = response.data.redirectURL;
                 })
                 .catch(error => {
-                    console.error('An error occurred:', error);
+                    if(error.response.data != null && error.response.data.message != null) {
+                        alert(error.response.data.message);
+                    } else {
+                        alert('Si é verificato un errore');
+                    }
                 });
         });
     </script>
