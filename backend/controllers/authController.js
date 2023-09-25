@@ -3,6 +3,13 @@ const AccessToken = require('../models/accessTokenModel');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+// Redirects
+let redirects = {
+    "user": "/app",
+    "smm": "/smm",
+    "admin": "/admin"
+}
+
 // Login
 exports.login = async (req, res) => {
 
@@ -26,7 +33,7 @@ exports.login = async (req, res) => {
 
     // Create a token for the user
     createTokenForUser(user).then((token) => {
-        return res.json({ token: token });
+        return res.json({ token: token, redirectURL: redirects[user.type] });
     }).catch((error) => {
         return res.status(500).json({ error: 'Errore durante la creazione del token', log: error });
     });
@@ -46,6 +53,7 @@ exports.register = async (req, res) => {
     const newUser = new User({
         username,
         password: hashedPassword,
+        type: 'user',
     });
 
     try {
