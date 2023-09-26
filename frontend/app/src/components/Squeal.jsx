@@ -8,6 +8,8 @@ const reactions = ["&#128525;", "&#128077;", "&#128545;", "&#128078;"]
 export default function Squeal(props) {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
+
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };

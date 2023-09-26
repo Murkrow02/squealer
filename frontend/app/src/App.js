@@ -6,10 +6,11 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import TabBar from './components/TabBar';
 import Feed from './pages/Feed';
+import NewSqueal from "./pages/NewSqueal";
 function App() {
   return (
       <div>
-        <Feed/>
+        <NewSqueal/>
       </div>
   );
 }
