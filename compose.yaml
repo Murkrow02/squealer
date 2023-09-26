@@ -18,6 +18,6 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example_password
     volumes:
-      - './mongodb-data:/data/db'
+      - './mongo-data:/data/db'
 volumes:
   mongodb-data:
