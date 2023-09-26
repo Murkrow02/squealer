@@ -3,6 +3,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 const mongoose = require('mongoose');
 const passport = require('passport');
+const errorHandlingMiddleware = require("./middlewares/errorHandlingMiddleware");
 
 
 // Connect to MongoDB
@@ -30,11 +31,6 @@ const {setUpPassport} = require("./config/passport");
 const path = require("path");
 app.use('/static', staticRoutes);
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running`);
-});
-
 //Configure passport to use bearer tokens
 setUpPassport(passport);
 
@@ -51,6 +47,14 @@ let smmBuildPath = path.join(__dirname, '../frontend/smm/build');
 app.use(express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
+});
+
+// Use the error handling middleware as the last middleware
+app.use(errorHandlingMiddleware);
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running`);
 });
 
 // Export the 'app' instance

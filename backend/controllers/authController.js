@@ -5,9 +5,9 @@ const crypto = require('crypto');
 
 // Redirects
 let redirects = {
-    "user": "/app",
-    "smm": "/smm",
-    "admin": "/admin"
+    0: "/app",
+    1: "/smm",
+    2: "/admin"
 }
 
 // Login
@@ -31,16 +31,19 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Password non corretta' });
     }
 
+    //Check if blocked
+    if(user.type === -1){
+        return res.status(500).json({ error: 'Account bloccato'});
+    }
+
     // Create a token for the user
     createTokenForUser(user).then((token) => {
         return res.json({ token: token, redirectURL: redirects[user.type] });
-    }).catch((error) => {
-        return res.status(500).json({ error: 'Errore durante la creazione del token', log: error });
     });
 };
 
 // Register
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
 
     // Get the username and password from the request body
     const { username, password } = req.body;
@@ -53,14 +56,14 @@ exports.register = async (req, res) => {
     const newUser = new User({
         username,
         password: hashedPassword,
-        type: 'user',
+        type: 0,
     });
 
     try {
         await newUser.save();
         res.json({ message: 'Registrazione avvenuta con successo' });
     } catch (error) {
-        res.status(500).json({ error: 'Errore durante la registrazione', log: error });
+        next(error);
     }
 };
 
