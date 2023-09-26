@@ -11,13 +11,21 @@ router.get('/users',
     passport.authenticate('bearer', { session: false }),
     userController.getAllUsers);
 
-// Squeal
+// Squeals
 router.get('/squeals',
     passport.authenticate('bearer', { session: false}),
     squealController.getAllSqueals);
 router.post('/squeals',
     passport.authenticate('bearer', { session: false}),
     squealController.createSqueal);
+
+// Channels
+router.get('/channels',
+    passport.authenticate('bearer', { session: false}),
+    userController.getAllChannels);
+router.patch('/channels/:channelId/subscribe',
+    passport.authenticate('bearer', { session: false}),
+
 
 // Auth
 router.post('/login', authController.login);

@@ -4,6 +4,7 @@ const port = process.env.PORT || 8000;
 const mongoose = require('mongoose');
 const passport = require('passport');
 const errorHandlingMiddleware = require("./middlewares/errorHandlingMiddleware");
+const seeder = require('./database/seeder');
 
 
 // Connect to MongoDB
@@ -51,6 +52,9 @@ app.get('/smm', (req, res) => {
 
 // Use the error handling middleware as the last middleware
 app.use(errorHandlingMiddleware);
+
+// Seed db
+seeder.seed();
 
 // Start the server
 app.listen(port, () => {
