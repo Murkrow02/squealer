@@ -20,11 +20,11 @@ router.post('/squeals',
     squealController.createSqueal);
 
 // Channels
-router.get('/channels',
-    passport.authenticate('bearer', { session: false}),
-    userController.getAllChannels);
-router.patch('/channels/:channelId/subscribe',
-    passport.authenticate('bearer', { session: false}),
+// router.get('/channels',
+//     passport.authenticate('bearer', { session: false}),
+//     userController.getAllChannels);
+// router.patch('/channels/:channelId/subscribe',
+//     passport.authenticate('bearer', { session: false})
 
 
 // Auth

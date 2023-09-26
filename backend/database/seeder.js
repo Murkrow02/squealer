@@ -1,8 +1,12 @@
-import UserSeeder from './seeders/UserSeeder';
+const UserSeeder = require('./seeders/UserSeeder');
+const SquealSeeder = require('./seeders/SquealSeeder');
+const ChannelSeeder = require('./seeders/ChannelSeeder');
 
 function seed()
 {
     UserSeeder.seed();
+    ChannelSeeder.seed();
+    SquealSeeder.seed();
 }
 
-export default { seed };
+module.exports = { seed };
