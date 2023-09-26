@@ -1,13 +1,12 @@
 const User = require('../../models/userModel');
 
-function seed(){
-    User.insertMany(usersData)
-        .then(() => {
-            console.log('User data seeded successfully');
-        })
-        .catch((err) => {
-            console.error('Error seeding user data:', err);
-        });
+async function seed(){
+
+    // Delete all users
+    await User.deleteMany({});
+
+    // Insert users
+    return User.insertMany(usersData);
 }
 
 const usersData = [

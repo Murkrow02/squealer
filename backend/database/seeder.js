@@ -4,9 +4,18 @@ const ChannelSeeder = require('./seeders/ChannelSeeder');
 
 function seed()
 {
-    UserSeeder.seed();
-    ChannelSeeder.seed();
-    SquealSeeder.seed();
+    //Users
+    UserSeeder.seed().then(() => {
+        console.log('User data seeded successfully');
+
+        //Channel
+        ChannelSeeder.seed().then(() => {
+            console.log('Channel data seeded successfully');
+
+            //Squeal
+            SquealSeeder.seed();
+        });
+    });
 }
 
 module.exports = { seed };

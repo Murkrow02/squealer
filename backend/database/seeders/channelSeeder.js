@@ -1,18 +1,22 @@
 const Channel = require('../../models/channelModel');
+const mongoose = require("mongoose");
 
-function seed(){
-    Channel.insertMany(channelData)
-        .then(() => {
-            console.log('Channel data seeded successfully');
-        })
-        .catch((err) => {
-            console.error('Error seeding channel data:', err);
-        });
+async function seed(){
+
+    // Delete all channels
+    await Channel.deleteMany({});
+
+    // Insert channels
+    return Channel.insertMany(channelData)
 }
 
 const channelData = [
-    { name: 'Channel 1', description: 'Channel 1 description' },
-    { name: 'Channel 2', description: 'Channel 2 description' },
+    {
+        name: "Channel 1",
+        type: 1,
+        admins: [],
+        description: "Bel canale proprio",
+    },
 ];
 
 module.exports = { seed };

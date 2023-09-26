@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     password: String, //Hashed
     type: Number,
     subscribedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
+    smmId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
 });
 
 const UserModel = mongoose.model('User', userSchema);

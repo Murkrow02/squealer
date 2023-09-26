@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+// 0: text
+// 1: image
+// 2: map
+
 const squealSchema = new mongoose.Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     content: String,
@@ -10,9 +14,8 @@ const squealSchema = new mongoose.Schema({
     popularity: Number,
     createdAt: { type: Date, default: Date.now},
     category: Number,
-    smmId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
 });
 
-const AccessTokenModel = mongoose.model('Squeal', squealSchema);
+const SquealModel = mongoose.model('Squeal', squealSchema);
 
-module.exports = AccessTokenModel;
+module.exports = SquealModel;
