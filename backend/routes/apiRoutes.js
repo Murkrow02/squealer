@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const squealController = require("../controllers/squealController");
-
+const channelController = require("../controllers/channelController");
 const passport = require('passport');
 
 // Users
@@ -20,9 +20,9 @@ router.post('/squeals',
     squealController.createSqueal);
 
 // Channels
-// router.get('/channels',
-//     passport.authenticate('bearer', { session: false}),
-//     userController.getAllChannels);
+router.get('/channels',
+    passport.authenticate('bearer', { session: false}),
+    channelController.getAllChannels);
 // router.patch('/channels/:channelId/subscribe',
 //     passport.authenticate('bearer', { session: false})
 

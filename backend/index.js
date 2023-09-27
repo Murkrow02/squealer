@@ -35,7 +35,6 @@ app.use('/static', staticRoutes);
 //Configure passport to use bearer tokens
 setUpPassport(passport);
 
-
 // Serve the React client app
 let appBuildPath = path.join(__dirname, '../frontend/app/build');
 app.use(express.static(appBuildPath));

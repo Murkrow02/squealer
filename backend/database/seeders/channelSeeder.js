@@ -17,6 +17,12 @@ const channelData = [
         admins: [],
         description: "Bel canale proprio",
     },
+    {
+        name: "Channel 2",
+        type: 2,
+        admins: [],
+        description: "Ancora piu bello",
+    },
 ];
 
 module.exports = { seed };

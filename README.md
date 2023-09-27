@@ -41,6 +41,10 @@ Canali pubblici, privati e keyword vengono trattati tutti allo stesso modo e sal
 In questo modo é sempre possibile in maniera veloce e semplice, trovare tutti i post di un canale (o keyword).
 Nel caso in cui una keyword appaia per la prima volta, viene creata una nuova entry nella tabella canali.
 
+### Gestione degli errori
+La gestione degli errori nell'API é stata centralizzata in un unico middleware. In questo modo,
+evitiamo di dover gestire gli errori in ogni singola route. In caso di errore, viene restituito
+un oggetto JSON con i dettagli dell'errore (che andrebbe rimosso in un ipotetco scenario di produzione).
 
 ### Cose
 
