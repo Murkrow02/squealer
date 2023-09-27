@@ -91,7 +91,6 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Replace 'YOUR_API_ENDPOINT' with the actual URL where you handle the login request
             axios.post('/api/login', { username, password })
                 .then(response => {
 

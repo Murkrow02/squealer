@@ -12,6 +12,13 @@ router.get('/axios', (req, res) => {
     res.sendFile(path.join(__dirname,'../../frontend/shared/js/axios.min.js'));
 });
 
+// View models
+router.get('/viewModels/base', (req, res) => {
+   res.sendFile(path.join(__dirname,'../../frontend/shared/viewmodels/baseViewModel.js'));
+});
+router.get('/viewModels/squeal', (req, res) => {
+    res.sendFile(path.join(__dirname,'../../frontend/shared/viewmodels/squealViewModel.js'));
+});
 
 
 module.exports = router;

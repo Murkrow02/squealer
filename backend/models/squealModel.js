@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 // 2: map
 
 const squealSchema = new mongoose.Schema({
-    userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
+    createdBy: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     content: String,
     contentType: Number,
     impressions: Number,

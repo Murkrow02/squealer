@@ -12,7 +12,7 @@ function seed() {
 
                 // Set the user id for each squeal
                 squealData.forEach((squeal) => {
-                    squeal.userId = users[0]._id;
+                    squeal.createdBy = users[0]._id;
                 });
 
                 // Insert the squeal data

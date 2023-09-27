@@ -7,7 +7,7 @@ exports.getAllSqueals = async (req, res, next) => {
     try {
 
         // Get all squeals from the database
-        const squeals = await Squeal.find();
+        const squeals = await Squeal.find().populate('createdBy');
 
         // Send the squeals as the response
         res.status(200).json(squeals);
@@ -27,39 +27,25 @@ exports.createSqueal = async (req, res, next) => {
         // Get actual squeal content
         const squealData = req.body.squeal;
 
+        // Check if provided channels are all valid
+        const validChannels = await Channel.find({ _id: { $in: channelsArray } });
+        if (validChannels.length !== channelsArray.length) {
+            return res.status(400).json({ error: 'Almeno uno dei canali forniti non é stato trovato' });
+        }
+
         // Create a new squeal
         const squeal = new Squeal(squealData);
-        squeal.userId = req.user._id;
-
-        // Add the squeal to the channels
-        channelsArray.forEach((channelId) => {
-
-            // Search for requested channel
-            Channel.findOne({id: channelId}, (err, channel) => {
-
-                // If the channel exists
-                if (channel) {
-
-                        // Add the squeal to the channel
-                        const squealChannel = new SquealChannel({
-                            squealId: squeal._id,
-                            channelId: channel._id,
-                        });
-                        squealChannel.save();
-                }
-
-                // If the channel doesn't exist
-                else {
-                    // Send an error
-                    res.status(404).json({
-                        message: "Channel not found",
-                    });
-                }
-            });
-        });
-
-        // Save the squeal
+        squeal.createdBy = req.user._id;
         await squeal.save();
+
+        // Create a new squealChannel for each channel
+        for (let i = 0; i < channelsArray.length; i++) {
+            const squealChannel = new SquealChannel({
+                squealId: squeal._id,
+                channelId: channelsArray[i]
+            });
+            await squealChannel.save();
+        }
 
         // Send the squeal as response
         res.status(201).json(squeal);
