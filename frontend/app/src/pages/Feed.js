@@ -6,6 +6,15 @@ import Stack from '@mui/material/Stack';
 import Squeal from '../components/Squeal';
 
 function Feed() {
+
+    const [squeals, setSqueals] = useState([]);
+    useEffect(() => {
+        window.getAllSqueals().then((response) =>{
+            console.log(response.data)
+            setSqueals(response.data)
+        });
+    },[]);
+
     return(
         <body>
             <header style={{position:'fixed', top:'0', zIndex:'1', backgroundColor:'white'}}>
@@ -20,13 +29,13 @@ function Feed() {
                     </Stack>
                 </nav>
             </header>
+
             <div style={{marginTop: '20vh',}}>
-                <Squeal username="testuser" reactions={[10, 10, 10, 10]} content="<span style='line-height:1.4rem;'>oddio ci sta <b class='sch'>@pila</b> quella troia bastarda negra la odio da morire porca troia<br>sul canale  <b class='sch'>§UANM</b><span/>" karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
+                {squeals.map((squeal) => (
+                    <Squeal username={squeal.createdBy.username} reactions={[10, 10, 10, 10]} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
+                ))}
             </div>
-
         </body>
-
-
     );
 }
 
