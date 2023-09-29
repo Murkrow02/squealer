@@ -1,0 +1,34 @@
+
+#editor-input-mask {
+    width: calc(100% - 22px);
+    display: flex;
+    flex-flow: column;
+    color: black;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+    padding: 10px 10px;
+    pointer-events: none;
+    background-color: var(--light-bg);
+    margin-top: 20px;
+    border: solid 1px var(--text-light);
+    border-radius: 5px;
+    word-wrap: anywhere;
+    transition-duration: 0.3s;
+    min-height: 25px;
+    font-size: 1.2rem;
+    line-height: 1.7rem;
+}
+
+#editor-input-mask .highlight {
+    color: var(--primary);
+}
+
+.symbol {
+    background-color: var(--light-bg);
+    padding: 6px 8px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius:5px
+}

@@ -8,7 +8,7 @@ function NewSqueal() {
                     <h1 style={{margin: '0', textAlign:'center'}}>New Squeal</h1>
                 </nav>
             </header>
-            <Editor day_max="100" week_max="700" month_max="2000" />
+            <Editor day_max="300" week_max="700" month_max="2000" />
         </body>
     );
 }
