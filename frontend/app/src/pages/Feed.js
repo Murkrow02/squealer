@@ -30,7 +30,7 @@ function Feed() {
                 </nav>
             </header>
 
-            <div style={{marginTop: '20vh',}}>
+            <div style={{marginTop: '20vh'}}>
                 {squeals.map((squeal) => (
                     <Squeal username={squeal.createdBy.username} reactions={[10, 10, 10, 10]} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
                 ))}

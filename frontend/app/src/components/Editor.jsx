@@ -1,8 +1,20 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, styled, TextField} from "@mui/material";
+import {
+    Button,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    IconButton,
+    Radio,
+    RadioGroup,
+    styled,
+    TextField
+} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import * as PropTypes from "prop-types";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import "../css/NewSqueal.css";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -15,8 +27,10 @@ const VisuallyHiddenInput = styled('input')({
     whiteSpace: 'nowrap',
     width: 1,
 });
-
 VisuallyHiddenInput.propTypes = {type: PropTypes.string};
+
+
+const IMAGE_CHAR_SIZE = 125;
 export default function Editor(props) {
 
     //Chars left
@@ -30,45 +44,147 @@ export default function Editor(props) {
     //Squeal type
     const [squealType, setSquealType] = React.useState("text");
 
+    //Image loading
+    const [image, setImage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    function resetCharCount() {
+        setMaxDayChars(initialDayChars);
+        setMaxWeekChars(initialWeekChars);
+        setMaxMonthChars(initialMonthChars);
+    }
+    function decreaseCharCount(value) {
+
+        //check if max chars reached
+        if ((initialDayChars - value) < 0 || (initialWeekChars - value) < 0 || (initialMonthChars - value) < 0) {
+
+            //check if type is text
+            if (squealType === "text") {
+
+                //remove last character from text
+                document.getElementById("outlined-multiline-flexible").value = document.getElementById("outlined-multiline-flexible").value.slice(0, -1);
+                alert("You have reached the maximum number of characters for this squeal type.");
+            } else if (squealType === "image") {
+                alert("Image size is 125 characters so you cannot upload it at this time.");
+                setImage(null);
+            }
+
+
+            return;
+        }
+
+        setMaxDayChars(initialDayChars - value);
+        setMaxWeekChars(initialWeekChars - value);
+        setMaxMonthChars(initialMonthChars - value);
+    }
 
     function handleSquealTextChange(event) {
+        //check if squeal type is text
+        if (squealType !== "text") {
+            return;
+        }
+        //update char count
+        decreaseCharCount(event.target.value.length);
 
+        //regex for web links
+        const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
+        const mentionRegex = /[§@#]\w+/g;
+
+        //split text into array
+        const segments = event.target.value.split(" ");
+
+        //generate HTML
+        const html = segments.map((segment, index) => {
+
+
+
+
+
+            if (segment.match(urlRegex) || segment.match(mentionRegex)) {
+                //TODO FORMAT LINKS with \n
+                return `<span class="highlight">${segment}</span>`
+            } else if (segment.includes("\n")) {
+                //split segment into array
+                const lines = segment.split("\n");
+                console.log(lines)
+                //generate HTML
+                const bhtml = lines.map((line, index) => {
+                    //check if last line is empty
+                    if (index === lines.length - 1 && line !== "") {
+                        return `<span>${line}</span>`
+                    }
+                    return `<span>${line}</span><br>`
+                }).join(' ');
+                return bhtml;
+            }
+            else {
+                return `<span>${segment}</span>`
+            }
+        }).join(' ');
+
+        //update masked content
+        document.getElementById("masked-content").innerHTML = html;
+    }
+
+    function handleSquealTextFocus(event) {
         //check if squeal type is text
         if (squealType !== "text") {
             return;
         }
 
-        if ((initialDayChars - event.target.value.length) < 0 || (initialWeekChars - event.target.value.length) < 0 || (initialMonthChars - event.target.value.length) < 0) {
-            //remove last character from text
-            event.target.value = event.target.value.slice(0, -1)
-            alert("You have reached the maximum number of characters for this squeal type.");
-            return;
+        if (event.target.value.length === 0) {
+            document.getElementById("masked-content").innerText = "";
         }
-
-        setMaxDayChars(initialDayChars - event.target.value.length)
-        setMaxWeekChars(initialWeekChars - event.target.value.length)
-        setMaxMonthChars(initialMonthChars - event.target.value.length)
 
     }
 
     //handle radio button change
     function handleSquealTypeChange(event) {
+        //set squeal type
         setSquealType(event.target.value);
-
-        if (event.target.value !== "text") {
-
-            //reset char count
-            setMaxDayChars(initialDayChars);
-            setMaxWeekChars(initialWeekChars);
-            setMaxMonthChars(initialMonthChars);
-
-            //dim char count
-            document.getElementById("chars-count-container").style.opacity = "0.5";
-        } else {
-            //bright char count
-            document.getElementById("chars-count-container").style.opacity = "1";
-        }
+        //reset char count
+        resetCharCount();
+        //reset image
+        setImage(null);
     }
+
+    async function handleImageUpload(event) {
+        setIsLoading(true);
+
+        let file = event.target.files[0];
+
+        if (file) {
+            //display image
+            setImage(URL.createObjectURL(file));
+
+            //update char count
+            decreaseCharCount(IMAGE_CHAR_SIZE);
+        }
+
+        setIsLoading(false);
+    }
+
+    function handleImageDelete() {
+        setImage(null);
+        resetCharCount();
+    }
+
+    function insertSymbol(symbol) {
+
+        if (document.getElementById("outlined-multiline-flexible").value === "") {
+            return;
+        }
+
+        //add symbol to text
+        document.getElementById("outlined-multiline-flexible").value += (" " + symbol);
+        //trigger change event
+        handleSquealTextChange({target: {value: document.getElementById("outlined-multiline-flexible").value}});
+        //focus on text
+        document.getElementById("outlined-multiline-flexible").focus();
+
+    }
+
+
 
     return(
         <div style={{padding: '0 20px'}}>
@@ -104,22 +220,43 @@ export default function Editor(props) {
             {
                     //check if squeal type is text
                     squealType === "text" ?
-                        <TextField
-                            style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}}
-                            id="outlined-multiline-flexible"
-                            fullWidth
-                            label="Squeal"
-                            multiline
-                            onChange={handleSquealTextChange}
-                        />
+                        <div style={{width:'100%', position:'relative'}}>
+                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', opacity:'0', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={handleSquealTextChange}/>
+                            <div id="editor-input-mask">
+                                <span id="masked-content">Insert...</span>
+                            </div>
+                            <div style={{display:"flex", justifyContent:'center', gap:'15px'}}>
+                                <div onClick={() => insertSymbol('@')} className={"symbol"}>@</div>
+                                <div onClick={() => insertSymbol('#')} className={"symbol"}>#</div>
+                                <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
+                            </div>
+                        </div>
+
+
+
                     : squealType === "image" ?
-                            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                                Upload image
-                                <VisuallyHiddenInput type="file"/>
-                            </Button>
+                            <div style={{position:"relative"}}>
+                                <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*" onChange={handleImageUpload} />
+                                <div style={{width:'100%', display:'flex', justifyContent:'center', color:'var(--text-light)', alignItems:'center', cursor:'pointer', height:'55px', pointerEvents:'none', backgroundColor:'var(--light-bg)', marginTop:'20px', border:"solid 1px var(--text-light)", borderRadius:'5px', position:'absolute', top:'0'}}>
+                                    { image ? "Click to change image" : "Click to upload an image" }
+                                </div>
+
+                                {isLoading ? (
+                                    <div>Loading...</div> // You can replace this with a spinner component
+                                ) : image ? (
+                                    <div style={{width:'100%', position:'relative', marginTop:'20px', border:'solid 2px var(--text-light)', borderRadius:'10px', overflow:'hidden'}}>
+                                        <img style={{width:'100%'}} src={image} alt="Uploaded" />
+                                        <IconButton onClick={handleImageDelete} style={{position:'absolute', top:'10px', left:'10px', color:'white', backgroundColor:'#000000aa'}} aria-label="delete">
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </div>
+
+                                ) : null}
+
+                            </div>
                     : squealType === "location" ?
                                 <p>Location</p>
-                                : <div></div>
+                                : null
             }
 
         </div>
