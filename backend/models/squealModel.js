@@ -1,8 +1,15 @@
 const mongoose = require('mongoose');
 
+// contentType:
 // 0: text
 // 1: image
 // 2: map
+
+// category:
+// 0: private (@)
+// 1: public and user administrated (§)
+// 2: PUBLIC BUT REDAZIONE (§)
+// 3: hashtagged (#)
 
 const squealSchema = new mongoose.Schema({
     createdBy: {type: mongoose.Schema.Types.ObjectId, ref: "User"},

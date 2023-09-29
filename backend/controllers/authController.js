@@ -46,7 +46,12 @@ exports.login = async (req, res) => {
 exports.register = async (req, res, next) => {
 
     // Get the username and password from the request body
-    const { username, password } = req.body;
+    const { username, password, email } = req.body;
+
+    // Check for already existing user
+    if(await User.findOne({ username })){
+        return res.status(401).json({ message: 'Username già registrato' });
+    }
 
     // Hash the password
     const salt = bcrypt.genSaltSync(10);
@@ -54,10 +59,24 @@ exports.register = async (req, res, next) => {
 
     // Create a new user with the hashed password
     const newUser = new User({
-        username,
+        email: email,
+        username: username,
         password: hashedPassword,
         type: 0,
     });
+
+    // Create quota object for the user
+    newUser.quota = {
+        dailyQuotaUsed : 0,
+        dailyQuotaMax: 500,
+        dailyQuotaReset: Date.now() + 1000 * 60 * 60 * 24,
+        weeklyQuotaUsed: 0,
+        weeklyQuotaMax: 5000,
+        weeklyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        monthlyQuotaUsed: 0,
+        monthlyQuotaMax: 50000,
+        monthlyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 30,
+    }
 
     try {
         await newUser.save();
