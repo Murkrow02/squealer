@@ -81,10 +81,10 @@ async function checkIfExceedsQuota(userId, squeal) {
     // Get current date
     const currentDate = new Date();
 
-    // Get new squeal quota (based on content type, text characters count or 1000 if image or map)
+    // Get new squeal quota (based on content type, text characters count or 125 if image or map)
     const squealQuota = squeal.contentType === 0
         ? squeal.content.length
-        : 1000;
+        : 125;
 
     // Re-get user from database this time with quota fields
     let user = await User.findById(userId).select('quota');

@@ -58,3 +58,23 @@ E guarda come porcodio si fanno gli utenti su MongoDB
 pwd: 'password',
 roles: [{ role: 'readWrite', db: 'squealer' }]
  })
+
+
+### TODO
+- [x] Iscrizione e rimozione da canali
+- [ ] Feed utente
+  - Mescola squeal inviati personalmente e squeal a canali iscritto
+  - Mostra i canali in cui gli squeal sono stati pubblicati ma NON mostrare utenti privati
+- [ ] Ricerca di squeal tramite canale§ OPPURE keyword# OPPURE menzione@ (nel corpo del testo) 
+- [ ] Reazioni agli squeal
+- [ ] Creazione nuovo squeal
+  - [ ] Upload immagine
+  - [ ] Upload posizione
+  - [ ] Risposta ad altro squeal con squeal (tipo retweet)
+    - Si condividono tutti i canali non privati
+- [ ] Chiamata per ritornare le quote rimanenti
+- [ ] Ripetizione ogni tot secondi di uno squeal
+- [ ] Chiamata per scegliere SMM
+- [ ] Post da SMM per conto di un utente
+- [ ] Chiamata per poter comprare quota in piu per un anno
+- [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
