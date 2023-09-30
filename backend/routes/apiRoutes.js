@@ -23,8 +23,12 @@ router.post('/squeals',
 router.get('/channels',
     passport.authenticate('bearer', { session: false}),
     channelController.getAllChannels);
-// router.patch('/channels/:channelId/subscribe',
-//     passport.authenticate('bearer', { session: false})
+router.patch('/channels/:channelId/subscribe',
+    passport.authenticate('bearer', { session: false}),
+    channelController.subscribeToChannel);
+router.patch('/channels/:channelId/unsubscribe',
+    passport.authenticate('bearer', { session: false}),
+    channelController.unsubscribeFromChannel);
 
 
 // Auth
