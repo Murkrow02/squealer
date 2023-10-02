@@ -64,29 +64,49 @@ exports.unsubscribeFromChannel = async (req, res, next) => {
     }
 }
 
-exports.getSubscribedChannels = async (req, res, next) => {
-
-    try {
-
-        // Get logged user
-        let user = await User.findById(req.user.id)
-            .select("+subscribedChannels")
-            .populate("subscribedChannels");
-
-        // Return the subscribed channels
-        res.status(200).json(user.subscribedChannels);
-    }
-    catch (error) {
-        next(error);
-    }
-}
-
+// DEBUG ONLY
 exports.getAllChannels = async (req, res, next) => {
 
     try {
 
         // Get all channels from the database
         const channels = await Channel.find();
+
+        // Send the channels as the response
+        res.status(200).json(channels);
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.getChannelsByCategory = async (req, res, next) => {
+
+    // Get the category from the request
+    const category = req.params.channelCategory;
+
+    // Get search parameters from the request
+    const search = req.query.search;
+
+    // Abort if private category is requested
+    if (category === "private") {
+        return res.status(403).json({error: "Non puoi cercare canali privati"});
+    }
+
+    try {
+
+        // If search param is present, search for channels by name
+        if (search) {
+
+            // Search for channels by name
+            const channels = await Channel.find({name: {$regex: search, $options: "i"}, category: category});
+
+            // Send the channels as the response
+            return res.status(200).json(channels);
+        }
+
+        // Get all channels from the database with the specified category
+        const channels = await Channel.find({category: category});
 
         // Send the channels as the response
         res.status(200).json(channels);

@@ -43,6 +43,13 @@ un oggetto JSON con i dettagli dell'errore (che andrebbe rimosso in un ipotetco 
 
 ### Squeal
 
+#### Reazioni
+Le possibili reazioni ad uno squeal sono variabili e possono essere modificate in qualsiasi momento 
+in quanto salvate in una tabella a parte sul db.
+Ogni squeal include un array di reazioni, che contiene l'id della reazione e un array di utenti che hanno reagito con quella reazione.
+Per evitare di inviare per ogni squeal la lista di utenti che hanno reagito, quando viene creato il feed viene ritorna solo il numero di reazioni per ogni tipo
+e un booleano per informare il client se l'utente loggato ha reagito o meno allo squeal e con quale reazione.
+
 #### Creazione
 
 #### Ricerca
@@ -87,15 +94,17 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [x] Ricerca di squeal tramite canale§ OPPURE keyword# OPPURE menzione@ (nel corpo del testo) 
   - Usa questo sul client https://mui.com/material-ui/react-autocomplete/
   - Vedi freeform per esempio
-- [ ] Reazioni agli squeal
-- [ ] Creazione nuovo squeal
+- [x] Reazioni agli squeal
+- [x] Creazione nuovo squeal
   - [ ] Upload immagine
   - [ ] Upload posizione
   - [ ] Risposta ad altro squeal con squeal (tipo retweet)
     - Si condividono tutti i canali non privati
-- [ ] Chiamata per ritornare le quote rimanenti
+- [x] Chiamata per ritornare le quote rimanenti
 - [ ] Ripetizione ogni tot secondi di uno squeal
-- [ ] Chiamata per scegliere SMM
+- [x] Chiamata per scegliere SMM
+- [ ] Chiamata per ricerca utenti
+- [x] Chiamata per ricerca canali
 - [ ] Post da SMM per conto di un utente
 - [ ] Chiamata per poter comprare quota in piu per un anno
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo

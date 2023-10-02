@@ -49,6 +49,13 @@ app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
 
+// Serve the moderator app
+let moderatorBuildPath = path.join(__dirname, '../frontend/moderator');
+app.use(express.static(moderatorBuildPath));
+app.get('/moderator', (req, res) => {
+    res.sendFile(path.join(moderatorBuildPath, 'index.html'));
+});
+
 // Use the error handling middleware as the last middleware
 app.use(errorHandlingMiddleware);
 

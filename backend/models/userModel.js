@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 // -1: blocked
 // 0: user
 // 1: smm
-// 2: admin
+// 2: moderator
 
 const userSchema = new mongoose.Schema({
     username: String,

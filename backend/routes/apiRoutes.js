@@ -10,6 +10,15 @@ const passport = require('passport');
 router.get('/users',
     passport.authenticate('bearer', { session: false }),
     userController.getAllUsers);
+router.get('/users/profile',
+    passport.authenticate('bearer', { session: false }),
+    userController.getProfile);
+router.get('/users/searchByUsername/:username',
+    passport.authenticate('bearer', { session: false }),
+    userController.searchByUsername);
+router.patch('/users/setSmm/:smmId',
+    passport.authenticate('bearer', { session: false }),
+    userController.setSmm);
 
 // Squeals
 router.get('/squeals',
@@ -37,16 +46,16 @@ router.get('/squeals/allReactions',
 // Channels
 router.get('/channels',
     passport.authenticate('bearer', { session: false}),
-    channelController.getAllChannels);
-router.get('/channels/subscribed',
-    passport.authenticate('bearer', { session: false}),
-    channelController.getSubscribedChannels);
+    channelController.getAllChannels); //DEBUG ONLY
 router.patch('/channels/:channelId/subscribe',
     passport.authenticate('bearer', { session: false}),
     channelController.subscribeToChannel);
 router.patch('/channels/:channelId/unsubscribe',
     passport.authenticate('bearer', { session: false}),
     channelController.unsubscribeFromChannel);
+router.get('/channels/:channelCategory',
+    passport.authenticate('bearer', { session: false}),
+    channelController.getChannelsByCategory);
 
 
 // Auth

@@ -64,6 +64,7 @@ exports.createSqueal = async (req, res, next) => {
             squeal.reactions.push({
                 reactionId: reaction._id,
                 users: [],
+                count: 0
             });
         });
 
@@ -119,8 +120,11 @@ exports.reactToSqueal = async (req, res, next) => {
         // Get squeal from database
         let squeal = await Squeal.findById(squealId)
             .populate('reactions')
+            .select('+reactions.users')
             .select('+positiveReactions')
             .select('+negativeReactions');
+
+        console.log(squeal);
 
 
         // Check if squeal exists
@@ -132,30 +136,27 @@ exports.reactToSqueal = async (req, res, next) => {
         if (!squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId))
             return res.status(404).json({error: 'Reaction non trovata'});
 
-        console.log(squeal.reactions);
-
         // Reaction exists, check if user has already reacted to squeal
         if (squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId).users.includes(req.user.id)) {
 
             // User has already reacted to squeal
             return res.status(400).json({error: 'Hai già reagito a questo Squeal con questa Reaction'});
-
         }
 
         // User has not reacted to squeal, add user to reaction
-        squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId).users.push(req.user.id);
+        let targetReaction = squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId);
+        targetReaction.count++;
+        targetReaction.users.push(req.user.id);
 
         // Increment positive or negative reactions count
         if (reaction.positive) squeal.positiveReactions++;
         else squeal.negativeReactions++;
 
-        console.log(squeal.reactions);
-
         // Save squeal
-        squeal.save();
+        await squeal.save();
 
-        // Send the squeal as response
-        res.status(200).json(Squeal.findById(squealId));
+        // Return squeal as response
+        res.status(200).json(await Squeal.findById(squealId));
 
     } catch (error) {
         next(error);
@@ -165,6 +166,61 @@ exports.reactToSqueal = async (req, res, next) => {
 // Unreact to squeal
 exports.unreactToSqueal = async (req, res, next) => {
 
+    // Get squeal id
+    const squealId = req.params.squealId;
+
+    // Get reaction id
+    const reactionId = req.params.reactionId;
+
+    // Get reaction from database
+    let reaction = await Reaction.findById(reactionId);
+
+    try {
+
+        // Get squeal from database
+        let squeal = await Squeal.findById(squealId)
+            .populate('reactions')
+            .select('+reactions.users')
+            .select('+positiveReactions')
+            .select('+negativeReactions');
+
+        // Check if squeal exists
+        if (!squeal) {
+            return res.status(404).json({error: 'Squeal non trovato'});
+        }
+
+        // Check if reaction exists
+        if (!squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId)) {
+            return res.status(404).json({error: 'Reaction non trovata'});
+        }
+
+        // Reaction exists, check if user has already reacted to squeal
+        if (!squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId).users.includes(req.user.id)) {
+
+            // User has not reacted to squeal
+            return res.status(400).json({error: 'Non hai ancora reagito a questo Squeal con questa Reaction'});
+        }
+
+        // User has reacted to squeal, remove user from reaction
+        let targetReaction = squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId);
+        targetReaction.count--;
+
+        // Remove user from reaction
+        targetReaction.users = targetReaction.users.filter(userId => userId.toHexString() !== req.user.id);
+
+        // Decrement positive or negative reactions count
+        if (reaction.positive) squeal.positiveReactions--;
+        else squeal.negativeReactions--;
+
+        // Save squeal
+        await squeal.save();
+
+        // Return squeal as response
+        return res.status(200).json(await Squeal.findById(squealId));
+
+    }catch (error) {
+        next(error);
+    }
 }
 
 // Add impression to squeal
@@ -176,7 +232,8 @@ exports.addImpression = async (req, res, next) => {
     try {
 
         // Get squeal from database
-        let squeal = await Squeal.findById(squealId);
+        let squeal = await Squeal.findById(squealId)
+            .select('+impressions');
 
         // Check if squeal exists
         if (!squeal) {
@@ -292,6 +349,9 @@ async function createFeedForUser(userId, channelIdFilter = null, searchInMention
         .sort({createdAt: -1})
         .populate('createdBy')
         .populate('postedInChannels')
+        .populate('reactions')
+        .select('+reactions.users')
+        .lean()
         .limit(50);
 
     // Search on postedInChannels field of all squeals and remove
@@ -300,6 +360,20 @@ async function createFeedForUser(userId, channelIdFilter = null, searchInMention
     squeals.forEach(squeal => {
         squeal.postedInChannels = squeal.postedInChannels
             .filter(channel => channel.category !== "private" || channel._id == user.privateChannelId.toHexString());
+
+        // Check if logged user reacted to squeal
+        squeal.reactions.forEach(reaction => {
+
+            // Check if user reacted to squeal
+            reaction.users.forEach(userId => {
+                if (userId.toHexString() === user._id.toHexString()) {
+                    reaction.userReacted = true;
+                }
+            });
+
+            // Remove users array from reaction
+            delete reaction.users;
+        });
     });
 
     return squeals;
