@@ -1,13 +1,14 @@
 const User = require('../models/userModel');
 const AccessToken = require('../models/accessTokenModel');
+const Channel = require('../models/channelModel');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 // Redirects
 let redirects = {
-    0: "/app",
-    1: "/smm",
-    2: "/admin"
+    "user": "/app",
+    "smm": "/smm",
+    "admin": "/admin"
 }
 
 // Login
@@ -32,7 +33,7 @@ exports.login = async (req, res) => {
     }
 
     //Check if blocked
-    if(user.type === -1){
+    if(user.type === 'blocked'){
         return res.status(500).json({ error: 'Account bloccato'});
     }
 
@@ -62,25 +63,31 @@ exports.register = async (req, res, next) => {
         email: email,
         username: username,
         password: hashedPassword,
-        type: 0,
+        subscribedChannels: [],
+        type: 'user',
     });
 
     // Create quota object for the user
-    newUser.quota = {
-        dailyQuotaUsed : 0,
-        dailyQuotaMax: 500,
-        dailyQuotaReset: Date.now() + 1000 * 60 * 60 * 24,
-        weeklyQuotaUsed: 0,
-        weeklyQuotaMax: 5000,
-        weeklyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 7,
-        monthlyQuotaUsed: 0,
-        monthlyQuotaMax: 50000,
-        monthlyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 30,
-    }
+    newUser.quota = generateDefaultQuotaObject();
 
     try {
+
+        //Save user
         await newUser.save();
+
+        // Create personal channel for the user for private messaging and subscribe to it
+        const personalChannel = new Channel({
+            category: "private",
+            name: newUser._id + " private",
+        });
+        await personalChannel.save();
+        newUser.privateChannelId = personalChannel._id;
+        newUser.subscribedChannels.push(personalChannel._id);
+        await newUser.save();
+
+        // Return success message
         res.json({ message: 'Registrazione avvenuta con successo' });
+
     } catch (error) {
         next(error);
     }
@@ -110,4 +117,18 @@ async function createTokenForUser(user) {
 
     // Return the generated token
     return token;
+}
+
+function generateDefaultQuotaObject() {
+    return {
+        dailyQuotaUsed: 0,
+        dailyQuotaMax: 500,
+        dailyQuotaReset: Date.now() + 1000 * 60 * 60 * 24,
+        weeklyQuotaUsed: 0,
+        weeklyQuotaMax: 5000,
+        weeklyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        monthlyQuotaUsed: 0,
+        monthlyQuotaMax: 50000,
+        monthlyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 30,
+    }
 }

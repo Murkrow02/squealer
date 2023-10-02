@@ -12,16 +12,28 @@ async function seed(){
 
 const channelData = [
     {
-        name: "Channel 1",
-        type: 1,
+        name: "",
+        category: "private",
         admins: [],
-        description: "Bel canale proprio",
+        description: "",
     },
     {
-        name: "Channel 2",
-        type: 2,
+        name: "§maiz",
+        category: "public",
         admins: [],
-        description: "Ancora piu bello",
+        description: "gessi",
+    },
+    {
+        name: "§MAIZ",
+        category: "editorial",
+        admins: [],
+        description: "pila",
+    },
+    {
+        name: "#maiz",
+        category: "hashtag",
+        admins: [],
+        description: "yo",
     },
 ];
 

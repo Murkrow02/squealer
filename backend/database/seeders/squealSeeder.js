@@ -1,43 +1,32 @@
 const Squeal = require('../../models/squealModel');
 const User = require('../../models/userModel');
 
-function seed() {
+async function seed() {
 
     // Delete all squeals
-    Squeal.deleteMany({}).then(() => {
+    await Squeal.deleteMany({});
 
     // Foreach squeal data, use the first available user id
-    User.find()
-        .then((users) => {
+    let users = await User.find();
 
-                // Set the user id for each squeal
-                squealData.forEach((squeal) => {
-                    squeal.createdBy = users[0]._id;
-                });
-
-                // Insert the squeal data
-                Squeal.insertMany(squealData)
-                    .then(() => {
-                        console.log('Squeal data seeded successfully');
-                    })
-                    .catch((err) => {
-                        console.error('Error seeding squeal data:', err);
-                    });
-            }
-        );
+    // Set the user id for each squeal
+    squealData.forEach((squeal) => {
+        squeal.createdBy = users[0]._id;
     });
+
+    // Insert the squeal data
+    await Squeal.insertMany(squealData);
 }
 
 const squealData = [
     {
         userId: "", // Set in seed()
         content: "asf",
-        contentType: 0,
+        contentType: "text",
         impressions: 0,
         positiveReactions: 0,
         negativeReactions: 0,
         popularity: 0,
-        category: 0,
     }
 ];
 
