@@ -1,14 +1,14 @@
 const Squeal = require('../models/squealModel');
-const SquealChannel = require('../models/squealChannelModel');
 const Channel = require('../models/channelModel');
 const User = require('../models/userModel');
+const Reaction = require('../models/reactionModel');
 
-// Get all squeals
-exports.getAllSqueals = async (req, res, next) => {
+// Feed for user
+exports.getFeed = async (req, res, next) => {
     try {
 
-        // Get all squeals from the database
-        const squeals = await Squeal.find().populate('createdBy');
+        // Create feed for user
+        const squeals = await createFeedForUser(req.user.id);
 
         // Send the squeals as the response
         res.status(200).json(squeals);
@@ -29,9 +29,9 @@ exports.createSqueal = async (req, res, next) => {
         const squealData = req.body.squeal;
 
         // Check if provided channels are all valid
-        const validChannels = await Channel.find({ _id: { $in: channelsArray } });
+        const validChannels = await Channel.find({_id: {$in: channelsArray}});
         if (validChannels.length !== channelsArray.length) {
-            return res.status(400).json({ error: 'Almeno uno dei canali forniti non é stato trovato' });
+            return res.status(400).json({error: 'Almeno uno dei canali forniti non é stato trovato'});
         }
 
         // Check if at least one channel is not private (in this case we should check quota)
@@ -50,27 +50,160 @@ exports.createSqueal = async (req, res, next) => {
         if (shouldCheckQuota) {
             let quotaExceeded = await checkIfExceedsQuota(req.user.id, squealData)
             if (quotaExceeded)
-                return res.status(400).json({ error: `Hai superato la quota ${quotaExceeded}` });
+                return res.status(400).json({error: `Hai superato la quota ${quotaExceeded}`});
         }
 
         // No quota was exceeded, create a new squeal
         const squeal = new Squeal(squealData);
         squeal.createdBy = req.user._id;
+        squeal.postedInChannels = channelsArray;
+
+        //Create new empty reactions array with 0 reactions for each reaction
+        const reactions = await Reaction.find();
+        reactions.forEach(reaction => {
+            squeal.reactions.push({
+                reactionId: reaction._id,
+                users: [],
+            });
+        });
+
+        // Save squeal
         await squeal.save();
 
-        // Create a new squealChannel for each channel
-        for (let i = 0; i < channelsArray.length; i++) {
-            const squealChannel = new SquealChannel({
-                squealId: squeal._id,
-                channelId: channelsArray[i]
-            });
-            await squealChannel.save();
-        }
+
+        // If squeal has text content, we should parse additional channels in the text
+        //TODO
 
         // Send the squeal as response
         res.status(201).json(squeal);
+    } catch (error) {
+        next(error);
     }
-    catch (error) {
+}
+
+// Search squeals by channel id
+exports.searchByChannelId = async (req, res, next) => {
+
+    // We receive the channel id as a query parameter
+    const channelId = req.params.channelId;
+
+    try {
+
+        // Check if requested channel is private one, in that case we only search in mentioned channels and not in posted in channels (privacy)
+        const searchInMentionedChannels = (await Channel.findById(channelId)).category === "private";
+
+        // Create feed for user
+        let squeals = await createFeedForUser(req.user.id, channelId, searchInMentionedChannels);
+
+        // Send the squeals as the response
+        res.status(200).json(squeals);
+    } catch (error) {
+        next(error);
+    }
+}
+
+// React to squeal
+exports.reactToSqueal = async (req, res, next) => {
+
+    try {
+
+        // Get squeal id
+        const squealId = req.params.squealId;
+
+        // Get reaction id
+        const reactionId = req.params.reactionId;
+
+        // Get reaction from database
+        let reaction = await Reaction.findById(reactionId);
+
+        // Get squeal from database
+        let squeal = await Squeal.findById(squealId)
+            .populate('reactions')
+            .select('+positiveReactions')
+            .select('+negativeReactions');
+
+
+        // Check if squeal exists
+        if (!squeal)
+            return res.status(404).json({error: 'Squeal non trovato'});
+
+
+        // Check if reaction exists
+        if (!squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId))
+            return res.status(404).json({error: 'Reaction non trovata'});
+
+        console.log(squeal.reactions);
+
+        // Reaction exists, check if user has already reacted to squeal
+        if (squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId).users.includes(req.user.id)) {
+
+            // User has already reacted to squeal
+            return res.status(400).json({error: 'Hai già reagito a questo Squeal con questa Reaction'});
+
+        }
+
+        // User has not reacted to squeal, add user to reaction
+        squeal.reactions.find(reaction => reaction.reactionId.toHexString() === reactionId).users.push(req.user.id);
+
+        // Increment positive or negative reactions count
+        if (reaction.positive) squeal.positiveReactions++;
+        else squeal.negativeReactions++;
+
+        console.log(squeal.reactions);
+
+        // Save squeal
+        squeal.save();
+
+        // Send the squeal as response
+        res.status(200).json(Squeal.findById(squealId));
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Unreact to squeal
+exports.unreactToSqueal = async (req, res, next) => {
+
+}
+
+// Add impression to squeal
+exports.addImpression = async (req, res, next) => {
+
+    // Get squeal id
+    const squealId = req.params.squealId;
+
+    try {
+
+        // Get squeal from database
+        let squeal = await Squeal.findById(squealId);
+
+        // Check if squeal exists
+        if (!squeal) {
+            return res.status(404).json({error: 'Squeal non trovato'});
+        }
+
+        // Increment impression count
+        squeal.impressions++;
+
+        // Save squeal
+        squeal.save();
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Get all reactions
+exports.getAllReactions = async (req, res, next) => {
+
+    try {
+
+        // Get all reactions
+        let reactions = await Reaction.find();
+
+        // Send the reactions as the response
+        res.status(200).json(reactions);
+    } catch (error) {
         next(error);
     }
 }
@@ -82,16 +215,12 @@ async function checkIfExceedsQuota(userId, squeal) {
     const currentDate = new Date();
 
     // Get new squeal quota (based on content type, text characters count or 125 if image or map)
-    const squealQuota = squeal.contentType === 0
+    const squealQuota = squeal.contentType === "text"
         ? squeal.content.length
         : 125;
 
     // Re-get user from database this time with quota fields
     let user = await User.findById(userId).select('quota');
-
-    console.log(squealQuota);
-    console.log(user.quota.dailyQuotaUsed);
-    console.log(user.quota.dailyQuotaMax);
 
     // Check if daily quota has been exceeded
     if (user.quota.dailyQuotaUsed + squealQuota > user.quota.dailyQuotaMax) {
@@ -102,7 +231,7 @@ async function checkIfExceedsQuota(userId, squeal) {
             user.quota.dailyQuotaUsed = 0;
             user.quota.dailyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
             user.save();
-        }else{
+        } else {
             return 'giornaliera';
         }
     }
@@ -115,8 +244,7 @@ async function checkIfExceedsQuota(userId, squeal) {
             user.quota.weeklyQuotaUsed = 0;
             user.quota.weeklyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
             user.save();
-        }
-        else{
+        } else {
             return 'settimanale';
         }
     }
@@ -124,15 +252,14 @@ async function checkIfExceedsQuota(userId, squeal) {
     // Check if monthly quota has been exceeded
     if (user.quota.monthlyQuotaUsed + squealQuota > user.quota.monthlyQuotaMax) {
 
-            // Check if monthly quota reset date is in the past
-            if (user.quota.monthlyQuotaReset < currentDate) {
-                user.quota.monthlyQuotaUsed = 0;
-                user.quota.monthlyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-                user.save();
-            }
-            else{
-                return 'mensile';
-            }
+        // Check if monthly quota reset date is in the past
+        if (user.quota.monthlyQuotaReset < currentDate) {
+            user.quota.monthlyQuotaUsed = 0;
+            user.quota.monthlyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+            user.save();
+        } else {
+            return 'mensile';
+        }
     }
 
     // Update user quota
@@ -145,4 +272,35 @@ async function checkIfExceedsQuota(userId, squeal) {
 
     // No quota exceeded
     return null;
+}
+
+// Returns a list of squeals posted in the channels that the user is subscribed to (or in the channel provided as filter)
+async function createFeedForUser(userId, channelIdFilter = null, searchInMentionedChannels = false) {
+    // Get user from id
+    let user = await User.findById(userId).select("+subscribedChannels").select("+privateChannelId");
+
+    // Now decide if filter out by subscribed channels or by channel id (if provided)
+    let channelsToFilter = channelIdFilter ? [channelIdFilter] : user.subscribedChannels;
+
+    // Decide if search in mentioned channels or in posted in channels
+    let initialQuery = searchInMentionedChannels
+        ? Squeal.find({mentionedChannels: {$in: channelsToFilter}})  // Search on mentionedChannels field of all squeals
+        : Squeal.find({postedInChannels: {$in: channelsToFilter}});  // Search on postedInChannels field of all squeals
+
+    // Get all squeals from the database that are posted in the channels selected
+    let result = initialQuery
+        .sort({createdAt: -1})
+        .populate('createdBy')
+        .populate('postedInChannels')
+        .limit(50);
+
+    // Search on postedInChannels field of all squeals and remove
+    // every private channel (privacy) for exception to his own private channel
+    let squeals = await result.exec();
+    squeals.forEach(squeal => {
+        squeal.postedInChannels = squeal.postedInChannels
+            .filter(channel => channel.category !== "private" || channel._id == user.privateChannelId.toHexString());
+    });
+
+    return squeals;
 }

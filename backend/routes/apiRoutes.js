@@ -14,15 +14,33 @@ router.get('/users',
 // Squeals
 router.get('/squeals',
     passport.authenticate('bearer', { session: false}),
-    squealController.getAllSqueals);
+    squealController.getFeed);
 router.post('/squeals',
     passport.authenticate('bearer', { session: false}),
     squealController.createSqueal);
+router.get('/squeals/searchByChannelId/:channelId',
+    passport.authenticate('bearer', { session: false}),
+    squealController.searchByChannelId);
+router.patch('/squeals/:squealId/react/:reactionId',
+    passport.authenticate('bearer', { session: false}),
+    squealController.reactToSqueal);
+router.patch('/squeals/:squealId/unreact/:reactionId',
+    passport.authenticate('bearer', { session: false}),
+    squealController.unreactToSqueal);
+router.patch('/squeals/:squealId/impression',
+    passport.authenticate('bearer', { session: false}),
+    squealController.addImpression);
+router.get('/squeals/allReactions',
+    passport.authenticate('bearer', { session: false}),
+    squealController.getAllReactions);
 
 // Channels
 router.get('/channels',
     passport.authenticate('bearer', { session: false}),
     channelController.getAllChannels);
+router.get('/channels/subscribed',
+    passport.authenticate('bearer', { session: false}),
+    channelController.getSubscribedChannels);
 router.patch('/channels/:channelId/subscribe',
     passport.authenticate('bearer', { session: false}),
     channelController.subscribeToChannel);

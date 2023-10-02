@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
+// type:
+// -1: blocked
+// 0: user
+// 1: smm
+// 2: admin
+
 const userSchema = new mongoose.Schema({
     username: String,
     email: {type: String, select: false},
     password: {type: String, select: false},
-    type: Number,
+    type: {type: String, enum: ['blocked','user', 'smm', 'admin']},
     subscribedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
     smmId: {type: mongoose.Schema.Types.ObjectId, ref: "User", select: false},
     quota: {
@@ -20,6 +26,7 @@ const userSchema = new mongoose.Schema({
             monthlyQuotaReset: {type: Date, select: true},
         }, select: false
     },
+    privateChannelId: {type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}, // Used for private messaging
     __v: {type: Number, select: false},
 });
 

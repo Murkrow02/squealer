@@ -5,22 +5,23 @@ const mongoose = require('mongoose');
 // 1: image
 // 2: map
 
-// category:
-// 0: private (@)
-// 1: public and user administrated (§)
-// 2: PUBLIC BUT REDAZIONE (§)
-// 3: hashtagged (#)
-
 const squealSchema = new mongoose.Schema({
     createdBy: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     content: String,
-    contentType: Number,
-    impressions: Number,
-    positiveReactions: Number,
-    negativeReactions: Number,
-    popularity: Number,
+    contentType: {type: String, enum: ['text', 'image', 'map']},
+    impressions: {type: Number, default: 0},
+    positiveReactions: {type: Number, default: 0, select: false},
+    negativeReactions: {type: Number, default: 0, select: false},
+    popularity: {type: Number, default: 0},
+    reactions: {
+        type: [{
+            reactionId: {type: mongoose.Schema.Types.ObjectId, ref: "Reaction"},
+            users: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+        }],
+    },
     createdAt: { type: Date, default: Date.now},
-    category: Number,
+    postedInChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
+    mentionedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
 });
 
 const SquealModel = mongoose.model('Squeal', squealSchema);
