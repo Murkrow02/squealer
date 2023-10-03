@@ -17,7 +17,6 @@ export default function Squeal(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 

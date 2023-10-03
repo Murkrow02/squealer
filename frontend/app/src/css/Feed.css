@@ -1,0 +1,55 @@
+#search-container {
+    margin-top: 20px;
+    background-color: var(--light-bg);
+    width: calc(100% - 40px);
+    height: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+    display: flex;
+    border-radius: 10px;
+}
+
+#search-bar ~ fieldset {
+    border:none;
+}
+
+#search-bar-label.MuiFormLabel-filled, #search-bar-label.Mui-focused {
+    color: transparent;
+    transform: translate(14px, -15px) scale(0.75);
+}
+
+#search-type-container {
+    width: 15%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search-type-popover {
+    display: flex;
+    flex-flow: column;
+}
+
+.search-type-row {
+    display: flex;
+    justify-content: space-between;
+    transition-duration: 0.3s;
+    cursor: pointer;
+}
+
+.search-type-row:hover {
+    background-color: var(--light-bg);
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.search-type-row p {
+    font-weight: bold;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
