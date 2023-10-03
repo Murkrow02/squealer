@@ -1,6 +1,15 @@
 
+#outlined-multiline-flexible {
+    color: transparent;
+    caret-color: var(--primary);
+}
+
+
+
+
 #editor-input-mask {
     width: calc(100% - 28px);
+    font-family: Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     flex-flow: column;
     color: black;
@@ -10,9 +19,9 @@
     cursor: pointer;
     padding: 15px 13.5px;
     pointer-events: none;
-    background-color: var(--light-bg);
+    background-color: transparent;
     margin-top: 20px;
-    border: solid 1px var(--text-light);
+    border: none;
     border-radius: 5px;
     word-wrap: anywhere;
     transition-duration: 0.3s;
@@ -29,6 +38,10 @@
 
 #editor-input-mask .selected {
     background-color: var(--primary-bg);
+}
+
+#editor-input-mask .cursor {
+    color: var(--primary);
 }
 
 .symbol {

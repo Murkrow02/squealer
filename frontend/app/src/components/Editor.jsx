@@ -33,24 +33,6 @@ VisuallyHiddenInput.propTypes = {type: PropTypes.string};
 
 const IMAGE_CHAR_SIZE = 125;
 export default function Editor(props) {
-
-    useEffect(() => {
-        let input = document.getElementById("outlined-multiline-flexible");
-        input.addEventListener("select", getTextSelection);
-        input.addEventListener('keypress', checkcaret); // Every character written
-        input.addEventListener('mousedown', checkcaret); // Click down
-        input.addEventListener('touchstart', checkcaret); // Mobile
-        input.addEventListener('input', checkcaret); // Other input events
-        input.addEventListener('paste', checkcaret); // Clipboard actions
-        input.addEventListener('cut', checkcaret);
-        input.addEventListener('mousemove', checkcaret); // Selection, dragging text
-        input.addEventListener('select', checkcaret); // Some browsers support this event
-        input.addEventListener('selectstart', checkcaret); // Some browsers support this event
-
-    }, [])
-
-
-
     //Chars left
     const [maxDayChars, setMaxDayChars] = React.useState(props.day_max);
     const initialDayChars = props.day_max;
@@ -95,6 +77,14 @@ export default function Editor(props) {
     function handleSquealTextChange(event) {
         //check if squeal type is text
         if (squealType !== "text") {
+            return;
+        }
+
+        //check if last char is invalid
+        if (event.target.value.endsWith(">") || event.target.value.endsWith("<")) {
+            //remove last character from text
+            document.getElementById("outlined-multiline-flexible").value = document.getElementById("outlined-multiline-flexible").value.slice(0, -1);
+            alert("Invalid character.");
             return;
         }
 
@@ -143,81 +133,11 @@ export default function Editor(props) {
             }
         }
 
-
-
-        let counter = -1;
         //generate HTML
         let html = segments.map((segment, index) => {
 
-            let selected = false;
-            let selectedFromStart = 0;
-            let selectedFromEnd = 0;
-            let unselectedFromSides = [];
-            //check if user has selected text
-            if (startPos !== -1 && endPos !== -1) {
-
-                if (segment !== "" && segment !== '\n') {
-                    //check if word is fully selected
-                    if (counter + 1 >= startPos && counter + segment.length <= endPos) {
-                        selected = true;
-                    } //first part of word selected
-                    else if (startPos <= counter + 1 && endPos < counter + segment.length) {
-                        selectedFromStart = endPos - counter - 1;
-                    } //last part of word selected
-                    else if (startPos > counter + 1 && endPos >= counter + segment.length) {
-                        selectedFromEnd = counter + segment.length - startPos + 1;
-                    } //middle part of word selected
-                    else if (startPos > counter + 1 && endPos < counter + segment.length) {
-                        unselectedFromSides.push(startPos - counter - 1);
-                        unselectedFromSides.push(counter + segment.length - endPos + 1);
-                    }
-                }
-            }
-
-            /*TODO FIX
-               if (curPos === 0 && index === 0) {
-                segment = "|" + segment;
-            } else if (curPos === counter + segment.length) {
-                segment = segment + "|";
-            }*/
-
-            if (curPos >= counter + 1 && curPos <= counter + segment.length) {
-                //get characters before cursor position
-                let firstChars = segment.substring(0, curPos - counter - 1);
-                //get characters after cursor position
-                let lastChars = segment.substring(curPos - counter - 1, segment.length);
-                segment = firstChars + "|" + lastChars;
-                console.log([firstChars, lastChars]);
-            }
-
-            //increase counter
-            counter += segment.length;
-
-            //whitespace handling
-            if (segment !== '\n') {
-                counter += 1;
-            }
-
             if (segment.match(urlRegex) || segment.match(mentionRegex)) {
-                //TODO create array of links and mentions
-                if (selectedFromStart > 0) {
-                    let firstChars = segment.substring(0, selectedFromStart);
-                    let lastChars = segment.substring(selectedFromStart, segment.length);
-                    return `<span class="selected highlight">${firstChars}</span><span class="highlight">${lastChars}</span>`
-                } else if (selectedFromEnd > 0) {
-                    //get last 3 chars
-                    let firstChars = segment.substring(0, segment.length - selectedFromEnd);
-                    let lastChars = segment.substring(segment.length - selectedFromEnd, segment.length);
-                    return `<span class="highlight">${firstChars}</span><span class="selected highlight">${lastChars}</span>`
-                } else if (unselectedFromSides.length === 2) {
-                    //get last 3 chars
-                    let firstChars = segment.substring(0, unselectedFromSides[0]);
-                    let middleChars = segment.substring(unselectedFromSides[0], segment.length - unselectedFromSides[1]);
-                    let lastChars = segment.substring(segment.length - unselectedFromSides[1], segment.length);
-                    return `<span class="highlight">${firstChars}</span><span class="selected highlight">${middleChars}</span><span class="highlight">${lastChars}</span>`
-                }
-
-                return `<span class="highlight ${selected ? 'selected' : ''}">${segment}</span>`
+                return `<span class="highlight">${segment}</span>`
             } else if (segment.includes("\n")) {
                 //check if next segment exists
                 if (segments[index + 1] !== undefined && segments[index + 1] !== "") {
@@ -232,75 +152,14 @@ export default function Editor(props) {
                 return ``;
             }
             else {
-
-                if (selectedFromStart > 0) {
-                    let firstChars = segment.substring(0, selectedFromStart);
-                    let lastChars = segment.substring(selectedFromStart, segment.length);
-                    return `<span class="selected">${firstChars}</span><span>${lastChars}</span>`
-                } else if (selectedFromEnd > 0) {
-                    //get last 3 chars
-                    let firstChars = segment.substring(0, segment.length - selectedFromEnd);
-                    let lastChars = segment.substring(segment.length - selectedFromEnd, segment.length);
-                    return `<span>${firstChars}</span><span class="selected">${lastChars}</span>`
-                } else if (unselectedFromSides.length === 2) {
-                    let firstChars = segment.substring(0, unselectedFromSides[0]);
-                    let middleChars = segment.substring(unselectedFromSides[0], segment.length - unselectedFromSides[1]);
-                    let lastChars = segment.substring(segment.length - unselectedFromSides[1], segment.length);
-                    return `<span>${firstChars}</span><span class="selected">${middleChars}</span><span>${lastChars}</span>`
-                }
-
-                return `<span class="${selected ? 'selected' : ''}">${segment}</span>`
+                return `<span>${segment}</span>`
             }
         }).join(' ');
 
-        //append cursor to html
-        //html += `<span style="color: var(--primary)">|</span>`;
+
 
         //update masked content
         document.getElementById("masked-content").innerHTML = html;
-    }
-
-
-
-    let startPos = -1;
-    let endPos = -1;
-
-    let curPos = 0;
-    function checkcaret(event) {
-        const newPos = document.getElementById("outlined-multiline-flexible").selectionStart;
-        if (newPos !== curPos) {
-            console.log('change to ' + newPos);
-            curPos = newPos;
-        }
-        handleSquealTextChange(event);
-    }
-
-    function getTextSelection(event) {
-        startPos = event.target.selectionStart;
-        endPos = event.target.selectionEnd;
-        let selectedText = event.target.value.substring(startPos, endPos);
-        handleSquealTextChange(event);
-        event.target.addEventListener("click", inputClickHandler);
-    }
-
-    let savedSelection = "";
-    function inputClickHandler(event) {
-        //update positions for race condition
-        startPos = event.target.selectionStart;
-        endPos = event.target.selectionEnd;
-        //get selected text
-        let selectedText = event.target.value.substring(startPos, endPos);
-        //check if user nulled the selection or race condition between unselect and click occurred
-        if (selectedText === "" || selectedText === " " || selectedText === savedSelection) {
-            //clear Ui selection
-            startPos = -1;
-            endPos = -1;
-            handleSquealTextChange(event);
-            event.target.removeEventListener("click", inputClickHandler);
-        } else {
-            //save the selection to avoid race condition on next click
-            savedSelection = selectedText;
-        }
     }
 
     function handleSquealTextFocus(event) {
@@ -397,16 +256,16 @@ export default function Editor(props) {
                     //check if squeal type is text
                     squealType === "text" ?
                         <div style={{width:'100%', position:'relative'}}>
-                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', opacity:'0', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={handleSquealTextChange}/>
+                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={handleSquealTextChange}/>
                             <div id="editor-input-mask">
-                                <span id="masked-content">Insert...</span>
+                                <span id="masked-content"></span>
+
                             </div>
                             <div style={{display:"flex", marginTop:'20px', justifyContent:'center', gap:'15px'}}>
                                 <div onClick={() => insertSymbol('@')} className={"symbol"}>@</div>
                                 <div onClick={() => insertSymbol('#')} className={"symbol"}>#</div>
                                 <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
                             </div>
-                            <button onClick={getTextSelection}>Get selection</button>
                         </div>
 
 
