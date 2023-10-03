@@ -1,20 +1,15 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {
-    Button,
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    IconButton,
-    Radio,
-    RadioGroup,
-    styled,
-    TextField
-} from "@mui/material";
+import {Button, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, styled, TextField } from "@mui/material";
+import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as PropTypes from "prop-types";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import "../css/NewSqueal.css";
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import {scryRenderedComponentsWithType} from "react-dom/test-utils";
 
 const VisuallyHiddenInput = styled('input')({
@@ -32,6 +27,7 @@ VisuallyHiddenInput.propTypes = {type: PropTypes.string};
 
 
 const IMAGE_CHAR_SIZE = 125;
+const LOCATION_CHAR_SIZE = 125;
 export default function Editor(props) {
     //Chars left
     const [maxDayChars, setMaxDayChars] = React.useState(props.day_max);
@@ -47,6 +43,39 @@ export default function Editor(props) {
     //Image loading
     const [image, setImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    //Location
+    const [location, setLocation] = useState([44.496352274776775, 371.3422250747681]);
+
+    L.Marker.prototype.options.icon = L.icon({
+        iconUrl: icon,
+        shadowUrl: iconShadow,
+        iconSize: [24,36],
+        iconAnchor: [12,36]
+    });
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(locationSuccess, locationError);
+        } else {
+            console.log("Geolocation not supported");
+        }
+    }, []);
+
+    //Real location
+    const MapEvents = () => {
+        let map = useMap();
+
+        useMapEvents({
+            click(e) {
+                //set marker location
+                setLocation([e.latlng.lat, e.latlng.lng]);
+                //move map to new location
+                map.flyTo([e.latlng.lat, e.latlng.lng], map.getZoom());
+            },
+        });
+        return false;
+    }
 
     function resetCharCount() {
         setMaxDayChars(initialDayChars);
@@ -73,7 +102,6 @@ export default function Editor(props) {
         setMaxWeekChars(initialWeekChars - value);
         setMaxMonthChars(initialMonthChars - value);
     }
-
     function handleSquealTextChange(event) {
         //check if squeal type is text
         if (squealType !== "text") {
@@ -161,7 +189,6 @@ export default function Editor(props) {
         //update masked content
         document.getElementById("masked-content").innerHTML = html;
     }
-
     function handleSquealTextFocus(event) {
         //check if squeal type is text
         if (squealType !== "text") {
@@ -171,7 +198,6 @@ export default function Editor(props) {
             document.getElementById("masked-content").innerText = "";
         }
     }
-
     //handle radio button change
     function handleSquealTypeChange(event) {
         //set squeal type
@@ -180,8 +206,11 @@ export default function Editor(props) {
         resetCharCount();
         //reset image
         setImage(null);
-    }
 
+        if (event.target.value === "location") {
+            decreaseCharCount(LOCATION_CHAR_SIZE);
+        }
+    }
     async function handleImageUpload(event) {
         setIsLoading(true);
 
@@ -197,12 +226,10 @@ export default function Editor(props) {
 
         setIsLoading(false);
     }
-
     function handleImageDelete() {
         setImage(null);
         resetCharCount();
     }
-
     function insertSymbol(symbol) {
 
         if (document.getElementById("outlined-multiline-flexible").value === "") {
@@ -218,7 +245,17 @@ export default function Editor(props) {
 
     }
 
-
+    function locationSuccess(position) {
+        //get latitude and longitude
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        //update location
+        setLocation([latitude, longitude]);
+    }
+    function locationError() {
+        //Notify user that location could not be retrieved
+        alert("Unable to retrieve your location");
+    }
 
     return(
         <div style={{padding: '0 20px'}}>
@@ -267,9 +304,6 @@ export default function Editor(props) {
                                 <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
                             </div>
                         </div>
-
-
-
                     : squealType === "image" ?
                             <div style={{position:"relative"}}>
                                 <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*" onChange={handleImageUpload} />
@@ -291,8 +325,24 @@ export default function Editor(props) {
 
                             </div>
                     : squealType === "location" ?
-                                <p>Location</p>
-                                : null
+                                <div>
+                                    <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
+                                        <MapContainer id="map" style={{ width: "100%", height: "300px" }} center={location} zoom={13} scrollWheelZoom={false}>
+                                            <TileLayer
+                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            />
+                                            <Marker position={location}>
+                                                <Popup>
+                                                    A pretty CSS3 popup. <br /> Easily customizable.
+                                                </Popup>
+                                            </Marker>
+                                            <MapEvents />
+                                        </MapContainer>
+                                    </div>
+                                    <p style={{color:'var(--text-light)', textAlign:'center'}}>Click on the map to select a new point</p>
+                                </div>
+                : null
             }
 
         </div>
