@@ -6,6 +6,16 @@ async function seed(){
     // Delete all channels
     await Channel.deleteMany({});
 
+    // Add a lot of mock editorial channels to channelData
+    for (let i = 0; i < 100; i++) {
+        channelData.push({
+            name: "§MAIZ" + i,
+            category: "editorial",
+            admins: [],
+            description: "pila",
+        });
+    }
+
     // Insert channels
     return Channel.insertMany(channelData)
 }

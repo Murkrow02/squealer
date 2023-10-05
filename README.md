@@ -3,7 +3,7 @@
 3 progetti
  - [ ] UserModel app: react + mui con Joy UI
  - [ ] SMM app: alpine.js + pine
- - [ ] JS
+ - [ ] Moderator: js + bootstrap
 
 ## Autenticazione
 
@@ -110,3 +110,10 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
 - [x] Chiamata per aumentare le impression quando un post viene visto
 - [ ] SECONDARIO: chiave app per autenticare il client
+- [ ] Moderator dashboard
+  - [ ] Elencare utenti e filtrarli per nome, tipo (utente, smm, admin) e popolarita (?)
+    - [ ] Puo bannare, riabilitare e aumentare i caratteri residui
+  - [ ] Elencare squeal e filtrarli per utente, data e destinatari
+    - [ ] Ne puo cambiare i destinatari 
+    - [ ] OPZIONALE, cambiare numero reazioni
+  - [ ] Elencare canali ufficiali squealer, aggiungerli, toglierli e modificarli  
