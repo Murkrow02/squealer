@@ -52,17 +52,13 @@ function Feed() {
 
 
     //SEARCH TEXT HANDLING
+    const [searchText, setSearchText] = useState("");
     function handleSearchTextChange(event) {
+        setSearchText(event.target.value);
+
         //check if text is empty
         if(event.target.value === "") {
             return;
-        }
-
-        //check if search type is text
-        if(searchType === "text") {
-
-        } else if(searchType === "channel") {
-
         }
     }
 
@@ -75,7 +71,7 @@ function Feed() {
     return(
         <body>
             <header style={{position:'fixed', top:'0', zIndex:'1', backgroundColor:'white'}}>
-                <nav style={{ width:'100vw', padding: '20px 0', borderBottom: 'solid 2px #aaaaaa'}}>
+                <nav style={{ width:'100vw', display:"flex", flexFlow:"column", padding: '20px 0', borderBottom: 'solid 2px #aaaaaa'}}>
                     <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
                     <div id={"search-container"}>
                         <div aria-describedby={popId} onClick={handleClick} id="search-type-container">
@@ -111,44 +107,50 @@ function Feed() {
                         <Chip label="Popular" />
                         <Chip label="Controversed" />
                     </Stack>
-                    <Box sx={{ width: '100%' }}>
-                        <Tabs
-                            value={value}
-                            onChange={handleChange}
-                            textColor="secondary"
-                            indicatorColor="secondary"
-                            variant="fullWidth"
-                            aria-label="secondary tabs example"
-                        >
-                            {
-                                searchType !== "text" ?
-                                    <Tab value="1" label="Content" />
-                                : null
-                            }
-                            {
-                                searchType === "channel" ?
-                                    <Tab value="2" label="Post" />
-                                    : null
-                            }
-                            <Tab value="3" label="Item Three" />
-
-                        </Tabs>
-                    </Box>
-                    <div>
-                        {
-                            value === "1" ?
-                                <p>AOOOO1</p>
-                            : value === "2" ?
-                                <p>AOOOO2</p>
-                            : value === "3" ?
-                                <p>AOOOO3</p>
-                            : null
-                        }
-                    </div>
+                    {
+                        searchText !== "" ?
+                        <>
+                            <Box sx={{ width: '100%', marginTop:'20px' }}>
+                                <Tabs
+                                    value={value}
+                                    onChange={handleChange}
+                                    variant="fullWidth"
+                                    aria-label="secondary tabs example"
+                                >
+                                    {
+                                        searchType !== "text" ?
+                                            <Tab value="1" label="Content" />
+                                            : null
+                                    }
+                                    {
+                                        searchType !== "text" ?
+                                            <Tab value="2" label="Posted" />
+                                            : null
+                                    }
+                                    {
+                                        searchType === "channel" ?
+                                            <Tab value="3" label="Channels" />
+                                            : null
+                                    }
+                                </Tabs>
+                            </Box>
+                            <div>
+                                {
+                                    value === "1" ?
+                                        <p>AOOOO1</p>
+                                        : value === "2" ?
+                                            <p>AOOOO2</p>
+                                            : value === "3" ?
+                                                <p>AOOOO3</p>
+                                                : null
+                                }
+                            </div>
+                        </> : null
+                    }
                 </nav>
             </header>
 
-            <div style={{marginTop: '20vh'}}>
+            <div style={{marginTop: '30vh'}}>
                 {squeals.map((squeal) => (
                     <Squeal username={squeal.createdBy.username} reactions={[10, 10, 10, 10]} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
                 ))}

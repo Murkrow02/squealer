@@ -3,7 +3,9 @@
     --primary: #23AAF5;
     --primary-bg: #23B6F566;
     --light-bg: #F4F4F4;
-    --text-light: #bebebe
+    --text-light: #bebebe;
+    --text-content: #606060;
+    --danger: #FF5050;
 }
 
 body {

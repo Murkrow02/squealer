@@ -1,0 +1,61 @@
+body {
+    margin: 0;
+}
+
+nav {
+    border-bottom: solid 1px black;
+    display: flex;
+    justify-content: space-between;
+    width: calc(100% - 20px);
+    padding: 0 10px;
+    align-items: center;
+}
+
+#channel-name {
+    font-size: 1.5rem;
+}
+
+
+.subscription-button, .unsubscription-button {
+    width: 100%;
+    padding: 10px 0;
+    background-color: var(--primary);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    box-shadow: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.unsubscription-button {
+    background-color: var(--danger);
+}
+
+.description-container {
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.description-content {
+    color: var(--text-content);
+    line-break: anywhere;
+    word-wrap: break-word;
+    margin-top: 10px;
+    display: flex;
+    flex-flow: column;
+}
+
+.squeal-container {
+    margin-top: 10px;
+    display: flex;
+    flex-flow: column;
+    gap: 10px;
+}

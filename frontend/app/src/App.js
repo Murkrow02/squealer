@@ -7,12 +7,15 @@ import '@fontsource/roboto/700.css';
 import React, { useState, useEffect } from 'react';
 import NewSqueal from "./pages/NewSqueal";
 import Feed from "./pages/Feed";
+import Channel from "./pages/Channel";
 function App() {
-
-
   return (
       <div>
-          <Feed/>
+          {/*
+          CHANNEL USAGE
+          <Channel muted={true} subscribed={true}/>
+          */}
+          <Channel muted={true} subscribed={true}/>
       </div>
   );
 }
