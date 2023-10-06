@@ -8,14 +8,21 @@ import React, { useState, useEffect } from 'react';
 import NewSqueal from "./pages/NewSqueal";
 import Feed from "./pages/Feed";
 import Channel from "./pages/Channel";
+import Profile from "./pages/Profile";
 function App() {
   return (
       <div>
           {/*
           CHANNEL USAGE
           <Channel muted={true} subscribed={true}/>
-          */}
-          <Channel muted={true} subscribed={true}/>
+          */
+          /*
+          PROFILE USAGE
+           <Profile type={"base | pro | admin"} karma={int} hasSMM={true}/>
+          */
+
+          }
+          <Profile type={"pro"} karma={123} hasSMM={false}/>
       </div>
   );
 }

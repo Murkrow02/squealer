@@ -37,21 +37,21 @@ setUpPassport(passport);
 
 // Serve the React client app
 let appBuildPath = path.join(__dirname, '../frontend/app/build');
-app.use("/app", express.static(appBuildPath));
+app.use(express.static(appBuildPath));
 app.get('/app', (req, res) => {
     res.sendFile(path.join(appBuildPath, 'index.html'));
 });
 
 // Serve the SMM app
 let smmBuildPath = path.join(__dirname, '../frontend/smm/build');
-app.use("/smm", express.static(smmBuildPath));
+app.use(express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
 
 // Serve the moderator app
 let moderatorBuildPath = path.join(__dirname, '../frontend/moderator');
-app.use("/moderator",express.static(moderatorBuildPath));
+app.use(express.static(moderatorBuildPath));
 app.get('/moderator', (req, res) => {
     res.sendFile(path.join(moderatorBuildPath, 'index.html'));
 });
