@@ -98,8 +98,14 @@ exports.getChannelsByCategory = async (req, res, next) => {
         // If search param is present, search for channels by name
         if (search) {
 
-            // Search for channels by name
-            const channels = await Channel.find({name: {$regex: search, $options: "i"}, category: category});
+            // Search for channels by name (if search param is present)
+            const query = {};
+            if (search && search !== "" && search !== "undefined")
+                query.name = { $regex: search, $options: "i" };
+            if (category)
+                query.category = category;
+            const channels = await Channel.find(query);
+
 
             // Send the channels as the response
             return res.status(200).json(channels);

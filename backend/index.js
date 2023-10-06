@@ -44,14 +44,14 @@ app.get('/app', (req, res) => {
 
 // Serve the SMM app
 let smmBuildPath = path.join(__dirname, '../frontend/smm/build');
-app.use(express.static(smmBuildPath));
+app.use("smm", express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
 
 // Serve the moderator app
 let moderatorBuildPath = path.join(__dirname, '../frontend/moderator');
-app.use(express.static(moderatorBuildPath));
+app.use('/moderator',express.static(moderatorBuildPath));
 app.get('/moderator', (req, res) => {
     res.sendFile(path.join(moderatorBuildPath, 'index.html'));
 });

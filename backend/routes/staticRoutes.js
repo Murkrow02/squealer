@@ -22,6 +22,9 @@ router.get('/viewModels/squeal', (req, res) => {
 router.get('/viewModels/channel', (req, res) => {
     res.sendFile(path.join(__dirname,'../../frontend/shared/viewmodels/channelViewModel.js'));
 });
+router.get('/viewModels/user', (req, res) => {
+    res.sendFile(path.join(__dirname,'../../frontend/shared/viewmodels/userViewModel.js'));
+});
 
 
 module.exports = router;

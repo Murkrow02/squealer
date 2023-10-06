@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 function App() {
   return (
       <div>
+
           {/*
           CHANNEL USAGE
           <Channel muted={true} subscribed={true}/>
@@ -20,7 +21,6 @@ function App() {
           PROFILE USAGE
            <Profile type={"base | pro | admin"} karma={int} hasSMM={true}/>
           */
-
           }
           <Profile type={"pro"} karma={123} hasSMM={false}/>
       </div>

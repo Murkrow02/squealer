@@ -124,9 +124,6 @@ exports.reactToSqueal = async (req, res, next) => {
             .select('+positiveReactions')
             .select('+negativeReactions');
 
-        console.log(squeal);
-
-
         // Check if squeal exists
         if (!squeal)
             return res.status(404).json({error: 'Squeal non trovato'});
@@ -245,6 +242,10 @@ exports.addImpression = async (req, res, next) => {
 
         // Save squeal
         squeal.save();
+
+        // Return squeal as response
+        return res.status(200).json(await Squeal.findById(squealId));
+
     } catch (error) {
         next(error);
     }

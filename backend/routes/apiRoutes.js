@@ -30,6 +30,9 @@ router.post('/squeals',
 router.get('/squeals/searchByChannelId/:channelId',
     passport.authenticate('bearer', { session: false}),
     squealController.searchByChannelId);
+router.get('/squeals/allReactions',
+    passport.authenticate('bearer', { session: false}),
+    squealController.getAllReactions);
 router.patch('/squeals/:squealId/react/:reactionId',
     passport.authenticate('bearer', { session: false}),
     squealController.reactToSqueal);
@@ -39,9 +42,6 @@ router.patch('/squeals/:squealId/unreact/:reactionId',
 router.patch('/squeals/:squealId/impression',
     passport.authenticate('bearer', { session: false}),
     squealController.addImpression);
-router.get('/squeals/allReactions',
-    passport.authenticate('bearer', { session: false}),
-    squealController.getAllReactions);
 
 // Channels
 router.get('/channels',
