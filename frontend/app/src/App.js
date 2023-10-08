@@ -10,7 +10,8 @@ import Feed from "./pages/Feed";
 import Channel from "./pages/Channel";
 import Profile from "./pages/Profile";
 function App() {
-  return (
+
+    return (
       <div>
 
           {/*
@@ -19,12 +20,12 @@ function App() {
           */
           /*
           PROFILE USAGE
-           <Profile type={"base | pro | admin"} karma={int} hasSMM={true}/>
+           <Profile karma={int} hasSMM={true}/>
           */
           }
           <Profile type={"pro"} karma={123} hasSMM={false}/>
       </div>
-  );
+    );
 }
 
 export default App;
