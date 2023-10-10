@@ -1,7 +1,7 @@
 
 //Note: this is used only for debug purposes DO NOT USE
 function getAllSqueals(){
-    alert("DEBUG ONLY");
+    //alert("DEBUG ONLY");
     return api.get("squeals");
 }
 

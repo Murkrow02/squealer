@@ -20,7 +20,7 @@ function Channel(props) {
     return (
         <body>
             <header>
-                <nav>
+                <nav id={"channel-nav"}>
                     <div>
                         <ArrowBackIosRoundedIcon style={{cursor:"pointer", fontSize:"1.6rem"}} color={"black"}/>
                     </div>

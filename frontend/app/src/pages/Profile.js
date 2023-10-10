@@ -20,7 +20,7 @@ function Profile(props) {
     return(
         <body>
             <header>
-                <nav>
+                <nav id={"profile-nav"}>
                     <ArrowBackIosRoundedIcon style={{cursor:"pointer", fontSize:"1.6rem"}} color={"black"}/>
                     <Typography id={"user-name"} sx={{ p: 2 }}>@{username}</Typography>
                 </nav>

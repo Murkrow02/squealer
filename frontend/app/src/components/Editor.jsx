@@ -11,6 +11,7 @@ import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import {scryRenderedComponentsWithType} from "react-dom/test-utils";
+import ActionButton from "./ActionButton";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -344,6 +345,9 @@ export default function Editor(props) {
                                 </div>
                 : null
             }
+            <div style={{margin: '0 -10px'}}>
+                <ActionButton classes={"profile-action-button"} text={"Post"} type={"primary"} />
+            </div>
 
         </div>
 

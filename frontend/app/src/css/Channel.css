@@ -2,7 +2,7 @@ body {
     margin: 0;
 }
 
-nav {
+#channel-nav {
     border-bottom: solid 1px black;
     display: flex;
     justify-content: space-between;

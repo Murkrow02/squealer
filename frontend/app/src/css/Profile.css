@@ -1,4 +1,4 @@
-nav {
+#profile-nav {
     width: calc(100% - 20px);
     padding: 0 10px;
     border-bottom: solid 1px black;
