@@ -122,7 +122,7 @@ export default function Editor(props) {
 
         //regex for web links
         const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
-        const mentionRegex = /[§@#]\w+/g;
+        const mentionRegex = /^[@#§]\w+/g;
 
         //split text into array
         const segments = event.target.value.split(" ");
