@@ -1,17 +1,28 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import {Button, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, styled, TextField } from "@mui/material";
+import {useEffect, useState} from 'react';
+import {
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    IconButton,
+    Radio,
+    RadioGroup,
+    styled, Tab, Tabs,
+    TextField, Typography
+} from "@mui/material";
 import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as PropTypes from "prop-types";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import "../css/NewSqueal.css";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import {scryRenderedComponentsWithType} from "react-dom/test-utils";
 import ActionButton from "./ActionButton";
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import Box from "@mui/material/Box";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -48,6 +59,39 @@ export default function Editor(props) {
     //Location
     const [location, setLocation] = useState([44.496352274776775, 371.3422250747681]);
 
+    //Receiver tabs
+    const [receiverTabValue, setReceiverTabValue] = React.useState('1');
+    const handleReceiverTabChange = (event, newValue) => {
+        setReceiverTabValue(newValue);
+        //Clear search selection
+        setReceiverSearchList([]);
+        //Clear search input
+        document.querySelector('.receivers-search-bar').value = "";
+    };
+
+    //Receiver tab dict
+    const receiverTabDict = {
+        1: "user",
+        2: "channel",
+        3: "tag"
+    }
+
+    const receiverTabSymbolDict = {
+        1: "@",
+        2: "§",
+        3: "#"
+    }
+
+    //Receiver popup visibility
+    const [receiverPopupVisible, setReceiverPopupVisible] = React.useState(false);
+
+    //Receiver search content
+    const [receiverSearchList, setReceiverSearchList] = React.useState([]);
+
+    //Receiver list
+    const [receiverList, setReceiverList] = React.useState([]);
+
+    //Marker configuration
     L.Marker.prototype.options.icon = L.icon({
         iconUrl: icon,
         shadowUrl: iconShadow,
@@ -55,6 +99,7 @@ export default function Editor(props) {
         iconAnchor: [12,36]
     });
 
+    //Get location on appearing
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(locationSuccess, locationError);
@@ -63,7 +108,6 @@ export default function Editor(props) {
         }
     }, []);
 
-    //Real location
     const MapEvents = () => {
         let map = useMap();
 
@@ -162,8 +206,8 @@ export default function Editor(props) {
             }
         }
 
-        //generate HTML
-        let html = segments.map((segment, index) => {
+        //generate HTML & update masked content
+        document.getElementById("masked-content").innerHTML = segments.map((segment, index) => {
 
             if (segment.match(urlRegex) || segment.match(mentionRegex)) {
                 return `<span class="highlight">${segment}</span>`
@@ -171,24 +215,16 @@ export default function Editor(props) {
                 //check if next segment exists
                 if (segments[index + 1] !== undefined && segments[index + 1] !== "") {
                     return `<br>`
-                }
-                else {
+                } else {
                     //put whitespace to trigger new line on div
                     return `<br><span style="color: transparent">*</span>`
                 }
-            }
-            else if (segment === "") {
+            } else if (segment === "") {
                 return ``;
-            }
-            else {
+            } else {
                 return `<span>${segment}</span>`
             }
         }).join(' ');
-
-
-
-        //update masked content
-        document.getElementById("masked-content").innerHTML = html;
     }
     function handleSquealTextFocus(event) {
         //check if squeal type is text
@@ -258,9 +294,169 @@ export default function Editor(props) {
         alert("Unable to retrieve your location");
     }
 
+
+    function onReceiverInputChange(event) {
+        //check if text is empty
+        if (event.target.value === "") {
+            return;
+        }
+        //check if type is @ (1)
+        if (receiverTabValue === '1') {
+            //get users
+            window.searchByUsername(event.target.value).then((users) => {
+                setReceiverSearchList(users.data);
+                console.log(users);
+            });
+        } else if (receiverTabValue === '3') {
+            //clear search list
+            setReceiverSearchList([]);
+            //set written tag in list, id is the value so don't have to handle it as receivers are univoque per type
+            setReceiverSearchList([{ _id: event.target.value, content: event.target.value, type: "3" }]);
+        }
+    }
+
+    function checkDuplicateReceiver(receiver_id, receiver_type) {
+        //get receivers list
+        let list = receiverList;
+        console.log("checking " + receiver_id + " of type" + receiver_type);
+        //iterate over list
+        for (let i = 0; i < list.length; i++) {
+            //check if receiver exists
+            if (list[i].id === receiver_id && list[i].type === receiver_type) {
+                console.log("element" + receiver_id + " already in the list");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function addReceiver(receiver_id, receiver_name, receiver_type) {
+        //check if receiver already exists
+        if (checkDuplicateReceiver(receiver_id, receiver_type)) {
+            alert("Receiver already in the list");
+            return;
+        }
+        //get receivers list
+        let list = receiverList;
+        //add receiver
+        list.push({id: receiver_id, name: receiver_name, type: receiver_type});
+        //update receivers list
+        setReceiverList(list);
+    }
+
+    function removeReceiver(receiver_id, receiver_type) {
+        //get receivers list
+        let list = receiverList;
+        //iterate over list
+        for (let i = 0; i < list.length; i++) {
+            //check if receiver exists
+            if (list[i].id === receiver_id && list[i].type === receiver_type) {
+                //remove receiver
+                list.splice(i, 1);
+                //update receivers list
+                setReceiverList(list);
+                //refresh ui
+                setReceiverList([...receiverList]);
+                return;
+            }
+        }
+    }
+
+    function onReceiverSearchClick(event) {
+        //get clicked element
+        const target = event.target;
+        //get id
+        const target_id = target.id;
+        //split string by - character
+        const receiver_id = target_id.split('-')[2];
+        //get receiver name
+        const receiver_name = (target.childNodes[0].innerText).substring(1);
+        //add receiver to list
+        addReceiver(receiver_id, receiver_name, receiverTabValue);
+        //remove add button //TODO FIND BETTER IMPLEMENTATION
+        //target.childNodes[1].remove();
+    }
+
+    //Triggered when + button near receivers list is clicked
+    function showReceiverOverlay(event) {
+        //show overlay
+        setReceiverPopupVisible(true);
+    }
+    function hideReceiverOverlay(event) {
+        //hide overlay
+        setReceiverPopupVisible(false);
+        //reset search list
+        setReceiverSearchList([]);
+        //reset search input
+        document.querySelector('.receivers-search-bar').value = "";
+    }
+
     return(
-        <div style={{padding: '0 20px'}}>
-            <FormControl style={{marginTop:'10vh', width:'100%'}}>
+        <div style={{padding: '0 20px', marginTop:'10vh'}}>
+            <div>
+                <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>Receivers</Typography>
+                <div style={{display:"flex", gap:'10px', marginTop:'10px'}}>
+                    <div className={"receivers-container"}>
+                        {
+                            receiverList.length === 0 ?
+                                <Typography>Please select at least one receiver.</Typography>
+                            :
+                            receiverList.map((receiver) => {
+                                return (
+                                    <div className={"receiver-item"}>
+                                        <span>{receiverTabSymbolDict[receiver.type] + receiver.name}</span>
+                                        <CloseRoundedIcon onClick={() => { removeReceiver(receiver.id, receiver.type)}}/>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                    <div className={'receivers-add-button'} onClick={showReceiverOverlay}>
+                        <AddRoundedIcon />
+                    </div>
+                    <div style={{display: receiverPopupVisible ? "flex" : "none"}} className={"receivers-overlay"}>
+                        <div className={"receivers-popup"}>
+                            <div className={"receivers-popup-title-container"}>
+                                <CloseRoundedIcon onClick={hideReceiverOverlay}/>
+                                <Typography >Add receiver</Typography>
+                            </div>
+                            <input onChange={onReceiverInputChange} className={"receivers-search-bar"} type={"search"} placeholder={"Search"}/>
+                            <Box sx={{ width: '100%', marginTop:'20px' }}>
+                                <Tabs value={receiverTabValue} onChange={handleReceiverTabChange} variant="fullWidth" aria-label="secondary tabs example">
+                                    <Tab value="1" label="@" />
+                                    <Tab value="2" label="§" />
+                                    <Tab value="3" label="#" />
+                                </Tabs>
+                            </Box>
+                            <div className={"receivers-search-content-container"}>
+                                {
+                                    receiverSearchList.length === 0 ?
+                                        <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>No results</Typography>
+                                        :
+                                        receiverSearchList.map((receiver) => {
+                                            return (
+                                                <div id={"searched-receiver-" + receiver._id} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
+                                                    <Typography>{receiverTabSymbolDict[receiverTabValue] +
+                                                        (receiverTabValue === '1' ? receiver.username
+                                                            : receiverTabValue === '3' ? receiver.content : null)
+                                                    }</Typography>
+                                                    {
+                                                        checkDuplicateReceiver(receiver._id, receiverTabValue) ?
+                                                            <CheckRoundedIcon style={{color:"var(--primary)"}} />
+                                                        :
+                                                            <AddRoundedIcon style={{color:"var(--primary)"}} />
+                                                    }
+                                                </div>
+                                            )
+                                        })
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <FormControl style={{ width:'100%', marginTop:'20px'}}>
                 <FormLabel style={{textAlign:'center'}} id="demo-row-radio-buttons-group-label">Squeal type</FormLabel>
                 <RadioGroup
                     row

@@ -101,6 +101,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
   - [ ] Risposta ad altro squeal con squeal (tipo retweet)
     - Si condividono tutti i canali non privati
 - [x] Chiamata per ritornare le quote rimanenti
+- [ ] Chiamata per cercare canali per nome
 - [ ] Ripetizione ogni tot secondi di uno squeal
 - [x] Chiamata per scegliere SMM
 - [ ] Chiamata per ricerca utenti
@@ -150,7 +151,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 
 ## FRONT
 
-- [ ] Componenet destinatari squeal
+- [x] Componente destinatari squeal
 - [ ] Controlla se mostra errore quando superata quota
 - [ ] Quando uno squeal viene visualizzato (a meno che non privato) manda impression
 - [ ] Scarica lista emoji
