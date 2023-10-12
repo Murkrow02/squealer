@@ -23,6 +23,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import Box from "@mui/material/Box";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -51,6 +52,7 @@ export default function Editor(props) {
 
     //Squeal type
     const [squealType, setSquealType] = React.useState("text");
+    const [isSquealTemporized, setIsSquealTemporized] = React.useState(false);
 
     //Image loading
     const [image, setImage] = useState(null);
@@ -90,6 +92,9 @@ export default function Editor(props) {
 
     //Receiver list
     const [receiverList, setReceiverList] = React.useState([]);
+
+    //Variables list
+    const [variablesList, setVariablesList] = React.useState([])
 
     //Marker configuration
     L.Marker.prototype.options.icon = L.icon({
@@ -167,6 +172,7 @@ export default function Editor(props) {
         //regex for web links
         const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
         const mentionRegex = /^[@#§]\w+/g;
+        const variableRegex = /^[$]\w+/g;
 
         //split text into array
         const segments = event.target.value.split(" ");
@@ -206,11 +212,19 @@ export default function Editor(props) {
             }
         }
 
+        //clear variables and store them for later check
+        let variables = variablesList;
+        let tmpVariables = [];
+
         //generate HTML & update masked content
         document.getElementById("masked-content").innerHTML = segments.map((segment, index) => {
 
             if (segment.match(urlRegex) || segment.match(mentionRegex)) {
                 return `<span class="highlight">${segment}</span>`
+            }  else if ( isSquealTemporized && segment.match(variableRegex)) {
+                //push variable to tmp variables list
+                tmpVariables.push({name: segment, type: "unset"});
+                return `<span class="variable">${segment}</span>`
             } else if (segment.includes("\n")) {
                 //check if next segment exists
                 if (segments[index + 1] !== undefined && segments[index + 1] !== "") {
@@ -225,6 +239,21 @@ export default function Editor(props) {
                 return `<span>${segment}</span>`
             }
         }).join(' ');
+
+        if (isSquealTemporized) {
+            for (let i = 0; i < tmpVariables.length; i++) {
+                //check if variables[i] still exists
+                if (variables[i] !== undefined) {
+                    if (tmpVariables[i].name === variables[i].name) {
+                        //set type
+                        tmpVariables[i].type = variables[i].type;
+                    }
+                }
+            }
+            //update variables list
+            setVariablesList(tmpVariables);
+            console.log(tmpVariables);
+        }
     }
     function handleSquealTextFocus(event) {
         //check if squeal type is text
@@ -243,7 +272,10 @@ export default function Editor(props) {
         resetCharCount();
         //reset image
         setImage(null);
-
+        //reset variables
+        setVariablesList([]);
+        //reset to default squeal
+        setIsSquealTemporized(false);
         if (event.target.value === "location") {
             decreaseCharCount(LOCATION_CHAR_SIZE);
         }
@@ -281,7 +313,6 @@ export default function Editor(props) {
         document.getElementById("outlined-multiline-flexible").focus();
 
     }
-
     function locationSuccess(position) {
         //get latitude and longitude
         const latitude = position.coords.latitude;
@@ -293,8 +324,6 @@ export default function Editor(props) {
         //Notify user that location could not be retrieved
         alert("Unable to retrieve your location");
     }
-
-
     function onReceiverInputChange(event) {
         //check if text is empty
         if (event.target.value === "") {
@@ -314,7 +343,6 @@ export default function Editor(props) {
             setReceiverSearchList([{ _id: event.target.value, content: event.target.value, type: "3" }]);
         }
     }
-
     function checkDuplicateReceiver(receiver_id, receiver_type) {
         //get receivers list
         let list = receiverList;
@@ -329,7 +357,6 @@ export default function Editor(props) {
         }
         return false;
     }
-
     function addReceiver(receiver_id, receiver_name, receiver_type) {
         //check if receiver already exists
         if (checkDuplicateReceiver(receiver_id, receiver_type)) {
@@ -343,7 +370,6 @@ export default function Editor(props) {
         //update receivers list
         setReceiverList(list);
     }
-
     function removeReceiver(receiver_id, receiver_type) {
         //get receivers list
         let list = receiverList;
@@ -361,7 +387,6 @@ export default function Editor(props) {
             }
         }
     }
-
     function onReceiverSearchClick(event) {
         //get clicked element
         const target = event.target;
@@ -376,7 +401,6 @@ export default function Editor(props) {
         //remove add button //TODO FIND BETTER IMPLEMENTATION
         //target.childNodes[1].remove();
     }
-
     //Triggered when + button near receivers list is clicked
     function showReceiverOverlay(event) {
         //show overlay
@@ -389,6 +413,37 @@ export default function Editor(props) {
         setReceiverSearchList([]);
         //reset search input
         document.querySelector('.receivers-search-bar').value = "";
+    }
+
+    function convertToTemporizedSqueal(event) {
+        setIsSquealTemporized(true);
+        //TODO UPDATE UI IF ALREADY VARIABLES
+    }
+
+    function revertToNormalSqueal(event) {
+        setIsSquealTemporized(false);
+        //clear variables
+        setVariablesList([]);
+        //TODO UPDATE UI IF ALREADY VARIABLES
+    }
+
+    function onVariableSelectChange(event) {
+        //get name of variable
+        const variable_name = event.target.id.split('-')[3];
+        //get variable type
+        const variable_type = event.target.value;
+        //get variables list
+        let list = variablesList;
+        //update variable type
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === variable_name) {
+                list[i].type = variable_type;
+                break;
+            }
+        }
+        console.log(list);
+        //update variables list
+        setVariablesList(list);
     }
 
     return(
@@ -493,12 +548,52 @@ export default function Editor(props) {
                             <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={handleSquealTextChange}/>
                             <div id="editor-input-mask">
                                 <span id="masked-content"></span>
-
                             </div>
                             <div style={{display:"flex", marginTop:'20px', justifyContent:'center', gap:'15px'}}>
                                 <div onClick={() => insertSymbol('@')} className={"symbol"}>@</div>
                                 <div onClick={() => insertSymbol('#')} className={"symbol"}>#</div>
                                 <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
+                            </div>
+                            {
+                                 isSquealTemporized ?
+                                     <div style={{marginTop:"20px"}}>
+                                         <Typography style={{color:'var(--text-light)', textAlign:'center'}}>Type $ to add a variable</Typography>
+                                         <div style={{marginTop:"20px"}}>
+                                             {
+                                                    variablesList.map((variable) => {
+                                                        return (
+                                                            <div className={"variable-item"} onClick={() => { document.getElementById("select-for-var-" + variable.name).click()}}>
+                                                                <span>{variable.name}</span>
+                                                                <div style={{display:"flex", alignItems:'center', gap:'5px'}}>
+                                                                    <span style={{color:'var(--text-light)'}}>Type:</span>
+                                                                    <div className={"variable-type-container"} >
+                                                                        <select onChange={onVariableSelectChange} id={"select-for-var-" + variable.name}>
+                                                                            <option value="unset" selected={variable.type === "unset"} >unset</option>
+                                                                            <option value="date" selected={variable.type === "date"}>date</option>
+                                                                            <option value="time" selected={variable.type === "time"}>time</option>
+                                                                        </select>
+                                                                        <KeyboardArrowDownRoundedIcon fontSize={"small"} />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })
+                                             }
+                                         </div>
+                                     </div>
+                                 : null
+                            }
+                            <div style={{margin: "20px -10px 0 -10px"}}>
+                                {
+                                    isSquealTemporized ?
+                                        <div onClick={revertToNormalSqueal}>
+                                            <ActionButton text={"Revert to default squeal"} type={"danger"}></ActionButton>
+                                        </div>
+                                    :
+                                        <div onClick={convertToTemporizedSqueal} >
+                                            <ActionButton text={"Convert to temporized squeal"} type={"secondary"}></ActionButton>
+                                        </div>
+                                }
                             </div>
                         </div>
                     : squealType === "image" ?

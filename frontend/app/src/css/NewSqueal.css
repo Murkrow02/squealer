@@ -40,9 +40,36 @@
     background-color: var(--primary-bg);
 }
 
+#editor-input-mask .variable {
+    background: linear-gradient(
+            to right,
+            #7953cd 20%,
+            #00affa 30%,
+            #0190cd 70%,
+            #764ada 80%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    background-size: 500% auto;
+    animation: textShine 1s ease-in-out infinite alternate;
+}
+
+@keyframes textShine {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
 #editor-input-mask .cursor {
     color: var(--primary);
 }
+
+
 
 .symbol {
     background-color: var(--light-bg);
@@ -143,4 +170,27 @@
 .receiver-item svg {
     color: var(--primary);
     cursor: pointer;
+}
+
+.variable-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.variable-type-container {
+    display: flex;
+    align-items: center;
+    padding: 3px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+select {
+    background-color: var(--light-bg);
+    background-image: none;
+    appearance: none;
+    padding: 5px 8px;
+    border: none;
+    font-size: 1rem;
 }

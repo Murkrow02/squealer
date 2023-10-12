@@ -10,7 +10,6 @@ function NewSqueal() {
                 </nav>
             </header>
             <Editor day_max="300" week_max="700" month_max="2000" />
-
         </body>
     );
 }
