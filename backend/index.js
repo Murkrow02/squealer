@@ -30,6 +30,7 @@ app.use('/api', apiRoutes);
 const staticRoutes = require('./routes/staticRoutes');
 const {setUpPassport} = require("./config/passport");
 const path = require("path");
+const multer = require("multer");
 app.use('/static', staticRoutes);
 
 //Configure passport to use bearer tokens
@@ -55,6 +56,10 @@ app.use('/moderator',express.static(moderatorBuildPath));
 app.get('/moderator', (req, res) => {
     res.sendFile(path.join(moderatorBuildPath, 'index.html'));
 });
+
+// Serve storage folder for media
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
+
 
 // Use the error handling middleware as the last middleware
 app.use(errorHandlingMiddleware);

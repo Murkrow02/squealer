@@ -81,8 +81,6 @@ I
 backend/package-lock.json,1/5/151d7c3d3a228f46120563e689d0c68b7f56fe6f
 N
 frontend/app/src/pages/Feed.js,2/4/243c3ecc2243268ad75c0a88e131f363b82f5a41
-V
-&frontend/app/src/components/TabBar.jsx,1/3/13d979c61be7caba36762c2ca6f7d4443959228c
 ^
 .backend/middlewares/errorHandlingMiddleware.js,d/9/d927a5e0559357302817cad4b59d1eb32f1adb25
 R
@@ -107,3 +105,5 @@ Z
 *backend/database/seeders/reactionSeeder.js,6/7/6796f4aac329a77db99e49dcee297a5867d3bcaf
 O
 backend/models/reactionModel.js,c/2/c2319dd90e2bfb23e333e5b6f9ce56002eb46955
+\
+,frontend/app/src/components/ActionButton.jsx,3/a/3a8edbcfac472a0b53590d741a28a9a9b933b6b9

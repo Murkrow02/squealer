@@ -11,7 +11,15 @@ function getFeed(){
 }
 
 // Create a new squeal
-function postSqueal(squeal, targetChannels){
+function postSqueal(squeal, targetChannels, mapPoints = []){
+
+    // Create mapPoints object
+    // This has the following format:
+    // [{
+    //     "lat": 0,
+    //     "lng": 0,
+    // }, ...]
+    squeal["mapPoints"] = mapPoints;
 
     //Create mixed object
     let post = {
@@ -20,6 +28,16 @@ function postSqueal(squeal, targetChannels){
     }
 
     return api.post("squeals", post);
+}
+
+// Add media to a squeal
+function postMediaToSqueal(squealId, media){
+
+    // Create form data
+    let formData = new FormData();
+    formData.append("media", media);
+
+    return api.post("squeals/" + squealId + "/media", formData);
 }
 
 // Get feed only of a specific channel

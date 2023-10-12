@@ -87,37 +87,15 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 
 
 ### TODO
-- [x] Iscrizione e rimozione da canali
-- [x] Feed utente
-  - Mescola squeal inviati personalmente e squeal a canali iscritto
-  - Mostra i canali in cui gli squeal sono stati pubblicati ma NON mostrare utenti privati
-- [x] Ricerca di squeal tramite canale§ OPPURE keyword# OPPURE menzione@ (nel corpo del testo) 
-  - Usa questo sul client https://mui.com/material-ui/react-autocomplete/
-  - Vedi freeform per esempio
-- [x] Reazioni agli squeal
 - [x] Creazione nuovo squeal
   - [ ] Upload immagine
-  - [ ] Upload posizione
+  - [x] Upload posizione
   - [ ] Risposta ad altro squeal con squeal (tipo retweet)
     - Si condividono tutti i canali non privati
-- [x] Chiamata per ritornare le quote rimanenti
-- [ ] Chiamata per cercare canali per nome
-- [ ] Ripetizione ogni tot secondi di uno squeal
-- [x] Chiamata per scegliere SMM
-- [ ] Chiamata per ricerca utenti
-- [x] Chiamata per ricerca canali
 - [ ] Post da SMM per conto di un utente
 - [ ] Chiamata per poter comprare quota in piu per un anno
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
-- [x] Chiamata per aumentare le impression quando un post viene visto
 - [ ] SECONDARIO: chiave app per autenticare il client
-- [ ] Moderator dashboard
-  - [ ] Elencare utenti e filtrarli per nome, tipo (utente, smm, admin) e popolarita (?)
-    - [ ] Puo bannare, riabilitare e aumentare i caratteri residui
-  - [ ] Elencare squeal e filtrarli per utente, data e destinatari
-    - [ ] Ne puo cambiare i destinatari 
-    - [ ] OPZIONALE, cambiare numero reazioni
-  - [ ] Elencare canali ufficiali squealer, aggiungerli, toglierli e modificarli  
 - [ ] Chiamata per aumentare di un delta la quota 
 - [ ] Diminuire la quota quando: 
 - [ ] Canali editoriali da mettere (controversial, altri > 3 nostri)
@@ -166,6 +144,8 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Link immagine da internet
 - [ ] Monta creazione e gestione canali privati
 - [ ] Scheduling dei messaggi temporizzati 
+- [ ] Se mi mandi "mediaUrl" nello squeal puoi allegare link a video o immagine
+- [ ] Se noti che il campo "mediaUrl" non inizia con http* allora é un link sullo stesso sito e devi solo mettere il dominio prima dell'url
 
 ``` javascript
 
@@ -181,3 +161,12 @@ function sendLiveLocation(sendAfterMs, sendForMs, lastSentSqueal, squealSentCoun
 
         
 ```
+
+## Moderator dashboard
+- [ ] Moderator dashboard
+  - [ ] Elencare utenti e filtrarli per nome, tipo (utente, smm, admin) e popolarita (?)
+    - [ ] Puo bannare, riabilitare e aumentare i caratteri residui
+  - [ ] Elencare squeal e filtrarli per utente, data e destinatari
+    - [ ] Ne puo cambiare i destinatari
+    - [ ] OPZIONALE, cambiare numero reazioni
+  - [ ] Elencare canali ufficiali squealer, aggiungerli, toglierli e modificarli  

@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const squealSchema = new mongoose.Schema({
     createdBy: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     content: String,
-    contentType: {type: String, enum: ['text', 'image', 'map']},
+    contentType: {type: String, enum: ['text', 'media', 'map']},
     impressions: {type: Number, default: 0, select: false},
     positiveReactions: {type: Number, default: 0, select: false},
     negativeReactions: {type: Number, default: 0, select: false},
@@ -24,6 +24,8 @@ const squealSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now},
     postedInChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
     mentionedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
+    mapPoints : [{type: Object}],
+    mediaUrl: {type: String, select: false},
     __v: {type: Number, select: false},
 });
 

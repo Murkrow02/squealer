@@ -2,6 +2,9 @@ const Squeal = require('../models/squealModel');
 const Channel = require('../models/channelModel');
 const User = require('../models/userModel');
 const Reaction = require('../models/reactionModel');
+const multer = require('multer');
+const path = require("path");
+const {json} = require("express");
 
 // Feed for user
 exports.getFeed = async (req, res, next) => {
@@ -54,32 +57,41 @@ exports.createSqueal = async (req, res, next) => {
         }
 
         // No quota was exceeded, create a new squeal
-        const squeal = new Squeal(squealData);
-        squeal.createdBy = req.user._id;
-        squeal.postedInChannels = channelsArray;
-
-        //Create new empty reactions array with 0 reactions for each reaction
-        const reactions = await Reaction.find();
-        reactions.forEach(reaction => {
-            squeal.reactions.push({
-                reactionId: reaction._id,
-                users: [],
-                count: 0
-            });
-        });
-
-        // Save squeal
-        await squeal.save();
-
-
-        // If squeal has text content, we should parse additional channels in the text
-        //TODO
+        let squeal = await createSqueal(squealData,req.user._id, channelsArray);
 
         // Send the squeal as response
         res.status(201).json(squeal);
     } catch (error) {
         next(error);
     }
+}
+
+exports.addMediaToSqueal = async (req, res, next) => {
+
+    // Get squeal id
+    const squealId = req.params.squealId;
+
+    // Get squeal from database
+    let squeal = await Squeal.findById(squealId);
+
+    // Check if squeal exists
+    if (!squeal) {
+        return res.status(404).json({error: 'Squeal non trovato'});
+    }
+
+    // Check if squeal is media type
+    if (squeal.contentType !== "media") {
+        return res.status(400).json({error: 'Squeal non di tipo media'});
+    }
+
+    // Update squeal mediaUrl
+    squeal.mediaUrl = "/storage/" + path.basename(req.file.path);
+
+    // Save squeal
+    await squeal.save();
+
+    // Return squeal as response
+    res.status(200).json(squeal);
 }
 
 // Search squeals by channel id
@@ -378,4 +390,27 @@ async function createFeedForUser(userId, channelIdFilter = null, searchInMention
     });
 
     return squeals;
+}
+
+async function createSqueal(squealData, userId, postInChannels)
+{
+    // Create squeal
+    let squeal = new Squeal(squealData);
+    squeal.createdBy = userId;
+    squeal.postedInChannels = postInChannels;
+
+    //Create new empty reactions array with 0 reactions for each reaction
+    let reactions = await Reaction.find();
+    reactions.forEach(reaction => {
+        squeal.reactions.push({
+            reactionId: reaction._id,
+            users: [],
+            count: 0
+        });
+    });
+
+    // Save squeal
+    let savedSqueal = await squeal.save();
+
+    return savedSqueal;
 }

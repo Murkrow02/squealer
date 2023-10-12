@@ -5,6 +5,20 @@ const authController = require('../controllers/authController');
 const squealController = require("../controllers/squealController");
 const channelController = require("../controllers/channelController");
 const passport = require('passport');
+const multer = require("multer");
+const path = require("path");
+
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null,  path.join(__dirname, '../storage'));
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const upload = multer({ storage });
 
 // Users
 router.get('/users',
@@ -27,6 +41,10 @@ router.get('/squeals',
 router.post('/squeals',
     passport.authenticate('bearer', { session: false}),
     squealController.createSqueal);
+router.post('/squeals/:squealId/media',
+    upload.single('media'),
+    passport.authenticate('bearer', { session: false}),
+    squealController.addMediaToSqueal);
 router.get('/squeals/searchByChannelId/:channelId',
     passport.authenticate('bearer', { session: false}),
     squealController.searchByChannelId);
