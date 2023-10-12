@@ -9,7 +9,6 @@ import NewSqueal from "./pages/NewSqueal";
 import Feed from "./pages/Feed";
 import Channel from "./pages/Channel";
 import Profile from "./pages/Profile";
-import TabBar from "./components/TabBar";
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';

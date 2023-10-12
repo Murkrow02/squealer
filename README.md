@@ -117,3 +117,66 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
     - [ ] Ne puo cambiare i destinatari 
     - [ ] OPZIONALE, cambiare numero reazioni
   - [ ] Elencare canali ufficiali squealer, aggiungerli, toglierli e modificarli  
+- [ ] Chiamata per aumentare di un delta la quota 
+- [ ] Diminuire la quota quando: 
+- [ ] Canali editoriali da mettere (controversial, altri > 3 nostri)
+- [ ] Modificare impression per identificare univocamente chi ha visto
+- [ ] Categorizza squeal come 
+  - Popolare: se R+ supera massa critica
+  - Impopolare: se R- supera massa critica
+  - Controverso: entrambi superano
+- [ ] Metti i canali riservati POPULAR, IMPOPULAR E CONTROVERSIAL vedi giu
+- Ogni volta che uno squeal diventa pop. imp., aggiorna quota utente
+  - Magari salva sull utente numero di squeal pop. imp. e se cambio di stato aggiorna quota Vedi criteri su pDF
+- [ ] Monta caso video, immagine o mappa [ array di punti ]
+  - Immagine e video genera un link per scaricarla
+- [ ] Messaggi generati automaticamente
+  - TIPI
+    - [ ] Posizione live: il client ti manda ogni tot un nuovo squeal temporizzato con array di coordinate.
+    - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
+    - [ ] Immagine: immagine a caso da lorem picsum
+- [ ] Viewmodel registrazione
+- [ ] Cambio password
+- [ ] RESET PASSWORD POI VEDI
+- [ ] Accesso senza login, puoi vedere solo certi canali
+  - Crea utente guest con token e tutto 
+- [ ] Linka squeal a risposta squeal (reply_to => id)
+- [ ] Chiamata per rispondere allo squeal
+- [ ] I canali pubblici gestibili dall'utente hanno una lista di utenti bannati
+- [ ] I canali pubblici sono associati all'utente che li crea
+- [ ] Un utente puo creare canale pubblico
+- [ ] Un utente puo gestire canale pubblico
+- [ ] Chiamata per i canali creati da utente
+
+## FRONT
+
+- [ ] Componenet destinatari squeal
+- [ ] Controlla se mostra errore quando superata quota
+- [ ] Quando uno squeal viene visualizzato (a meno che non privato) manda impression
+- [ ] Scarica lista emoji
+- [ ] monta reazioni con chiamata
+- [ ] Monta caso video squeal
+- [ ] Manda codifica per messaggio temporizzato testuale
+- [ ] Quando manda messaggio mappa puo decidere di farlo temporizzato con previsioni meteo
+- [ ] Quando parte messaggio temporizzato di "Manda posizione live": mostra banner sopra che puo interrompere e 
+- [ ] Monta ricerca utenti e scelta/rimozione SMM
+- [ ] Schermata profilo quando non é loggato
+- [ ] Monta iscrizione/disiscrizione a canale
+- [ ] Link immagine da internet
+- [ ] Monta creazione e gestione canali privati
+- [ ] Scheduling dei messaggi temporizzati 
+
+``` javascript
+
+
+// Eseguita dopo successo primo post di posizione live e chiamata ricorsivamente
+// sendAfterMs: intervallo di tempo ogni quanto mandare
+// sendForMs:   manda per tot ms
+function sendLiveLocation(sendAfterMs, sendForMs, lastSentSqueal, squealSentCount) 
+{
+    // Dopo il successo di post di uno squeal di aggiornamento posizione,
+    prendilo e rimandalo dopo tot con la nuova posizione
+}
+
+        
+```
