@@ -126,6 +126,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Un utente puo creare canale pubblico
 - [ ] Un utente puo gestire canale pubblico
 - [ ] Chiamata per i canali creati da utente
+- [ ] Chiamata ricerca canali a cui sei iscritto
 
 ## FRONT
 

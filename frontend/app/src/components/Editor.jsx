@@ -57,6 +57,7 @@ export default function Editor(props) {
     //Image loading
     const [image, setImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [imageLoadingType, setImageLoadingType] = useState("gallery");
 
     //Location
     const [location, setLocation] = useState([44.496352274776775, 371.3422250747681]);
@@ -280,6 +281,15 @@ export default function Editor(props) {
             decreaseCharCount(LOCATION_CHAR_SIZE);
         }
     }
+    function handleImageUploadingTypeChange(event) {
+        //set image type
+        setImageLoadingType(event.target.value);
+        //reset image
+        setImage(null);
+        //reset char count
+        resetCharCount();
+        console.log(event.target.value);
+    }
     async function handleImageUpload(event) {
         setIsLoading(true);
 
@@ -335,6 +345,17 @@ export default function Editor(props) {
             window.searchByUsername(event.target.value).then((users) => {
                 setReceiverSearchList(users.data);
                 console.log(users);
+            });
+        } else if (receiverTabValue === '2') {
+            window.getProfile().then((profile) => {
+                //get subscribed channels
+                let sub_channels = profile.data.subscribedChannels;
+                //filter sub_channels if type = 2
+                sub_channels = sub_channels.filter((channel) => {
+                    return channel.type !== "private" && channel.type !== "hashtag" && channel.name.toLowerCase().includes(event.target.value.toLowerCase());
+                });
+                //set search list
+                setReceiverSearchList(sub_channels);
             });
         } else if (receiverTabValue === '3') {
             //clear search list
@@ -398,8 +419,11 @@ export default function Editor(props) {
         const receiver_name = (target.childNodes[0].innerText).substring(1);
         //add receiver to list
         addReceiver(receiver_id, receiver_name, receiverTabValue);
-        //remove add button //TODO FIND BETTER IMPLEMENTATION
-        //target.childNodes[1].remove();
+
+        if (receiverTabValue !== '3') {
+            //fade add button
+            target.childNodes[1].style.opacity = "0";
+        }
     }
     //Triggered when + button near receivers list is clicked
     function showReceiverOverlay(event) {
@@ -414,19 +438,16 @@ export default function Editor(props) {
         //reset search input
         document.querySelector('.receivers-search-bar').value = "";
     }
-
     function convertToTemporizedSqueal(event) {
         setIsSquealTemporized(true);
         //TODO UPDATE UI IF ALREADY VARIABLES
     }
-
     function revertToNormalSqueal(event) {
         setIsSquealTemporized(false);
         //clear variables
         setVariablesList([]);
         //TODO UPDATE UI IF ALREADY VARIABLES
     }
-
     function onVariableSelectChange(event) {
         //get name of variable
         const variable_name = event.target.id.split('-')[3];
@@ -472,8 +493,7 @@ export default function Editor(props) {
                     <div style={{display: receiverPopupVisible ? "flex" : "none"}} className={"receivers-overlay"}>
                         <div className={"receivers-popup"}>
                             <div className={"receivers-popup-title-container"}>
-                                <CloseRoundedIcon onClick={hideReceiverOverlay}/>
-                                <Typography >Add receiver</Typography>
+                                <CloseRoundedIcon style={{cursor:'pointer'}} onClick={hideReceiverOverlay}/>
                             </div>
                             <input onChange={onReceiverInputChange} className={"receivers-search-bar"} type={"search"} placeholder={"Search"}/>
                             <Box sx={{ width: '100%', marginTop:'20px' }}>
@@ -493,7 +513,11 @@ export default function Editor(props) {
                                                 <div id={"searched-receiver-" + receiver._id} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
                                                     <Typography>{receiverTabSymbolDict[receiverTabValue] +
                                                         (receiverTabValue === '1' ? receiver.username
-                                                            : receiverTabValue === '3' ? receiver.content : null)
+                                                            : receiverTabValue === '2' ?
+                                                                receiver.name.substring(1)
+                                                            : receiverTabValue === '3' ?
+                                                                receiver.content
+                                                            : null)
                                                     }</Typography>
                                                     {
                                                         checkDuplicateReceiver(receiver._id, receiverTabValue) ?
@@ -563,7 +587,7 @@ export default function Editor(props) {
                                                     variablesList.map((variable) => {
                                                         return (
                                                             <div className={"variable-item"} onClick={() => { document.getElementById("select-for-var-" + variable.name).click()}}>
-                                                                <span>{variable.name}</span>
+                                                                <span className={"variable-name"}>{variable.name}</span>
                                                                 <div style={{display:"flex", alignItems:'center', gap:'5px'}}>
                                                                     <span style={{color:'var(--text-light)'}}>Type:</span>
                                                                     <div className={"variable-type-container"} >
@@ -571,8 +595,8 @@ export default function Editor(props) {
                                                                             <option value="unset" selected={variable.type === "unset"} >unset</option>
                                                                             <option value="date" selected={variable.type === "date"}>date</option>
                                                                             <option value="time" selected={variable.type === "time"}>time</option>
+                                                                            <option value="number" selected={variable.type === "number"}>number</option>
                                                                         </select>
-                                                                        <KeyboardArrowDownRoundedIcon fontSize={"small"} />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -597,11 +621,35 @@ export default function Editor(props) {
                             </div>
                         </div>
                     : squealType === "image" ?
+                        <div>
+                            <FormControl style={{ width:'100%', marginTop:'20px'}}>
+                                <FormLabel style={{textAlign:'center'}}>Import image from</FormLabel>
+                                <RadioGroup
+                                    row
+                                    style={{justifyContent:'center'}}
+                                    defaultValue="gallery"
+                                    name="row-radio-buttons-group"
+                                    onChange={handleImageUploadingTypeChange}
+                                    select
+                                >
+                                    <FormControlLabel value="gallery" control={<Radio />} label="Gallery" />
+                                    <FormControlLabel value="url" control={<Radio />} label="URL" />
+                                </RadioGroup>
+                            </FormControl>
                             <div style={{position:"relative"}}>
-                                <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*" onChange={handleImageUpload} />
-                                <div style={{width:'100%', display:'flex', justifyContent:'center', color:'var(--text-light)', alignItems:'center', cursor:'pointer', height:'55px', pointerEvents:'none', backgroundColor:'var(--light-bg)', marginTop:'20px', border:"solid 1px var(--text-light)", borderRadius:'5px', position:'absolute', top:'0'}}>
-                                    { image ? "Click to change image" : "Click to upload an image" }
-                                </div>
+                                {
+                                    imageLoadingType === "gallery" ?
+                                        <div>
+                                            <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*, video/*" onChange={handleImageUpload} />
+                                            <div style={{width:'100%', display:'flex', justifyContent:'center', color:'var(--text-light)', alignItems:'center', cursor:'pointer', height:'55px', pointerEvents:'none', backgroundColor:'var(--light-bg)', marginTop:'20px', border:"solid 1px var(--text-light)", borderRadius:'5px', position:'absolute', top:'0'}}>
+                                                { image ? "Click to change image" : "Click to upload an image" }
+                                            </div>
+                                        </div>
+                                    :
+                                        <input style={{width:'100%', backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Image URL"  />
+
+                                }
+
 
                                 {isLoading ? (
                                     <div>Loading...</div> // You can replace this with a spinner component
@@ -616,6 +664,8 @@ export default function Editor(props) {
                                 ) : null}
 
                             </div>
+                        </div>
+
                     : squealType === "location" ?
                                 <div>
                                     <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>

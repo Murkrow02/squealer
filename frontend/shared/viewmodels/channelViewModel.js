@@ -14,3 +14,4 @@ function unsubscribeFromChannel(channelId) {
 function getChannelsByCategory(category, query) {
     return api.get("channels/" + category + "?search=" + query);
 }
+
