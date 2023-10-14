@@ -107,3 +107,7 @@ O
 backend/models/reactionModel.js,c/2/c2319dd90e2bfb23e333e5b6f9ce56002eb46955
 \
 ,frontend/app/src/components/ActionButton.jsx,3/a/3a8edbcfac472a0b53590d741a28a9a9b933b6b9
+[
++frontend/shared/viewmodels/userViewModel.js,2/e/2e292732ea3fa9296e004798f940e5654a263355
+^
+.frontend/shared/viewmodels/channelViewModel.js,b/5/b51cacbb2275deeef56cc2d72880c08dd12e2301

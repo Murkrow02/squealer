@@ -87,26 +87,21 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 
 
 ### TODO
-- [x] Creazione nuovo squeal
-  - [ ] Upload immagine
-  - [x] Upload posizione
-  - [ ] Risposta ad altro squeal con squeal (tipo retweet)
-    - Si condividono tutti i canali non privati
 - [ ] Post da SMM per conto di un utente
 - [ ] Chiamata per poter comprare quota in piu per un anno
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
 - [ ] SECONDARIO: chiave app per autenticare il client
 - [ ] Chiamata per aumentare di un delta la quota 
-- [ ] Diminuire la quota quando: 
 - [ ] Canali editoriali da mettere (controversial, altri > 3 nostri)
+- [ ] Diminuire la quota quando:
+- Ogni volta che uno squeal diventa pop. imp., aggiorna quota utente
+- Magari salva sull utente numero di squeal pop. imp. e se cambio di stato aggiorna quota Vedi criteri su pDF
 - [ ] Modificare impression per identificare univocamente chi ha visto
 - [ ] Categorizza squeal come 
   - Popolare: se R+ supera massa critica
   - Impopolare: se R- supera massa critica
   - Controverso: entrambi superano
 - [ ] Metti i canali riservati POPULAR, IMPOPULAR E CONTROVERSIAL vedi giu
-- Ogni volta che uno squeal diventa pop. imp., aggiorna quota utente
-  - Magari salva sull utente numero di squeal pop. imp. e se cambio di stato aggiorna quota Vedi criteri su pDF
 - [ ] Monta caso video, immagine o mappa [ array di punti ]
   - Immagine e video genera un link per scaricarla
 - [ ] Messaggi generati automaticamente
@@ -114,18 +109,11 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
     - [ ] Posizione live: il client ti manda ogni tot un nuovo squeal temporizzato con array di coordinate.
     - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
     - [ ] Immagine: immagine a caso da lorem picsum
-- [ ] Viewmodel registrazione
-- [ ] Cambio password
 - [ ] RESET PASSWORD POI VEDI
 - [ ] Accesso senza login, puoi vedere solo certi canali
   - Crea utente guest con token e tutto 
-- [ ] Linka squeal a risposta squeal (reply_to => id)
-- [ ] Chiamata per rispondere allo squeal
 - [ ] I canali pubblici gestibili dall'utente hanno una lista di utenti bannati
-- [ ] I canali pubblici sono associati all'utente che li crea
-- [ ] Un utente puo creare canale pubblico
 - [ ] Un utente puo gestire canale pubblico
-- [ ] Chiamata per i canali creati da utente
 
 ## FRONT
 
@@ -146,7 +134,9 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Scheduling dei messaggi temporizzati 
 - [ ] Se mi mandi "mediaUrl" nello squeal puoi allegare link a video o immagine
 - [ ] Se noti che il campo "mediaUrl" non inizia con http* allora é un link sullo stesso sito e devi solo mettere il dominio prima dell'url
-
+- [ ] Se uno squeal ha il campo replyTo, allora é una risposta ad un altro squeal e andrebbe mostrato come tale (ti mando tutto lo squeal a cui risponde)
+- [ ] Per rispondere ad uno squeal, basta che tu mandi un campo replyTo con l'id dello squeal a cui vuoi rispondere, copia i canali identici non farli selezionare
+- [ ] Nel profilo vengono ritornati anche i canali creati
 ``` javascript
 
 

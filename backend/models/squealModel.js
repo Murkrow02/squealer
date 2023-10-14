@@ -13,6 +13,7 @@ const squealSchema = new mongoose.Schema({
     positiveReactions: {type: Number, default: 0, select: false},
     negativeReactions: {type: Number, default: 0, select: false},
     popularity: {type: Number, default: 0, select: false},
+    replyTo: {type: mongoose.Schema.Types.ObjectId, ref: "Squeal"},
     reactions: {
         type: [{
             _id: false,

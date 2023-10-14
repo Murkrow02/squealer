@@ -33,6 +33,9 @@ router.get('/users/searchByUsername/:username',
 router.patch('/users/setSmm/:smmId',
     passport.authenticate('bearer', { session: false }),
     userController.setSmm);
+router.patch('/users/profile/changePassword',
+    passport.authenticate('bearer', { session: false }),
+    userController.changePassword);
 
 // Squeals
 router.get('/squeals',
@@ -74,7 +77,9 @@ router.patch('/channels/:channelId/unsubscribe',
 router.get('/channels/:channelCategory',
     passport.authenticate('bearer', { session: false}),
     channelController.getChannelsByCategory);
-
+router.post('/channels',
+    passport.authenticate('bearer', { session: false}),
+    channelController.createChannel);
 
 // Auth
 router.post('/login', authController.login);

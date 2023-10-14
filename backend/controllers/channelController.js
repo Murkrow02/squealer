@@ -121,3 +121,61 @@ exports.getChannelsByCategory = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.createChannel = async (req, res, next) => {
+
+    // Get the channel name from the request
+    var name = req.body.name;
+
+    // Check if contains illegal characters (any character that is not a letter, a number or an underscore)
+    if (name.match(/[^a-zA-Z0-9_]/)) {
+        return res.status(400).json({error: "Il nome del canale può contenere solo lettere, numeri e underscore"});
+    }
+
+    // Add the symbol to the channel name
+    name ='§' + name.toLowerCase();
+
+    // Check if channel with the same name already exists
+    let conflict = await Channel.where('name').equals(name).exec();
+
+    // If channel with the same name already exists, abort
+    if (conflict.length > 0) {
+        return res.status(409).json({error: "Un canale con questo nome esiste già"});
+    }
+
+    // The channel category is always public
+    const category = "public";
+
+    // Get the channel description from the request
+    const description = req.body.description;
+
+    // Add logged user as admin
+    const admins = [req.user.id];
+
+    // Create the channel
+    const channel = new Channel({
+        name: name,
+        category: category,
+        description: description,
+        admins: admins,
+    });
+
+    try {
+        // Save the channel
+        let newChannel = await channel.save();
+
+        // Add the channel to the logged user's createdChannels and subscribedChannels
+        let user = await User.findById(req.user.id)
+            .select("+createdChannels +subscribedChannels")
+            .populate('createdChannels','subscribedChannels');
+        user.subscribedChannels.push(newChannel._id);
+        user.createdChannels.push(newChannel._id);
+        await user.save();
+
+        // Return the channel as the response
+        res.status(201).json(newChannel);
+
+    }catch (error) {
+        next(error);
+    }
+}

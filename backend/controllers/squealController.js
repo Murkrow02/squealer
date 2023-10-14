@@ -362,6 +362,7 @@ async function createFeedForUser(userId, channelIdFilter = null, searchInMention
         .sort({createdAt: -1})
         .populate('createdBy')
         .populate('postedInChannels')
+        .populate('replyTo')
         .populate('reactions')
         .select('+reactions.users')
         .lean()

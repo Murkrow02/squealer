@@ -10,7 +10,14 @@ function unsubscribeFromChannel(channelId) {
 
 // Search for channel by providing its category (public, editorial...)
 // e.g. getChannelsByCategory("editorial", "maiz")
-
 function getChannelsByCategory(category, query) {
     return api.get("channels/" + category + "?search=" + query);
+}
+
+// Create new public channel
+function createChannel(channelName, channelDescription) {
+    return api.post("channels", {
+        name: channelName,
+        description: channelDescription,
+    });
 }

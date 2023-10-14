@@ -93,6 +93,7 @@ exports.register = async (req, res, next) => {
     }
 };
 
+
 // Create a token for the user
 async function createTokenForUser(user) {
 

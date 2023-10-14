@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     username: String,
     email: {type: String, select: false},
     password: {type: String, select: false},
-    type: {type: String, enum: ['blocked','user', 'smm', 'admin']},
+    type: {type: String, enum: ['guest','blocked','user', 'smm', 'moderator']},
     subscribedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
     smmId: {type: mongoose.Schema.Types.ObjectId, ref: "User", select: false},
     quota: {
@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
             monthlyQuotaReset: {type: Date, select: true},
         }, select: false
     },
+    createdChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
     privateChannelId: {type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}, // Used for private messaging
     __v: {type: Number, select: false},
 });
