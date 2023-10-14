@@ -22,6 +22,7 @@ import ActionButton from "./ActionButton";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import Box from "@mui/material/Box";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
@@ -153,6 +154,12 @@ export default function Editor(props) {
         setMaxWeekChars(initialWeekChars - value);
         setMaxMonthChars(initialMonthChars - value);
     }
+
+    //regex for web links
+    const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
+    const mentionRegex = /^[@#§]\w+/g;
+    const variableRegex = /^[$]\w+/g;
+
     function handleSquealTextChange(event) {
         //check if squeal type is text
         if (squealType !== "text") {
@@ -170,10 +177,7 @@ export default function Editor(props) {
         //update char count
         decreaseCharCount(event.target.value.length);
 
-        //regex for web links
-        const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
-        const mentionRegex = /^[@#§]\w+/g;
-        const variableRegex = /^[$]\w+/g;
+
 
         //split text into array
         const segments = event.target.value.split(" ");
@@ -286,6 +290,8 @@ export default function Editor(props) {
         setImageLoadingType(event.target.value);
         //reset image
         setImage(null);
+        //reset url
+        document.getElementById("image-uri-input").value = "";
         //reset char count
         resetCharCount();
         console.log(event.target.value);
@@ -467,6 +473,32 @@ export default function Editor(props) {
         setVariablesList(list);
     }
 
+    function imageSearchClicked(event) {
+        let target = document.getElementById("image-uri-input");
+        //check if text is empty
+        if (target.value === "") {
+            return;
+        }
+
+        //check if text matches url regex
+        if (!target.value.match(urlRegex)) {
+            alert("Invalid url");
+            return;
+        }
+        function isMedia(url) {
+            return /\.(jpg|jpeg|png|webp|avif|gif|svg|mp4|webm)$/.test(url);
+        }
+
+        //check if url is a valid media
+        if (!isMedia(target.value)) {
+            alert("Invalid url");
+            return;
+        }
+
+        //display image
+        setImage(target.value);
+    }
+
     return(
         <div style={{padding: '0 20px', marginTop:'10vh'}}>
             <div>
@@ -533,7 +565,6 @@ export default function Editor(props) {
                         </div>
                     </div>
                 </div>
-
             </div>
             <FormControl style={{ width:'100%', marginTop:'20px'}}>
                 <FormLabel style={{textAlign:'center'}} id="demo-row-radio-buttons-group-label">Squeal type</FormLabel>
@@ -646,8 +677,10 @@ export default function Editor(props) {
                                             </div>
                                         </div>
                                     :
-                                        <input style={{width:'100%', backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Image URL"  />
-
+                                        <div>
+                                            <input id={"image-uri-input"} style={{width:'calc(100% - 70px - 2px)', padding:'0 60px 0 10px', fontSize:"1rem", border:"solid 1px var(--text-light)", backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Image URL"  />
+                                            <SearchRoundedIcon onClick={imageSearchClicked} style={{position:'absolute', right:'10px', top:'35px', cursor:'pointer'}}/>
+                                        </div>
                                 }
 
 
