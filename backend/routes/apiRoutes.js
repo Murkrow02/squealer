@@ -82,7 +82,7 @@ router.post('/channels',
     channelController.createChannel);
 
 // Auth
-router.post('/login', authController.login);
-router.post('/register', authController.register);
+router.post('/auth/login', authController.login);
+router.post('/auth/register/:guest', authController.register);
 
 module.exports = router;

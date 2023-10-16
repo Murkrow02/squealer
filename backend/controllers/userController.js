@@ -12,6 +12,7 @@ exports.getAllUsers = async (req, res, next) => {
     }
 };
 
+// Get profile
 exports.getProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id)
@@ -23,6 +24,7 @@ exports.getProfile = async (req, res, next) => {
     }
 }
 
+// Search users by username
 exports.searchByUsername = async (req, res, next) => {
     try {
         const users = await User.find({username: {$regex: req.params.username, $options: 'i'}})
@@ -33,6 +35,7 @@ exports.searchByUsername = async (req, res, next) => {
     }
 }
 
+// Choose smm for user
 exports.setSmm = async (req, res, next) => {
 
     try {

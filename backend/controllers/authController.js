@@ -7,6 +7,7 @@ const crypto = require('crypto');
 // Redirects
 let redirects = {
     "user": "/app",
+    "guest": "/app",
     "smm": "/smm",
     "moderator": "/moderator"
 }
@@ -46,8 +47,25 @@ exports.login = async (req, res) => {
 // Register
 exports.register = async (req, res, next) => {
 
-    // Get the username and password from the request body
-    const { username, password, email } = req.body;
+    // Init variables
+    let { username, password, email } = "";
+
+    // Check if need to create guest account
+    let guest = req.params.guest === 'true';
+    if(guest){
+
+        // Generate random username and password
+        username = "temp_"+crypto.randomBytes(32).toString('hex');
+        password = crypto.randomBytes(32).toString('hex');
+        email = crypto.randomBytes(32).toString('hex') + "@guest.com";
+    }
+    else{
+
+        // Get the username and password from the request body
+        username = req.body.username;
+        password = req.body.password;
+        email = req.body.email;
+    }
 
     // Check for already existing user
     if(await User.findOne({ username })){
@@ -64,29 +82,33 @@ exports.register = async (req, res, next) => {
         username: username,
         password: hashedPassword,
         subscribedChannels: [],
-        type: 'user',
+        type: guest ? 'guest' : 'user',
     });
 
     // Create quota object for the user
-    newUser.quota = generateDefaultQuotaObject();
+    if(!guest)
+        newUser.quota = generateDefaultQuotaObject();
 
     try {
 
         //Save user
         await newUser.save();
 
-        // Create personal channel for the user for private messaging and subscribe to it
-        const personalChannel = new Channel({
-            category: "private",
-            name: newUser._id + " private",
-        });
-        await personalChannel.save();
-        newUser.privateChannelId = personalChannel._id;
-        newUser.subscribedChannels.push(personalChannel._id);
-        await newUser.save();
+        // Create personal channel for the user for private messaging and subscribe to it (only if not guest)
+        if(!guest) {
+            const personalChannel = new Channel({
+                category: "private",
+                name: newUser._id + " private",
+            });
+            await personalChannel.save();
+            newUser.privateChannelId = personalChannel._id;
+            newUser.subscribedChannels.push(personalChannel._id);
+            await newUser.save();
+        }
 
-        // Return success message
-        res.json({ message: 'Registrazione avvenuta con successo' });
+        // Return token
+        let token = await createTokenForUser(newUser);
+        return res.json({ token: token, redirectURL: redirects[newUser.type] });
 
     } catch (error) {
         next(error);

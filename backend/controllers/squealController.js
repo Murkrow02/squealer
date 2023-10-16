@@ -346,16 +346,35 @@ async function checkIfExceedsQuota(userId, squeal) {
 
 // Returns a list of squeals posted in the channels that the user is subscribed to (or in the channel provided as filter)
 async function createFeedForUser(userId, channelIdFilter = null, searchInMentionedChannels = false) {
+
     // Get user from id
     let user = await User.findById(userId).select("+subscribedChannels").select("+privateChannelId");
 
     // Now decide if filter out by subscribed channels or by channel id (if provided)
     let channelsToFilter = channelIdFilter ? [channelIdFilter] : user.subscribedChannels;
 
-    // Decide if search in mentioned channels or in posted in channels
-    let initialQuery = searchInMentionedChannels
-        ? Squeal.find({mentionedChannels: {$in: channelsToFilter}})  // Search on mentionedChannels field of all squeals
-        : Squeal.find({postedInChannels: {$in: channelsToFilter}});  // Search on postedInChannels field of all squeals
+    // Build query based on different cases
+    let initialQuery;
+
+    // If user is guest, only squeals posted in editorial channels are shown
+    if (user.type === "guest") {
+
+        // Get editorial channels
+        let editorialChannels = await Channel.find({category: "editorial"});
+
+        // Build query
+        initialQuery = Squeal.find({postedInChannels: {$in: editorialChannels}});
+    }
+    else if (searchInMentionedChannels)
+    {
+        // Search on mentionedChannels field of all squeals
+        initialQuery = Squeal.find({mentionedChannels: {$in: channelsToFilter}});
+    }
+    else
+    {
+        // Search on postedInChannels field of all squeals
+        initialQuery = Squeal.find({postedInChannels: {$in: channelsToFilter}});
+    }
 
     // Get all squeals from the database that are posted in the channels selected
     let result = initialQuery

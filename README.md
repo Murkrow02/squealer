@@ -1,10 +1,5 @@
 # Squealer
 
-3 progetti
- - [ ] UserModel app: react + mui con Joy UI
- - [ ] SMM app: alpine.js + pine
- - [ ] Moderator: js + bootstrap
-
 ## Autenticazione
 
 ### Logica
@@ -18,11 +13,11 @@ Esiste un'unica pagina utilizzata per il login, raggungibile a /static/auth.
 Una volta effettuato il login con successo, in base al tipo di account, l'utente viene reindirizzato
 alla pagina corrispondente (utente, smm, admin).
 
-### Routing
+## Routing
 Le route vengono definite lato server da express. In particolare, le librerie utilizzate
 dai progetti singoli (axios...), sono servite tramite endpoint condivisi.
 
-### Query
+## Query
 Le query vengono gestite tramite **mongoose** e vengono eseguite lato server. I risultati
 vengono interrogati e processati tramite la libreria **axios**.
 Per migliorare le performance, le relazioni non sono gestite tramite semplici liste nei modelli,
@@ -31,17 +26,17 @@ Un esempio puó essere la tabella che lega gli squeal ai canali, per poter avere
 appartenenti ad un canale. In questo modo evitiamo di scorrere le liste di categorie per 
 ogni squeal ma ci limitiamo a prendere dalla tabella pivot solo i risultati che ci interessano.
 
-### Seeder
+## Seeder
 Per aiutare lo sviluppo, é stato creato un seeder che permette di popolare il database con dati 
 fittizi. Quando il server viene avviato, viene controllato se il database é vuoto, in caso affermativo
 viene popolato con i dati del seeder.
 
-### Gestione degli errori
+## Gestione degli errori
 La gestione degli errori nell'API é stata centralizzata in un unico middleware. In questo modo,
 evitiamo di dover gestire gli errori in ogni singola route. In caso di errore, viene restituito
 un oggetto JSON con i dettagli dell'errore (che andrebbe rimosso in un ipotetco scenario di produzione).
 
-### Squeal
+## Squeal
 
 #### Reazioni
 Le possibili reazioni ad uno squeal sono variabili e possono essere modificate in qualsiasi momento 
@@ -61,7 +56,19 @@ Per migliorare le performance (e non visitare tutti gli squeal per cercare le me
 é stata creata una tabella a parte per salvare i canali e le menzioni di ogni singolo squeal. In questo modo, é possibile
 filtrare gli squeal in base ai canali e alle menzioni senza dover scorrere tutti gli squeal.
 
-### Canali
+## Utenti
+
+### Utenti standard
+Gli utenti possono registrarsi tramite email e password. Una volta registrati, possono accedere
+ed effettuare azioni come creare uno squeal, reagire ad uno squeal, commentare uno squeal, ecc.
+
+### Utenti guest
+Vengono creati nel database come utenti standard. Differsicono dagli utenti standard in quanto
+possono effettuare azioni limitate, non possono mantenere la sessione e non possono effettuare il login
+in un secondo momento. 
+
+
+## Canali
 Canali pubblici, privati (menzioni) e keyword vengono trattati tutti allo stesso modo e salvati nella stessa tabella.
 In questo modo é sempre possibile in maniera veloce e semplice, trovare tutti i post di un canale (o keyword).
 Nel caso in cui una keyword appaia per la prima volta, viene creata una nuova entry nella tabella canali.
@@ -87,8 +94,6 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 
 
 ### TODO
-- [ ] Post da SMM per conto di un utente
-- [ ] Chiamata per poter comprare quota in piu per un anno
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
 - [ ] SECONDARIO: chiave app per autenticare il client
 - [ ] Chiamata per aumentare di un delta la quota 
@@ -102,16 +107,11 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
   - Impopolare: se R- supera massa critica
   - Controverso: entrambi superano
 - [ ] Metti i canali riservati POPULAR, IMPOPULAR E CONTROVERSIAL vedi giu
-- [ ] Monta caso video, immagine o mappa [ array di punti ]
-  - Immagine e video genera un link per scaricarla
 - [ ] Messaggi generati automaticamente
   - TIPI
-    - [ ] Posizione live: il client ti manda ogni tot un nuovo squeal temporizzato con array di coordinate.
     - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
     - [ ] Immagine: immagine a caso da lorem picsum
 - [ ] RESET PASSWORD POI VEDI
-- [ ] Accesso senza login, puoi vedere solo certi canali
-  - Crea utente guest con token e tutto 
 - [ ] I canali pubblici gestibili dall'utente hanno una lista di utenti bannati
 - [ ] Un utente puo gestire canale pubblico
 
@@ -137,6 +137,8 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Se uno squeal ha il campo replyTo, allora é una risposta ad un altro squeal e andrebbe mostrato come tale (ti mando tutto lo squeal a cui risponde)
 - [ ] Per rispondere ad uno squeal, basta che tu mandi un campo replyTo con l'id dello squeal a cui vuoi rispondere, copia i canali identici non farli selezionare
 - [ ] Nel profilo vengono ritornati anche i canali creati
+- [ ] Quando entra come guest, chiama la createGuestUser per loggarti come guest
+  - Disabilita le funzioni che non puo fare quando é guest
 ``` javascript
 
 

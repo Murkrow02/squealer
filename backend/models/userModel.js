@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema({
             monthlyQuotaReset: {type: Date, select: true},
         }, select: false
     },
+    karma: {
+        type:{
+            popularSquealCount: {type: Number, default: 0, select: true},
+            impopularSquealCount: {type: Number, default: 0, select: true},
+        }, select: false
+    },
     createdChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
     privateChannelId: {type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}, // Used for private messaging
     __v: {type: Number, select: false},
