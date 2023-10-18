@@ -54,6 +54,7 @@ export default function Editor(props) {
     //Squeal type
     const [squealType, setSquealType] = React.useState("text");
     const [isSquealTemporized, setIsSquealTemporized] = React.useState(false);
+    const [isSquealWeather, setIsSquealWeather] = React.useState(false);
 
     //Image loading
     const [image, setImage] = useState(null);
@@ -294,7 +295,6 @@ export default function Editor(props) {
         document.getElementById("image-uri-input").value = "";
         //reset char count
         resetCharCount();
-        console.log(event.target.value);
     }
     async function handleImageUpload(event) {
         setIsLoading(true);
@@ -472,7 +472,6 @@ export default function Editor(props) {
         //update variables list
         setVariablesList(list);
     }
-
     function imageSearchClicked(event) {
         let target = document.getElementById("image-uri-input");
         //check if text is empty
@@ -497,6 +496,22 @@ export default function Editor(props) {
 
         //display image
         setImage(target.value);
+    }
+
+    async function convertToWeatherSqueal(event) {
+        setIsSquealWeather(true);
+
+        if (location === null) {
+            return;
+        }
+
+        //fetch from openweather
+        let weatherRequest = await fetch("https://api.openweathermap.org/data/2.5/onecall?lat=" + location[0] + "&lon=" + location[1] +"&exclude=alerts&appid=467229bedb61759b794788eb860561c4")
+        let weatherResponse = await weatherRequest.json();
+    }
+
+    function revertToLocationSqueal(event) {
+        setIsSquealWeather(false);
     }
 
     return(
@@ -715,7 +730,26 @@ export default function Editor(props) {
                                             <MapEvents />
                                         </MapContainer>
                                     </div>
-                                    <p style={{color:'var(--text-light)', textAlign:'center'}}>Click on the map to select a new point</p>
+                                    <p style={{color:'var(--text-light)', textAlign:'center'}}>
+                                        {
+                                            isSquealWeather ?
+                                                "Click on the map to select a new point and get the weather forecast"
+                                            :
+                                                "Click on the map to select a new point"
+                                        }
+                                        </p>
+                                    <div style={{margin: "20px -10px 0 -10px"}}>
+                                        {
+                                            isSquealWeather ?
+                                                <div onClick={revertToLocationSqueal}>
+                                                    <ActionButton text={"Revert to location squeal"} type={"danger"}></ActionButton>
+                                                </div>
+                                            :
+                                                <div onClick={convertToWeatherSqueal}>
+                                                    <ActionButton text={"Create weather squeal"} type={"secondary"}></ActionButton>
+                                                </div>
+                                        }
+                                    </div>
                                 </div>
                 : null
             }
