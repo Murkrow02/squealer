@@ -199,3 +199,21 @@ select {
     max-width: 55vw;
     word-wrap: anywhere;
 }
+
+.weather-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px 5px 5px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.weather-info-container  img {
+    width: 40px;
+}
+
+#weather-info-label, #weather-temperature-label {
+    color: white;
+    font-weight: bold;
+}

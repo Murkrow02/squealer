@@ -125,6 +125,10 @@ export default function Editor(props) {
                 setLocation([e.latlng.lat, e.latlng.lng]);
                 //move map to new location
                 map.flyTo([e.latlng.lat, e.latlng.lng], map.getZoom());
+
+                if (isSquealWeather) {
+                    updateWeatherData();
+                }
             },
         });
         return false;
@@ -498,18 +502,43 @@ export default function Editor(props) {
         setImage(target.value);
     }
 
+    const [locationLight, setLocationLight] = React.useState("day");
+    const [locationWeatherCode, setLocationWeatherCode] = React.useState(0);
+    const [locationWeatherImage, setLocationWeatherImage] = React.useState("");
+    const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
+    const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
+    async function updateWeatherData() {
+        //fetch from openweather
+        console.log(location);
+        let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + location[0] + "&longitude=" + location[1] + "&current=temperature_2m,weathercode,is_day")
+        if (!weatherRequest.ok) {
+            console.log("Error while fetching weather data");
+            return;
+        }
+        //get json
+        let weatherResponse = await weatherRequest.json();
+        //get location light
+        setLocationLight(weatherResponse.current.is_day === 0 ? "night" : "day");
+        //get location temperature
+        setLocationWeatherTemperature(weatherResponse.current.temperature_2m);
+        //get location weather code
+        setLocationWeatherCode(weatherResponse.current.weathercode);
+        //get json at helpers/WeatherInfo.json
+        let weatherInfo = require('../helpers/WeatherInfo.json');
+        //get weatherCode image
+        setLocationWeatherImage(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].image);
+        //get weatherCode description
+        setLocationWeatherDescription(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].description);
+        //TODO OPENSTREETMAPS LOCATION OVERFLOW
+    }
+
     async function convertToWeatherSqueal(event) {
         setIsSquealWeather(true);
-
         if (location === null) {
             return;
         }
-
-        //fetch from openweather
-        let weatherRequest = await fetch("https://api.openweathermap.org/data/2.5/onecall?lat=" + location[0] + "&lon=" + location[1] +"&exclude=alerts&appid=467229bedb61759b794788eb860561c4")
-        let weatherResponse = await weatherRequest.json();
+        await updateWeatherData();
     }
-
     function revertToLocationSqueal(event) {
         setIsSquealWeather(false);
     }
@@ -713,7 +742,6 @@ export default function Editor(props) {
 
                             </div>
                         </div>
-
                     : squealType === "location" ?
                                 <div>
                                     <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
@@ -729,6 +757,13 @@ export default function Editor(props) {
                                             </Marker>
                                             <MapEvents />
                                         </MapContainer>
+                                    </div>
+                                    <div style={{display: isSquealWeather ? 'flex' : 'none', background: locationLight === "day" ? 'linear-gradient(261deg, #00affa 30%, #6cd1ff 70%)' : 'linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%)'}} className={"weather-info-container"}>
+                                        <div style={{display:'flex', alignItems:'center'}}>
+                                            <img src={locationWeatherImage}/>
+                                            <Typography id={"weather-info-label"}>{locationWeatherDescription}</Typography>
+                                        </div>
+                                        <Typography id={"weather-temperature-label"}>{locationWeatherTemperature}°</Typography>
                                     </div>
                                     <p style={{color:'var(--text-light)', textAlign:'center'}}>
                                         {
