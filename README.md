@@ -38,6 +38,14 @@ un oggetto JSON con i dettagli dell'errore (che andrebbe rimosso in un ipotetco 
 
 ## Squeal
 
+### Popolari, impopolari e controversi
+Ogni qual che viene aggiunta/rimossa una reazione ad uno squeal, oppure se aumenta il numero di impression,
+viene effettuata l'azione "updateSquealTrend" (vedi il file helpers/squealTrendHelper.js). Questa azione si occupa di aggiornare lo stato di popolaritá
+dello squeal. In particolare, se lo squeal diventa popolare, l'utente potrebbe ricevere un bonus di caratteri,
+al contrario, se lo squeal diventa impopolare, l'utente potrebbe perdere dei caratteri.
+Nel caso in cui lo squeal diventi controverso, verrá aggiunto al canale "controversial".
+
+
 #### Reazioni
 Le possibili reazioni ad uno squeal sono variabili e possono essere modificate in qualsiasi momento 
 in quanto salvate in una tabella a parte sul db.
@@ -95,18 +103,8 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 
 ### TODO
 - [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
-- [ ] SECONDARIO: chiave app per autenticare il client
 - [ ] Chiamata per aumentare di un delta la quota 
 - [ ] Canali editoriali da mettere (controversial, altri > 3 nostri)
-- [ ] Diminuire la quota quando:
-- Ogni volta che uno squeal diventa pop. imp., aggiorna quota utente
-- Magari salva sull utente numero di squeal pop. imp. e se cambio di stato aggiorna quota Vedi criteri su pDF
-- [ ] Modificare impression per identificare univocamente chi ha visto
-- [ ] Categorizza squeal come 
-  - Popolare: se R+ supera massa critica
-  - Impopolare: se R- supera massa critica
-  - Controverso: entrambi superano
-- [ ] Metti i canali riservati POPULAR, IMPOPULAR E CONTROVERSIAL vedi giu
 - [ ] Messaggi generati automaticamente
   - TIPI
     - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
@@ -114,6 +112,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] RESET PASSWORD POI VEDI
 - [ ] I canali pubblici gestibili dall'utente hanno una lista di utenti bannati
 - [ ] Un utente puo gestire canale pubblico
+- [ ] Quando ti viene postato un canale con hashtag, crea un nuovo canale nel caso in cui non esista
 
 ## FRONT
 
@@ -139,6 +138,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Nel profilo vengono ritornati anche i canali creati
 - [ ] Quando entra come guest, chiama la createGuestUser per loggarti come guest
   - Disabilita le funzioni che non puo fare quando é guest
+- [ ] Se un utente ha reagito ad uno squeal, nelle reazioni ti ritorno "userReacted":true, altrimenti nulla. Mostra reazioni in base a questo
 ``` javascript
 
 

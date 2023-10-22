@@ -23,7 +23,7 @@ const squealData = [
         userId: "", // Set in seed()
         content: "asf",
         contentType: "text",
-        impressions: 0,
+        impressions: [],
         positiveReactions: 0,
         negativeReactions: 0,
         popularity: 0,

@@ -2,6 +2,8 @@ const Squeal = require('../models/squealModel');
 const Channel = require('../models/channelModel');
 const User = require('../models/userModel');
 const Reaction = require('../models/reactionModel');
+let SquealTrendHelper = require('../helpers/squealTrendHelper');
+const UserController = require('./userController');
 const multer = require('multer');
 const path = require("path");
 const {json} = require("express");
@@ -118,6 +120,7 @@ exports.searchByChannelId = async (req, res, next) => {
 // React to squeal
 exports.reactToSqueal = async (req, res, next) => {
 
+
     try {
 
         // Get squeal id
@@ -163,6 +166,9 @@ exports.reactToSqueal = async (req, res, next) => {
 
         // Save squeal
         await squeal.save();
+
+        // Update squeal trend
+        await SquealTrendHelper.updateSquealTrend(squealId);
 
         // Return squeal as response
         res.status(200).json(await Squeal.findById(squealId));
@@ -224,6 +230,9 @@ exports.unreactToSqueal = async (req, res, next) => {
         // Save squeal
         await squeal.save();
 
+        // Update squeal trend
+        await SquealTrendHelper.updateSquealTrend(squealId);
+
         // Return squeal as response
         return res.status(200).json(await Squeal.findById(squealId));
 
@@ -249,11 +258,16 @@ exports.addImpression = async (req, res, next) => {
             return res.status(404).json({error: 'Squeal non trovato'});
         }
 
-        // Increment impression count
-        squeal.impressions++;
+        // Add logged user to impressions (if not already present)
+        if (!squeal.impressions.includes(req.user.id)) {
+            squeal.impressions.push(req.user.id);
+        }
 
         // Save squeal
         squeal.save();
+
+        // Update squeal trend
+        await SquealTrendHelper.updateSquealTrend(squealId);
 
         // Return squeal as response
         return res.status(200).json(await Squeal.findById(squealId));
@@ -430,7 +444,5 @@ async function createSqueal(squealData, userId, postInChannels)
     });
 
     // Save squeal
-    let savedSqueal = await squeal.save();
-
-    return savedSqueal;
+    return await squeal.save();
 }
