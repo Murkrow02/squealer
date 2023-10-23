@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const AccessToken = require('../models/accessTokenModel');
 const Channel = require('../models/channelModel');
 const bcrypt = require('bcryptjs');
+const TrendHelper = require('../helpers/squealTrendHelper');
 const crypto = require('crypto');
 
 // Redirects
@@ -87,7 +88,7 @@ exports.register = async (req, res, next) => {
 
     // Create quota object for the user
     if(!guest)
-        newUser.quota = generateDefaultQuotaObject();
+        newUser.quota = TrendHelper.generateDefaultQuotaObject();
 
     try {
 
@@ -140,18 +141,4 @@ async function createTokenForUser(user) {
 
     // Return the generated token
     return token;
-}
-
-function generateDefaultQuotaObject() {
-    return {
-        dailyQuotaUsed: 0,
-        dailyQuotaMax: 500,
-        dailyQuotaReset: Date.now() + 1000 * 60 * 60 * 24,
-        weeklyQuotaUsed: 0,
-        weeklyQuotaMax: 5000,
-        weeklyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 7,
-        monthlyQuotaUsed: 0,
-        monthlyQuotaMax: 50000,
-        monthlyQuotaReset: Date.now() + 1000 * 60 * 60 * 24 * 30,
-    }
 }

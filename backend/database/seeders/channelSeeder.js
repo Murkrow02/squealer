@@ -21,30 +21,14 @@ async function seed(){
 }
 
 const channelData = [
+
+    // DO NOT REMOVE THIS IN PROD
     {
-        name: "",
-        category: "private",
-        admins: [],
-        description: "",
-    },
-    {
-        name: "§maiz",
-        category: "public",
-        admins: [],
-        description: "gessi",
-    },
-    {
-        name: "§MAIZ",
+        name: "§CONTROVERSIAL",
         category: "editorial",
         admins: [],
-        description: "pila",
-    },
-    {
-        name: "#maiz",
-        category: "hashtag",
-        admins: [],
-        description: "yo",
-    },
+        description: "Tutti gli squeal che stanno facendo discutere il mondo",
+    }
 ];
 
 module.exports = { seed };
