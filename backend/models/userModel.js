@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
     popularSquealCount: {type: Number, default: 0, select: false},
     unpopularSquealCount: {type: Number, default: 0, select: false},
     createdChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
-    privateChannelId: {type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}, // Used for private messaging
+    privateChannelId: {type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: true}, // Used for private messaging
     __v: {type: Number, select: false},
 });
 

@@ -96,7 +96,7 @@ export default function Squeal(props) {
                     {props.type === "text" && (
                         <div style={{ backgroundColor:'var(--light-bg)', width: '95%', borderRadius:'10px', height:'fit-content', padding:'10px'}}>
                             <div dangerouslySetInnerHTML={{ __html: props.content }} />
-                            {props.content.length > 2 && (
+                            {props.content.length > 500 && (
                                 <div style={{display:'flex', justifyContent:'flex-end'}}>
                                     <span style={{color:'var(--primary)', cursor:'pointer'}}>Read more...</span>
                                 </div>

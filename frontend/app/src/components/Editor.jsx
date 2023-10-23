@@ -404,6 +404,8 @@ export default function Editor(props) {
         let list = receiverList;
         //add receiver
         list.push({id: receiver_id, name: receiver_name, type: receiver_type});
+
+        console.log(list);
         //update receivers list
         setReceiverList(list);
     }
@@ -431,6 +433,10 @@ export default function Editor(props) {
         const target_id = target.id;
         //split string by - character
         const receiver_id = target_id.split('-')[2];
+        if (receiver_id === "none") {
+            alert("Invalid receiver, no private channel found");
+            return;
+        }
         //get receiver name
         const receiver_name = (target.childNodes[0].innerText).substring(1);
         //add receiver to list
@@ -510,7 +516,6 @@ export default function Editor(props) {
         //display image
         setImage(target.value);
     }
-
     function moduleCoordinate(value, type, sign) {
         let _value = value;
         if (sign === -1) {
@@ -572,6 +577,39 @@ export default function Editor(props) {
         setIsSquealWeather(false);
     }
 
+    function postSquealClicked(event) {
+
+        //manage receivers
+        let channels = [];
+        //get receivers
+        for (let i = 0; i < receiverList.length; i++) {
+            channels.push(receiverList[i].id);
+        }
+
+        //manage content
+        let squeal = {};
+        //get type
+        squeal["contentType"] = squealType;
+        //get content
+        switch (squealType) {
+            case "text":
+                squeal["content"] = document.getElementById("masked-content").innerHTML
+                break;
+            default:
+                alert("Unsupported squeal type");
+                return;
+        }
+
+        //post squeal
+        window.postSqueal(squeal, channels).then((response) => {
+            if (response.status === 201) {
+                alert("Squeal posted");
+            } else {
+                alert(response.error);
+            }
+        });
+    }
+
     return(
         <div style={{padding: '0 20px', marginTop:'10vh'}}>
             <div>
@@ -615,7 +653,7 @@ export default function Editor(props) {
                                         :
                                         receiverSearchList.map((receiver) => {
                                             return (
-                                                <div id={"searched-receiver-" + receiver._id} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
+                                                <div id={"searched-receiver-" + (receiverTabValue === '1' ? (receiver.privateChannelId ? receiver.privateChannelId : "none-" + receiver._id) : receiver._id)} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
                                                     <Typography>{receiverTabSymbolDict[receiverTabValue] +
                                                         (receiverTabValue === '1' ? receiver.username
                                                             : receiverTabValue === '2' ?
@@ -817,12 +855,11 @@ export default function Editor(props) {
                                 </div>
                 : null
             }
-            <div style={{margin: '0 -10px'}}>
+            <div onClick={postSquealClicked} style={{margin: '0 -10px'}}>
                 <ActionButton classes={"profile-action-button"} text={"Post"} type={"primary"} />
             </div>
 
         </div>
-
     )
 }
 
