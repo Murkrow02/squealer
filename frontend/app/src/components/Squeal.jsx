@@ -3,13 +3,10 @@ import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import {Popover} from "@mui/material";
 
-const reactions = ["&#128525;", "&#128077;", "&#128545;", "&#128078;"]
-
 export default function Squeal(props) {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
-
-
+    const [reactions, setReactions] = React.useState(props.reactions);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -56,10 +53,10 @@ export default function Squeal(props) {
                     )}
                 </div>
                 <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
-                    {props.reactions.map((reaction, index) => {
+                    {reactions.map((reaction, index) => {
                         return(
                             <div style={{backgroundColor:'var(--light-bg)', padding:'5px', borderRadius:'10px', display:'flex', gap:'3px'}}>
-                                <span dangerouslySetInnerHTML={{ __html: reactions[index] }}></span>
+                                <span aria-label={reaction.name}>{reaction.emoji}</span>
                                 <span style={{fontWeight:"bold"}} key={index}>{reaction}</span>
                             </div>
                         )

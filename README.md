@@ -117,11 +117,11 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 ## FRONT
 
 - [x] Componente destinatari squeal
-- [ ] Controlla se mostra errore quando superata quota
+- [x] Controlla se mostra errore quando superata quota
 - [ ] Quando uno squeal viene visualizzato (a meno che non privato) manda impression
 - [ ] Scarica lista emoji
 - [ ] monta reazioni con chiamata
-- [ ] Monta caso video squeal
+- [x] Monta caso video squeal
 - [ ] Manda codifica per messaggio temporizzato testuale
 - [ ] Quando manda messaggio mappa puo decidere di farlo temporizzato con previsioni meteo
 - [ ] Quando parte messaggio temporizzato di "Manda posizione live": mostra banner sopra che puo interrompere e 

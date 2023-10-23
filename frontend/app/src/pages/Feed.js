@@ -15,10 +15,16 @@ import PropTypes from "prop-types";
 function Feed() {
 
     const [squeals, setSqueals] = useState([]);
+    const [reactions, setReactions] = useState([])
     useEffect(() => {
         window.getAllSqueals().then((response) =>{
             console.log(response.data)
             setSqueals(response.data)
+        });
+
+        window.getAllReactions().then((response) =>{
+            console.log(response.data)
+            setReactions(response.data)
         });
     },[]);
 
@@ -49,7 +55,6 @@ function Feed() {
         //close popover
         handleClose();
     }
-
 
     //SEARCH TEXT HANDLING
     const [searchText, setSearchText] = useState("");
@@ -152,7 +157,7 @@ function Feed() {
 
             <div style={{marginTop: '30vh'}}>
                 {squeals.map((squeal) => (
-                    <Squeal username={squeal.createdBy.username} reactions={[10, 10, 10, 10]} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
+                    <Squeal username={squeal.createdBy.username} reactions={reactions} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
                 ))}
             </div>
         </body>
