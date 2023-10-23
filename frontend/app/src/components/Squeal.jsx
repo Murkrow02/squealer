@@ -1,21 +1,73 @@
 import * as React from 'react';
 import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {Popover} from "@mui/material";
+import {useEffect} from "react";
 
 export default function Squeal(props) {
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [reactions, setReactions] = React.useState(props.reactions);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+    const [reactionPopoverAnchorEl, setReactionPopoverAnchorEl] = React.useState(null);
 
-    const handleClose = () => {
-        setAnchorEl(null);
+    const [avaiableReactions, setAvaiableReactions] = React.useState([]);
+    const [reactions, setReactions] = React.useState([]);
+
+    useEffect(() => {
+        setAvaiableReactions(props.avaiableReactions);
+        setReactions(props.reactions);
+    }, []);
+    const handleReactionButtonClick = (event) => {
+        setReactionPopoverAnchorEl(event.currentTarget);
     };
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    const handleReactionPopoverClose = () => {
+        setReactionPopoverAnchorEl(null);
+    };
+    const reactionPopoverOpen = Boolean(reactionPopoverAnchorEl);
+    const reactionPopoverId = reactionPopoverOpen ? 'simple-popover' : undefined;
+
+    function reactSqueal(reactionId) {
+        console.log(props.id + " " + reactionId);
+        window.reactToSqueal(props.id, reactionId).then((response) => {
+            console.log(response);
+
+            if (response.status !== 200) {
+                alert(response.error);
+                return;
+            }
+            //update local reactions
+            let newReactions = reactions;
+            for (let i = 0; i < newReactions.length; i++) {
+                if (newReactions[i].reactionId === reactionId) {
+                    newReactions[i].userReacted = true;
+                    newReactions[i].count++;
+                    setReactions(newReactions);
+                    //close popover
+                    handleReactionPopoverClose();
+                    break;
+                }
+            }
+        });
+    }
+    function unreactSqueal(reactionId) {
+        console.log(props.id + " " + reactionId);
+        window.unreactToSqueal(props.id, reactionId).then((response) => {
+            console.log(response);
+            if (response.status !== 200) {
+                alert(response.error);
+                return;
+            }
+            //update local reactions
+            let newReactions = reactions;
+            for (let i = 0; i < newReactions.length; i++) {
+                if (newReactions[i].reactionId === reactionId) {
+                    newReactions[i].userReacted = false;
+                    newReactions[i].count--;
+                    setReactions([...newReactions]);
+                    break;
+                }
+            }
+        });
+    }
 
     return(
         <div style={{width: '100vw', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
@@ -25,7 +77,7 @@ export default function Squeal(props) {
                     <span style={{fontWeight:"bold"}}>@{props.username}</span>
                     <span style={{color: 'var(--karma)', fontWeight:"bold"}}>{props.karma}pts.</span>
                 </div>
-                <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
+                <div className={"channels-container"}>
                     {props.channels.map((channel, index) => {
                         return(
                             <span style={{color: 'var(--primary)', fontSize:'0.8rem', padding:"8px 15px", borderRadius:'10px', backgroundColor:'var(--primary-bg)', fontWeight:"bold"}} key={index}>§{channel}</span>
@@ -53,21 +105,34 @@ export default function Squeal(props) {
                     )}
                 </div>
                 <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
-                    {reactions.map((reaction, index) => {
+                    { reactions.map((reaction, index) => {
                         return(
-                            <div style={{backgroundColor:'var(--light-bg)', padding:'5px', borderRadius:'10px', display:'flex', gap:'3px'}}>
-                                <span aria-label={reaction.name}>{reaction.emoji}</span>
-                                <span style={{fontWeight:"bold"}} key={index}>{reaction}</span>
+                            <div style={{backgroundColor:'var(--light-bg)', padding:'5px', borderRadius:'10px', alignItems:'center', display:'flex', gap:'3px'}}>
+                                <span aria-label={reaction.name}>{
+                                    avaiableReactions.map((avaiableReaction, index) => {
+                                        if(avaiableReaction._id === reaction.reactionId) {
+                                            return(
+                                                avaiableReaction.emoji
+                                            )
+                                        }
+                                    })
+                                }</span>
+                                <span style={{fontWeight:"bold"}}>{reaction.count}</span>
+                                {
+                                    reaction.userReacted ?
+                                        <CloseRoundedIcon onClick={() => {unreactSqueal(reaction.reactionId)}} style={{color:'var(--text-content)', cursor:'pointer'}}/>
+                                    : null
+                                }
                             </div>
                         )
                     })}
                 </div>
                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:"20px", marginTop:'20px'}}>
-                    <div aria-describedby={id} onClick={handleClick} style={{backgroundColor:"white", padding:"10px", cursor:'pointer', gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
+                    <div aria-describedby={reactionPopoverId} onClick={handleReactionButtonClick} style={{backgroundColor:"white", padding:"10px", cursor:'pointer', gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
                         <AddReactionRoundedIcon style={{color:'var(--text-light)'}}/>
                         <span style={{color:"var(--text-light)"}}>React</span>
                     </div>
-                    <Popover elevation={5} id={id} open={open} anchorEl={anchorEl} onClose={handleClose}
+                    <Popover elevation={5} id={reactionPopoverId} open={reactionPopoverOpen} anchorEl={reactionPopoverAnchorEl} onClose={handleReactionPopoverClose}
                         anchorOrigin={{
                             vertical: 'top',
                             horizontal: 'center',
@@ -78,10 +143,10 @@ export default function Squeal(props) {
                         }}
                     >
                        <div style={{display:'flex', gap:'10px', padding:'10px 30px', borderRadius:"15px",}}>
-                            {reactions.map((reaction, index) => {
+                            {avaiableReactions.map((reaction, index) => {
                                 return(
-                                    <div style={{ padding:'5px', borderRadius:'10px', cursor:'pointer', display:'flex', gap:'3px'}}>
-                                        <span style={{fontSize:'1.5rem'}} dangerouslySetInnerHTML={{ __html: reaction }}></span>
+                                    <div onClick={() => {reactSqueal(reaction._id)}} style={{ padding:'5px', borderRadius:'10px', cursor:'pointer', display:'flex', gap:'3px'}}>
+                                        <span className={"avaiable-reaction-emoji"}>{reaction.emoji}</span>
                                     </div>
                                 )})
                             }

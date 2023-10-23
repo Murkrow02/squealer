@@ -53,3 +53,30 @@
     padding-top: 10px;
     padding-bottom: 10px;
 }
+
+.avaiable-reaction-emoji {
+    font-size: 1.5rem;
+    transition-duration: 0.3s;
+}
+
+.avaiable-reaction-emoji:hover {
+    scale: 1.2;
+}
+
+.channels-container {
+    display: flex;
+    overflow-x: scroll;
+    gap: 8px;
+    margin-top:10px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.channels-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.channels-container {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

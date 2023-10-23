@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 function Feed() {
 
     const [squeals, setSqueals] = useState([]);
-    const [reactions, setReactions] = useState([])
+    const [avaiableReactions, setAvaiableReactions] = useState([])
     useEffect(() => {
         window.getAllSqueals().then((response) =>{
             console.log(response.data)
@@ -24,7 +24,7 @@ function Feed() {
 
         window.getAllReactions().then((response) =>{
             console.log(response.data)
-            setReactions(response.data)
+            setAvaiableReactions(response.data)
         });
     },[]);
 
@@ -157,7 +157,19 @@ function Feed() {
 
             <div style={{marginTop: '30vh'}}>
                 {squeals.map((squeal) => (
-                    <Squeal username={squeal.createdBy.username} reactions={reactions} content={squeal.content} karma="112" type="text" tags={["test", "tag"]} channels={["public_ch", "PRIVATE_CH"]}/>
+                    <Squeal id={squeal._id}
+                            username={squeal.createdBy.username}
+                            reactions={squeal.reactions}
+                            avaiableReactions={avaiableReactions}
+                            content={squeal.content}
+                            karma="112"
+                            type="text"
+                            tags={["test", "tag"]}
+                            channels={
+                                squeal.postedInChannels.map((channel) => (
+                                    channel.name.substring(1)
+                                ))
+                            }/>
                 ))}
             </div>
         </body>
