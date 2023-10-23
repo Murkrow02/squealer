@@ -99,6 +99,12 @@ export default function Editor(props) {
     //Variables list
     const [variablesList, setVariablesList] = React.useState([])
 
+    //Weather data
+    const [locationLight, setLocationLight] = React.useState("day");
+    const [locationWeatherImage, setLocationWeatherImage] = React.useState("");
+    const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
+    const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
+
     //Marker configuration
     L.Marker.prototype.options.icon = L.icon({
         iconUrl: icon,
@@ -160,7 +166,7 @@ export default function Editor(props) {
         setMaxMonthChars(initialMonthChars - value);
     }
 
-    //regex for web links
+    //regex for mentions, urls and variables
     const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
     const mentionRegex = /^[@#§]\w+/g;
     const variableRegex = /^[$]\w+/g;
@@ -498,18 +504,45 @@ export default function Editor(props) {
             return;
         }
 
+        //update char count
+        resetCharCount();
+        decreaseCharCount(IMAGE_CHAR_SIZE);
         //display image
         setImage(target.value);
     }
 
-    const [locationLight, setLocationLight] = React.useState("day");
-    const [locationWeatherCode, setLocationWeatherCode] = React.useState(0);
-    const [locationWeatherImage, setLocationWeatherImage] = React.useState("");
-    const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
-    const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
+    function moduleCoordinate(value, type, sign) {
+        let _value = value;
+        if (sign === -1) {
+            _value = -_value;
+        }
+        //get decimal part
+        let decimal = _value - Math.floor(_value);
+        //get integer part
+        let integer = Math.floor(_value) % (type === "longitude" ? 180 : 90);
+        //add decimal part
+        _value = integer + decimal;
+        //reset sign
+        if (sign === -1) {
+            _value = -_value;
+        }
+        return _value;
+    }
     async function updateWeatherData() {
         //fetch from openweather
-        console.log(location);
+        console.log("map: " + location);
+        let selectedLocation = location;
+
+        //check if location longitude is over 180 or under -180
+        if (selectedLocation[1] > 180 || selectedLocation[1] < -180) {
+            selectedLocation[1] = moduleCoordinate(selectedLocation[1], "longitude", selectedLocation[1] < 0 ? -1 : 1);
+        }
+        //check if location latitude is over 90 or under -90
+        if (selectedLocation[0] > 90 || selectedLocation[0] < -90) {
+            selectedLocation[0] = moduleCoordinate(selectedLocation[0], "latitude", selectedLocation[0] < 0 ? -1 : 1);
+        }
+
+        console.log("moduled:" + selectedLocation);
         let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + location[0] + "&longitude=" + location[1] + "&current=temperature_2m,weathercode,is_day")
         if (!weatherRequest.ok) {
             console.log("Error while fetching weather data");
@@ -521,17 +554,13 @@ export default function Editor(props) {
         setLocationLight(weatherResponse.current.is_day === 0 ? "night" : "day");
         //get location temperature
         setLocationWeatherTemperature(weatherResponse.current.temperature_2m);
-        //get location weather code
-        setLocationWeatherCode(weatherResponse.current.weathercode);
         //get json at helpers/WeatherInfo.json
         let weatherInfo = require('../helpers/WeatherInfo.json');
         //get weatherCode image
         setLocationWeatherImage(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].image);
         //get weatherCode description
         setLocationWeatherDescription(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].description);
-        //TODO OPENSTREETMAPS LOCATION OVERFLOW
     }
-
     async function convertToWeatherSqueal(event) {
         setIsSquealWeather(true);
         if (location === null) {
@@ -622,7 +651,7 @@ export default function Editor(props) {
                     select
                 >
                     <FormControlLabel value="text" control={<Radio />} label="Text" />
-                    <FormControlLabel value="image" control={<Radio />} label="Image" />
+                    <FormControlLabel value="image" control={<Radio />} label="Media" />
                     <FormControlLabel value="location" control={<Radio />} label="Location" />
                 </RadioGroup>
             </FormControl>
@@ -698,7 +727,7 @@ export default function Editor(props) {
                     : squealType === "image" ?
                         <div>
                             <FormControl style={{ width:'100%', marginTop:'20px'}}>
-                                <FormLabel style={{textAlign:'center'}}>Import image from</FormLabel>
+                                <FormLabel style={{textAlign:'center'}}>Import image or video from</FormLabel>
                                 <RadioGroup
                                     row
                                     style={{justifyContent:'center'}}
@@ -717,12 +746,12 @@ export default function Editor(props) {
                                         <div>
                                             <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*, video/*" onChange={handleImageUpload} />
                                             <div style={{width:'100%', display:'flex', justifyContent:'center', color:'var(--text-light)', alignItems:'center', cursor:'pointer', height:'55px', pointerEvents:'none', backgroundColor:'var(--light-bg)', marginTop:'20px', border:"solid 1px var(--text-light)", borderRadius:'5px', position:'absolute', top:'0'}}>
-                                                { image ? "Click to change image" : "Click to upload an image" }
+                                                { image ? "Click to change media" : "Click to upload a media" }
                                             </div>
                                         </div>
                                     :
                                         <div>
-                                            <input id={"image-uri-input"} style={{width:'calc(100% - 70px - 2px)', padding:'0 60px 0 10px', fontSize:"1rem", border:"solid 1px var(--text-light)", backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Image URL"  />
+                                            <input id={"image-uri-input"} style={{width:'calc(100% - 70px - 2px)', padding:'0 60px 0 10px', fontSize:"1rem", border:"solid 1px var(--text-light)", backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Media URL"  />
                                             <SearchRoundedIcon onClick={imageSearchClicked} style={{position:'absolute', right:'10px', top:'35px', cursor:'pointer'}}/>
                                         </div>
                                 }
