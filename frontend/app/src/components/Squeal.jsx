@@ -93,7 +93,8 @@ export default function Squeal(props) {
                 </div>
                 <hr style={{marginTop:'10px', opacity:'0.4'}}></hr>
                 <div style={{width: '100%', marginTop:'5px', display:'flex', justifyContent:'center'}}>
-                    {props.type === "text" && (
+                    {
+                        props.type === "text" ?
                         <div style={{ backgroundColor:'var(--light-bg)', width: '95%', borderRadius:'10px', height:'fit-content', padding:'10px'}}>
                             <div dangerouslySetInnerHTML={{ __html: props.content }} />
                             {props.content.length > 500 && (
@@ -102,7 +103,10 @@ export default function Squeal(props) {
                                 </div>
                             )}
                         </div>
-                    )}
+                        : props.type === "media" ?
+                            <img className={"squeal-image"} src={props.content}/>
+                        : null
+                    }
                 </div>
                 <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
                     { reactions.map((reaction, index) => {

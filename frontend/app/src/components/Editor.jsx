@@ -235,9 +235,19 @@ export default function Editor(props) {
         //generate HTML & update masked content
         document.getElementById("masked-content").innerHTML = segments.map((segment, index) => {
 
-            if (segment.match(urlRegex) || segment.match(mentionRegex)) {
+            if (segment.match(urlRegex)) {
+                //check if segment starts with http
+                let href = segment;
+                if (!segment.startsWith("http")) {
+                    //add http
+                    href = "https://" + segment;
+                }
+                return `<a href="${href}" target="_blank" class="highlight">${segment}</a>`
+            }
+            else if (segment.match(mentionRegex)) {
                 return `<span class="highlight">${segment}</span>`
-            }  else if ( isSquealTemporized && segment.match(variableRegex)) {
+            }
+            else if ( isSquealTemporized && segment.match(variableRegex)) {
                 //push variable to tmp variables list
                 tmpVariables.push({name: segment, type: "unset"});
                 return `<span class="variable">${segment}</span>`
@@ -585,20 +595,39 @@ export default function Editor(props) {
         for (let i = 0; i < receiverList.length; i++) {
             channels.push(receiverList[i].id);
         }
+        //check if there are receivers
+        if (channels.length === 0) {
+            alert("No receivers selected");
+            return;
+        }
 
         //manage content
         let squeal = {};
         //get type
-        squeal["contentType"] = squealType;
+        squeal["contentType"] = squealType === "image" ? "media" : squealType;
         //get content
         switch (squealType) {
             case "text":
+                if (isSquealTemporized) {
+                    alert("Not supported yet");
+                    return;
+                }
                 squeal["content"] = document.getElementById("masked-content").innerHTML
+                break;
+            case "image":
+                if (imageLoadingType === "url") {
+                    squeal["content"] = image;
+                } else {
+                    alert("Not supported yet");
+                    return;
+                }
                 break;
             default:
                 alert("Unsupported squeal type");
                 return;
         }
+
+        console.log(squeal);
 
         //post squeal
         window.postSqueal(squeal, channels).then((response) => {

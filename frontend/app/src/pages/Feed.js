@@ -163,7 +163,7 @@ function Feed() {
                             avaiableReactions={avaiableReactions}
                             content={squeal.content}
                             karma="112"
-                            type="text"
+                            type={squeal.contentType}
                             tags={["test", "tag"]}
                             channels={
                                 squeal.postedInChannels.map((channel) => (

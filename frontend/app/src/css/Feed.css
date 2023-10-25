@@ -80,3 +80,9 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
+.squeal-image {
+    width: 100%;
+    border: solid 5px var(--light-bg);
+    border-radius: 10px;
+}
