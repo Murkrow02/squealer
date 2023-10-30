@@ -81,7 +81,7 @@
     scrollbar-width: none;  /* Firefox */
 }
 
-.squeal-image {
+.squeal-image, .squeal-video {
     width: 100%;
     border: solid 5px var(--light-bg);
     border-radius: 10px;

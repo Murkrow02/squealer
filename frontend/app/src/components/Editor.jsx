@@ -57,9 +57,10 @@ export default function Editor(props) {
     const [isSquealWeather, setIsSquealWeather] = React.useState(false);
 
     //Image loading
-    const [image, setImage] = useState(null);
+    const [media, setMedia] = useState(null);
+    const [mediaFile, setMediaFile] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [imageLoadingType, setImageLoadingType] = useState("gallery");
+    const [mediaLoadingType, setMediaLoadingType] = useState("gallery");
 
     //Location
     const [location, setLocation] = useState([44.496352274776775, 371.3422250747681]);
@@ -156,7 +157,7 @@ export default function Editor(props) {
                 alert("You have reached the maximum number of characters for this squeal type.");
             } else if (squealType === "image") {
                 alert("Image size is 125 characters so you cannot upload it at this time.");
-                setImage(null);
+                setMedia(null);
             }
             return;
         }
@@ -297,7 +298,7 @@ export default function Editor(props) {
         //reset char count
         resetCharCount();
         //reset image
-        setImage(null);
+        setMedia(null);
         //reset variables
         setVariablesList([]);
         //reset to default squeal
@@ -308,9 +309,9 @@ export default function Editor(props) {
     }
     function handleImageUploadingTypeChange(event) {
         //set image type
-        setImageLoadingType(event.target.value);
+        setMediaLoadingType(event.target.value);
         //reset image
-        setImage(null);
+        setMedia(null);
         //reset url
         document.getElementById("image-uri-input").value = "";
         //reset char count
@@ -322,8 +323,10 @@ export default function Editor(props) {
         let file = event.target.files[0];
 
         if (file) {
+            //set media file
+            setMediaFile(file);
             //display image
-            setImage(URL.createObjectURL(file));
+            setMedia(URL.createObjectURL(file));
 
             //update char count
             decreaseCharCount(IMAGE_CHAR_SIZE);
@@ -332,7 +335,7 @@ export default function Editor(props) {
         setIsLoading(false);
     }
     function handleImageDelete() {
-        setImage(null);
+        setMedia(null);
         resetCharCount();
     }
     function insertSymbol(symbol) {
@@ -511,7 +514,7 @@ export default function Editor(props) {
             return;
         }
         function isMedia(url) {
-            return /\.(jpg|jpeg|png|webp|avif|gif|svg|mp4|webm)$/.test(url);
+            return /\.(jpg|jpeg|png|webp|avif|heic|gif|svg|mp4|webm)$/.test(url);
         }
 
         //check if url is a valid media
@@ -524,7 +527,7 @@ export default function Editor(props) {
         resetCharCount();
         decreaseCharCount(IMAGE_CHAR_SIZE);
         //display image
-        setImage(target.value);
+        setMedia(target.value);
     }
     function moduleCoordinate(value, type, sign) {
         let _value = value;
@@ -605,6 +608,8 @@ export default function Editor(props) {
         let squeal = {};
         //get type
         squeal["contentType"] = squealType === "image" ? "media" : squealType;
+        //upload switch
+        let uploadNeeded = false;
         //get content
         switch (squealType) {
             case "text":
@@ -615,11 +620,12 @@ export default function Editor(props) {
                 squeal["content"] = document.getElementById("masked-content").innerHTML
                 break;
             case "image":
-                if (imageLoadingType === "url") {
-                    squeal["content"] = image;
+                squeal["contentType"] = "media";
+                if (mediaLoadingType === "url") {
+                    squeal["mediaUrl"] = media;
                 } else {
-                    alert("Not supported yet");
-                    return;
+                    uploadNeeded = true;
+                    break;
                 }
                 break;
             default:
@@ -632,6 +638,14 @@ export default function Editor(props) {
         //post squeal
         window.postSqueal(squeal, channels).then((response) => {
             if (response.status === 201) {
+                if (uploadNeeded) {
+                    console.log(response);
+                    let resJson = response.data;
+                    console.log(resJson);
+                    window.postMediaToSqueal(resJson._id, mediaFile).then((response) => {
+                        console.log(response);
+                    });
+                }
                 alert("Squeal posted");
             } else {
                 alert(response.error);
@@ -809,11 +823,11 @@ export default function Editor(props) {
                             </FormControl>
                             <div style={{position:"relative"}}>
                                 {
-                                    imageLoadingType === "gallery" ?
+                                    mediaLoadingType === "gallery" ?
                                         <div>
                                             <input style={{width:'100%', marginTop:'20px', height:'50px'}} type="file" accept="image/*, video/*" onChange={handleImageUpload} />
                                             <div style={{width:'100%', display:'flex', justifyContent:'center', color:'var(--text-light)', alignItems:'center', cursor:'pointer', height:'55px', pointerEvents:'none', backgroundColor:'var(--light-bg)', marginTop:'20px', border:"solid 1px var(--text-light)", borderRadius:'5px', position:'absolute', top:'0'}}>
-                                                { image ? "Click to change media" : "Click to upload a media" }
+                                                { media ? "Click to change media" : "Click to upload a media" }
                                             </div>
                                         </div>
                                     :
@@ -826,9 +840,9 @@ export default function Editor(props) {
 
                                 {isLoading ? (
                                     <div>Loading...</div> // You can replace this with a spinner component
-                                ) : image ? (
+                                ) : media ? (
                                     <div style={{width:'100%', position:'relative', marginTop:'20px', border:'solid 2px var(--text-light)', borderRadius:'10px', overflow:'hidden'}}>
-                                        <img style={{width:'100%'}} src={image} alt="Uploaded" />
+                                        <img style={{width:'100%'}} src={media} alt="Uploaded" />
                                         <IconButton onClick={handleImageDelete} style={{position:'absolute', top:'10px', left:'10px', color:'white', backgroundColor:'#000000aa'}} aria-label="delete">
                                             <DeleteIcon />
                                         </IconButton>

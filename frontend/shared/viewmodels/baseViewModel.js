@@ -7,14 +7,14 @@ let api = axios.create({
 // This is triggered on each response, if unauthorized redirect to login
 api.interceptors.response.use(
     response => {
-        if (response.status >= 300 && response.data.error !== undefined) {
-            alert(response.data.error );
-        }
         return response;
     },
     error => {
-        if (error.response.status === 401) {
+        if (error.response.data.error !== undefined) {
+            alert(error.response.data.error);
+        } else if (error.response.status === 401) {
             alert("Non sei autorizzato ad accedere a questa pagina, verrai reindirizzato alla pagina di login");
             window.location.href = '/static/auth';
         }
+
     });

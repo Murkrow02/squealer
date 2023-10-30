@@ -162,6 +162,7 @@ function Feed() {
                             reactions={squeal.reactions}
                             avaiableReactions={avaiableReactions}
                             content={squeal.content}
+                            mediaUrl={squeal.mediaUrl}
                             karma="112"
                             type={squeal.contentType}
                             tags={["test", "tag"]}

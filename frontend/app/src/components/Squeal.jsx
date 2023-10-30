@@ -104,7 +104,13 @@ export default function Squeal(props) {
                             )}
                         </div>
                         : props.type === "media" ?
-                            <img className={"squeal-image"} src={props.content}/>
+                            /\.(jpg|jpeg|png|webp|avif|heic|gif)$/.test(props.mediaUrl) ?
+                                <img className={"squeal-image"} src={props.mediaUrl}/>
+                            :
+                                <video className={"squeal-video"} controls>
+                                    <source src={props.mediaUrl} type="video/mp4"/>
+                                </video>
+
                         : null
                     }
                 </div>

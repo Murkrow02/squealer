@@ -28,7 +28,7 @@ const squealSchema = new mongoose.Schema({
     postedInChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
     mentionedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel"}],
     mapPoints : [{type: Object}],
-    mediaUrl: {type: String, select: false},
+    mediaUrl: {type: String, select: true},
     __v: {type: Number, select: false},
 });
 
