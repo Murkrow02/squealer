@@ -628,6 +628,13 @@ export default function Editor(props) {
                     break;
                 }
                 break;
+            case "location":
+                squeal["contentType"] = "map";
+                squeal["mapPoints"] = [{ "latitude": location[0], "longitude": location[1] }];
+                if (isSquealWeather) {
+                    alert("Not supported yet");
+                }
+                break;
             default:
                 alert("Unsupported squeal type");
                 return;

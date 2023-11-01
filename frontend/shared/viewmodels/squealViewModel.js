@@ -19,7 +19,7 @@ function postSqueal(squeal, targetChannels, mapPoints = []){
     //     "lat": 0,
     //     "lng": 0,
     // }, ...]
-    squeal["mapPoints"] = mapPoints;
+    //squeal["mapPoints"] = mapPoints;
 
     //Create mixed object
     let post = {
