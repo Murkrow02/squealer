@@ -4,7 +4,7 @@ import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {Popover} from "@mui/material";
 import {useEffect} from "react";
-import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
+import {Circle, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import L from "leaflet";
@@ -30,20 +30,6 @@ export default function Squeal(props) {
         iconSize: [24,36],
         iconAnchor: [12,36]
     });
-
-    const MapEvents = () => {
-        let map = useMap()
-
-        useMapEvents({
-            click(e) {
-                //set marker location
-                //move map to new location
-                map.flyTo([e.latlng.lat, e.latlng.lng], map.getZoom());
-
-            },
-        });
-        return false;
-    }
 
     const handleReactionButtonClick = (event) => {
         setReactionPopoverAnchorEl(event.currentTarget);
@@ -142,18 +128,33 @@ export default function Squeal(props) {
                                 </video>
 
                         : props.type === "map" && props.mapPoints.length > 0 ?
-                                    <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
-                                        <MapContainer id="map2" style={{ width: "100%", height: "300px" }} center={[props.mapPoints[0]["latitude"], props.mapPoints[0]["longitude"]]} zoom={13} scrollWheelZoom={false}>
+                                    <div style={{height:'300px', width:"100%", overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
+                                        <MapContainer id={"map-" + props.id} style={{ width: "100%", height: "300px" }} center={[props.mapPoints[0]["latitude"], props.mapPoints[0]["longitude"]]} zoom={13} scrollWheelZoom={false}>
                                             <TileLayer
                                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                             />
-                                            <Marker position={[props.mapPoints[0]["latitude"], props.mapPoints[0]["longitude"]]}>
-                                                <Popup>
-                                                    A pretty CSS3 popup. <br /> Easily customizable.
-                                                </Popup>
-                                            </Marker>
-                                            <MapEvents/>
+                                            {
+                                                props.mapPoints.length > 1 ?
+                                                    <>
+                                                        <Polyline pathOptions={{color: 'var(--primary)'}} positions={props.mapPoints.map((point, index) => {
+                                                            return [point["latitude"], point["longitude"]];
+                                                        })}/>
+                                                        {
+                                                            props.mapPoints.map((point, index) => {
+                                                                return <Circle center={[point["latitude"], point["longitude"]]} pathOptions={{color: 'white', fillColor:'white'}} radius={100}/>
+                                                            })
+                                                        }
+                                                    </>
+                                                :
+                                                    <Marker position={[props.mapPoints[0]["latitude"], props.mapPoints[0]["longitude"]]}>
+                                                        <Popup>
+                                                            A pretty CSS3 popup. <br /> Easily customizable.
+                                                        </Popup>
+                                                    </Marker>
+                                            }
+
+
                                         </MapContainer>
                                     </div>
                         : null
