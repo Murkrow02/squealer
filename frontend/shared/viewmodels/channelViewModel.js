@@ -21,3 +21,8 @@ function createChannel(channelName, channelDescription) {
         description: channelDescription,
     });
 }
+
+// Ban user from channel
+function banUserFromChannel(channelId, userId) {
+    return api.patch("channels/" + channelId + "/ban/" + userId);
+}
