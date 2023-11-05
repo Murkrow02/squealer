@@ -80,6 +80,9 @@ router.get('/channels/:channelCategory',
 router.post('/channels',
     passport.authenticate('bearer', { session: false}),
     channelController.createChannel);
+router.patch('/channels/:channelId/ban/:userId',
+    passport.authenticate('bearer', { session: false}),
+    channelController.bandUserFromChannel);
 
 // Auth
 router.post('/auth/login', authController.login);

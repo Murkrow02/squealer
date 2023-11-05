@@ -12,6 +12,7 @@ const channelSchema = new mongoose.Schema({
     category: {type: String, enum: ['private', 'public', 'editorial', 'hashtag']},
     admins: [{type: mongoose.Schema.Types.ObjectId, ref: "User", select: false}],
     description: {type: String, select: true},
+    banned: [{type: mongoose.Schema.Types.ObjectId, ref: "User", select: false}],
     __v: {type: Number, select: false},
 });
 

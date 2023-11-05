@@ -110,7 +110,6 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
     - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
     - [ ] Immagine: immagine a caso da lorem picsum
 - [ ] RESET PASSWORD POI VEDI
-- [ ] I canali pubblici gestibili dall'utente hanno una lista di utenti bannati
 - [ ] Un utente puo gestire canale pubblico
 - [ ] Quando ti viene postato un canale con hashtag, crea un nuovo canale nel caso in cui non esista
 
@@ -139,6 +138,7 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 - [ ] Quando entra come guest, chiama la createGuestUser per loggarti come guest
   - Disabilita le funzioni che non puo fare quando é guest
 - [ ] Se un utente ha reagito ad uno squeal, nelle reazioni ti ritorno "userReacted":true, altrimenti nulla. Mostra reazioni in base a questo
+- Metti che puoi bannare un utente quando sei admin di un canale
 ``` javascript
 
 

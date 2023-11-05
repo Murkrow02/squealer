@@ -179,3 +179,41 @@ exports.createChannel = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.bandUserFromChannel = async (req, res, next) => {
+
+    // Get the channel to ban the user from
+    const channel = await Channel.findById(req.params.channelId).select("+banned").select("+admins");
+
+    // Check if channel exists
+    if (!channel) {
+        return res.status(404).json({error: "Il canale non é stato trovato"});
+    }
+
+    // Check if user is admin of the channel
+    if (channel.admins == null || !channel.admins.includes(req.user.id)) {
+        return res.status(403).json({error: "Non sei amministratore di questo canale"});
+    }
+
+    // Get the user to ban from the channel
+    const user = await User.findById(req.params.userId);
+
+    // Check if user exists
+    if (!user) {
+        return res.status(404).json({error: "L'utente non é stato trovato"});
+    }
+
+    // Check if user is already banned from the channel
+    if (channel.banned.includes(user._id)) {
+        return res.status(409).json({error: "L'utente é già stato bannato da questo canale"});
+    }
+
+    // Actually ban the user from the channel
+    channel.banned.push(user._id);
+
+    // Save the channel
+    await channel.save();
+
+    // OK
+    res.status(200).json({success: `L'utente ${user.username} é stato bannato dal canale ${channel.name}`});
+}
