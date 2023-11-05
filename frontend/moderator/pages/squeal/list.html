@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Squeal</title>
 
     <!-- Datatables -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -24,6 +24,7 @@
 
     <!--View Models-->
     <script src="/static/viewModels/base"></script>
+    <script src="/static/viewModels/squeal"></script>
     <script src="/static/viewModels/channel"></script>
 </head>
 <body>
@@ -33,9 +34,9 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1>Lista canali</h1>
-            <!-- Table of channels -->
-            <table id="channels-table">
+            <h1>Lista squeal</h1>
+            <!-- Table of squeals -->
+            <table id="squeal-table">
             </table>
         </div>
     </div>
@@ -45,17 +46,21 @@
 
     var columnDefs = [
         {
-            title: "Name",
+            title: "Author",
             type: "text"
         },
         {
-            title: "Description",
+            title: "Date",
+            type: "text"
+        },
+        {
+            title: "Channels",
             type: "textarea"
         },
     ];
 
 
-    let table = $('#channels-table').DataTable( {
+    let table = $('#squeal-table').DataTable( {
         "sPaginationType": "full_numbers",
         columns: columnDefs,
         dom: 'Bfrtip',        // Needs button container
@@ -80,9 +85,11 @@
             }
         ],
         onDeleteRow: function(datatable, rowdata, success, error) {
+            console.log(rowdata);
             success();
         },
         onAddRow: function(datatable, rowdata, success, error) {
+            console.log(rowdata);
             success();
         },
     });
@@ -91,15 +98,23 @@
     $(document).ready(function () {
 
         // Load channels
-        getChannelsByCategory('editorial').then(function (response) {
-            let channels = response.data;
-            channels.forEach(function (channel) {
+        getAllSqueals().then(function (response) {
+            let squeals = response.data;
+            squeals.forEach(function (squeal) {
+
+                // Get channels
+                let channels = squeal.postedInChannels.map(function (channel) {
+                    return channel.name;
+                }).join(', ');
+
+                // Add row
                 table.row
-                    .add([channel.name, channel.description])
+                    .add([squeal.createdBy.username, squeal.createdAt, channels])
                     .draw(false);
             });
+        }).catch(function (error) {
+            console.log(error);
         });
-
 
     });
 </script>

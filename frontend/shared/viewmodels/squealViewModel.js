@@ -1,8 +1,7 @@
 
-//Note: this is used only for debug purposes DO NOT USE
+// Moderator only
 function getAllSqueals(){
-    //alert("DEBUG ONLY");
-    return api.get("squeals");
+    return api.get("squeals/all");
 }
 
 // Feed for logged user (squeals from subscribed channels)

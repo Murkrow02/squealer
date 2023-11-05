@@ -63,6 +63,10 @@ router.patch('/squeals/:squealId/unreact/:reactionId',
 router.patch('/squeals/:squealId/impression',
     passport.authenticate('bearer', { session: false}),
     squealController.addImpression);
+// Squeals for moderator
+router.get('/squeals/all',
+    passport.authenticate('bearer', { session: false}),
+    squealController.getAllSqueals);
 
 // Channels
 router.get('/channels',
