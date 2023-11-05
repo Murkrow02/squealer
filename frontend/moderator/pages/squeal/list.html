@@ -10,6 +10,10 @@
     <script src="https://cdn.datatables.net/v/dt/dt-1.13.6/b-2.4.2/fh-3.4.0/r-2.5.0/sl-1.7.0/datatables.min.js"></script>
     <script src="/moderator/js/editor.js"></script>
 
+    <!-- Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.js" ></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.css" rel="stylesheet">
+
     <!-- Axios -->
     <script src="/static/axios"></script>
 
@@ -36,7 +40,7 @@
         <div class="col">
             <h1>Lista squeal</h1>
             <!-- Table of squeals -->
-            <table id="squeal-table">
+            <table id="table">
             </table>
         </div>
     </div>
@@ -44,79 +48,140 @@
 
 <script>
 
-    var columnDefs = [
+    const columnDefs = [
         {
             title: "Author",
             type: "text"
         },
         {
             title: "Date",
-            type: "text"
-        },
-        {
-            title: "Channels",
-            type: "textarea"
-        },
+            type: "text",
+            searchable: false,
+        }
     ];
 
 
-    let table = $('#squeal-table').DataTable( {
-        "sPaginationType": "full_numbers",
-        columns: columnDefs,
-        dom: 'Bfrtip',        // Needs button container
-        select: 'single',
-        fixedHeader: true,
-        responsive: true,
-        altEditor: true,     // Enable altEditor
-        buttons: [
-            {
-                text: 'Add',
-                name: 'add'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Edit',
-                name: 'edit'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Delete',
-                name: 'delete'      // do not change name
-            }
-        ],
-        onDeleteRow: function(datatable, rowdata, success, error) {
-            console.log(rowdata);
-            success();
-        },
-        onAddRow: function(datatable, rowdata, success, error) {
-            console.log(rowdata);
-            success();
-        },
-    });
-
     // Load channels on DOM ready
-    $(document).ready(function () {
+    $(document).ready(async function () {
 
-        // Load channels
-        getAllSqueals().then(function (response) {
-            let squeals = response.data;
-            squeals.forEach(function (squeal) {
+        // Process channels
+        let channels = await processChannels();
 
-                // Get channels
-                let channels = squeal.postedInChannels.map(function (channel) {
-                    return channel.name;
-                }).join(', ');
+        // Process reactions
+        let allReactions = await processReactions();
 
-                // Add row
-                table.row
-                    .add([squeal.createdBy.username, squeal.createdAt, channels])
-                    .draw(false);
+        // Render data table
+        let table = renderTable(columnDefs);
+
+        // Add search to columns
+        addSearchToColumns(columnDefs);
+
+        // Load squeals
+        let squeals = await getAllSqueals();
+        squeals.data.forEach(function (squeal) {
+
+            // Cycle on possible reactions
+            let squealReactions = [];
+            allReactions.forEach(function (reaction) {
+
+                // Check if squeal has this reaction
+                let squealReaction = squeal.reactions.filter(function (squealReaction) {
+                    return squealReaction.reactionId === reaction._id;
+                })[0];
+
+                // Add reaction count to squeal reactions
+                squealReactions.push({
+                    count: squealReaction ? squealReaction.count : 0,
+                });
             });
-        }).catch(function (error) {
-            console.log(error);
+
+            // Format channels for select2
+            let channelIds = squeal.postedInChannels.map(function (channel) {
+                return channel._id.toString();
+            });
+
+            // Add reaction counts to row
+            let row = [squeal.createdBy.username, formatDate(squeal.createdAt), channelIds];
+            squealReactions.forEach(function (reaction) {
+                row.push(reaction.count);
+            });
+
+            // Add row
+            table.row
+                .add(row)
+                .draw(false);
         });
 
     });
+
+
+    async function processChannels()
+    {
+        let channels = await getAllChannels();
+        channels = channels.data;
+
+        // Format channels for select2
+        let formattedChannels = {};
+        channels.forEach(function (channel) {
+            formattedChannels[channel._id] = channel.name;
+        });
+
+        columnDefs.push({
+            title: "Channels",
+            type: "select",
+            multiple: true,
+            options: formattedChannels,
+            select2: {
+                width: "100%",
+                searchable: true,
+            },
+            render: function (channelIds, type, row, meta) {
+                return channelIds.map(function (channelId) {
+                    return formattedChannels[channelId];
+                }).join(", ");
+            }
+        });
+    }
+
+    async function processReactions()
+    {
+        // Get all reactions
+        let allReactions = await getAllReactions();
+        allReactions = allReactions.data;
+
+        // Add column to table for each reaction
+        allReactions.forEach(function (reaction) {
+            columnDefs.push({
+                title: reaction.emoji,
+                type: "number",
+                searchable: false,
+            });
+        });
+
+        return allReactions;
+    }
+
+    // If we ever wanted to query select2 for channels
+    // select2: {
+    //     width: "100%", multiple: true, ajax: {
+    //         url: '/api/channels',
+    //             beforeSend: function (request) {
+    //             request.setRequestHeader('Authorization', "Bearer " + localStorage.getItem('token'));
+    //         },
+    //         processResults: function (data) {
+    //             return {
+    //                 results: data.map(function (channel) {
+    //                     return {
+    //                         id: channel._id,
+    //                         text: channel.name
+    //                     }
+    //                 })
+    //             };
+    //         },
+    //         dataType: 'json'
+    //         // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+    //     }
+    // },
 </script>
 
 
