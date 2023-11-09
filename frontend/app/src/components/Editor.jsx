@@ -7,6 +7,7 @@ import {
     IconButton,
     Radio,
     RadioGroup,
+    Switch,
     styled, Tab, Tabs,
     TextField, Typography
 } from "@mui/material";
@@ -653,12 +654,27 @@ export default function Editor(props) {
                         console.log(response);
                     });
                 }
+
                 alert("Squeal posted");
+                //get response json
+                let resJson = response.data;
+
+                if (squealType === "location" && isLiveLocation) {
+                    console.log("live location");
+                    window.sendLiveLocationSqueal(3000, 15000, resJson, 0, channels);
+                }
             } else {
                 alert(response.error);
             }
         });
+
+
     }
+
+    const [isLiveLocation, setIsLiveLocation] = useState(false);
+    const onLiveLocationSwitch = (event) => {
+        setIsLiveLocation(event.target.checked);
+    };
 
     return(
         <div style={{padding: '0 20px', marginTop:'10vh'}}>
@@ -889,7 +905,16 @@ export default function Editor(props) {
                                             :
                                                 "Click on the map to select a new point"
                                         }
-                                        </p>
+                                    </p>
+                                    {
+                                        isSquealWeather ?
+                                            null
+                                        :
+                                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                                <Typography>Live location squeal</Typography>
+                                                <Switch checked={isLiveLocation} onChange={onLiveLocationSwitch} />
+                                            </div>
+                                    }
                                     <div style={{margin: "20px -10px 0 -10px"}}>
                                         {
                                             isSquealWeather ?

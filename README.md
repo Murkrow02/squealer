@@ -147,8 +147,26 @@ roles: [{ role: 'readWrite', db: 'squealer' }]
 // sendForMs:   manda per tot ms
 function sendLiveLocation(sendAfterMs, sendForMs, lastSentSqueal, squealSentCount) 
 {
+    // Se il tempo é scaduto, allora smetti di mandare
+    if (sendForMs <= 0) return;
+    
+    // Prendi posizione squeal precedente
+    let position = lastSentSqueal.position;
+    
+    // Crea array punti posizione
+    let points = position ? position : [];
+    
+    // Aggiungi nuovo punto posizione
+    points.push({lat: 0, lng: 0});
+    
+    // Posta nuovo squeal
+    let postedSqueal = postSqueal(parametri)
+
     // Dopo il successo di post di uno squeal di aggiornamento posizione,
     prendilo e rimandalo dopo tot con la nuova posizione
+    setTimeout(() => {
+        sendLiveLocation(sendAfterMs, sendForMs - sendAfterMs,postedSqueal, squealSentCount + 1);
+    }, sendAfterMs);
 }
 
         
