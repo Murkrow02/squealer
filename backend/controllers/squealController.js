@@ -292,6 +292,17 @@ exports.getAllReactions = async (req, res, next) => {
     }
 }
 
+// Squeal feed for moderator
+exports.getAllSqueals = async (req, res, next) => {
+
+    // Return if not moderator
+    if (req.user.type !== "moderator") {
+        return res.status(403).json({error: 'Non sei un moderatore'});
+    }
+
+    return res.status(200).json(await Squeal.find().populate('createdBy').populate('postedInChannels').populate('replyTo').populate('reactions'));
+}
+
 // Returns the name of the quota that has been exceeded, or null if no quota has been exceeded
 async function checkIfExceedsQuota(userId, squeal) {
 

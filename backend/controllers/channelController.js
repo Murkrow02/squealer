@@ -69,8 +69,8 @@ exports.getAllChannels = async (req, res, next) => {
 
     try {
 
-        // Get all channels from the database
-        const channels = await Channel.find();
+        // Get all channels from the database except private channels
+        const channels = await Channel.find(); //{category: {$ne: "private"}}
 
         // Send the channels as the response
         res.status(200).json(channels);

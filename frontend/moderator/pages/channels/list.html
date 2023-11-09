@@ -80,7 +80,9 @@
             }
         ],
         onDeleteRow: function(datatable, rowdata, success, error) {
-            console.log(rowdata);
+            success();
+        },
+        onAddRow: function(datatable, rowdata, success, error) {
             success();
         },
     });
@@ -89,7 +91,7 @@
     $(document).ready(function () {
 
         // Load channels
-        searchChannels('editorial','').then(function (response) {
+        getChannelsByCategory('editorial').then(function (response) {
             let channels = response.data;
             channels.forEach(function (channel) {
                 table.row
@@ -97,6 +99,8 @@
                     .draw(false);
             });
         });
+
+
     });
 </script>
 

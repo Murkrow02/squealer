@@ -26,3 +26,8 @@ function createChannel(channelName, channelDescription) {
 function banUserFromChannel(channelId, userId) {
     return api.patch("channels/" + channelId + "/ban/" + userId);
 }
+
+// Get all channels (Moderator only)
+function getAllChannels() {
+    return api.get("channels");
+}
