@@ -111,3 +111,9 @@ O
 +frontend/shared/viewmodels/userViewModel.js,2/e/2e292732ea3fa9296e004798f940e5654a263355
 ^
 .frontend/shared/viewmodels/channelViewModel.js,b/5/b51cacbb2275deeef56cc2d72880c08dd12e2301
+[
++frontend/moderator/pages/channels/list.html,f/d/fdebe8985f49bdeb9be1cfd74db86e79f91ae4e4
+Y
+)frontend/moderator/pages/squeal/list.html,2/c/2ca6ed635377895f9c878bd364396667ab8be047
+R
+"frontend/moderator/js/moderator.js,d/6/d67596fdb5d8d120932cc6930e9c1b52a78836ce
