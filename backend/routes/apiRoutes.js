@@ -87,6 +87,12 @@ router.post('/channels',
 router.patch('/channels/:channelId/ban/:userId',
     passport.authenticate('bearer', { session: false}),
     channelController.bandUserFromChannel);
+router.delete('/channels/:channelId/',
+    passport.authenticate('bearer', { session: false}),
+    channelController.deleteChannel);
+router.put('/channels/:channelId',
+    passport.authenticate('bearer', { session: false}),
+    channelController.editChannel);
 
 // Auth
 router.post('/auth/login', authController.login);

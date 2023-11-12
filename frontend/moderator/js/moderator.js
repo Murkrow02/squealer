@@ -31,7 +31,7 @@ function addSearchToColumns( columnDefs = []){
     });
 }
 
-function renderTable(columnDefs = []){
+function renderTable(columnDefs = [], addFunction = null, deleteFunction = null, editFunction = null){
 
     return $('#table').DataTable( {
         "sPaginationType": "full_numbers",
@@ -44,28 +44,23 @@ function renderTable(columnDefs = []){
         altEditor: true,     // Enable altEditor
         buttons: [
             {
-                text: 'Add',
+                text: 'Aggiungi',
                 name: 'add'        // do not change name
             },
             {
                 extend: 'selected', // Bind to Selected row
-                text: 'Edit',
+                text: 'Modifica',
                 name: 'edit'        // do not change name
             },
             {
                 extend: 'selected', // Bind to Selected row
-                text: 'Delete',
+                text: 'Elimina',
                 name: 'delete'      // do not change name
             }
         ],
-        onDeleteRow: function(datatable, rowdata, success, error) {
-            console.log(rowdata);
-            success();
-        },
-        onAddRow: function(datatable, rowdata, success, error) {
-            console.log(rowdata);
-            success();
-        },
+        onDeleteRow: deleteFunction,
+        onAddRow: addFunction,
+        onEditRow: editFunction,
     });
 }
 

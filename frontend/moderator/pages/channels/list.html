@@ -35,7 +35,7 @@
         <div class="col">
             <h1>Lista canali</h1>
             <!-- Table of channels -->
-            <table id="channels-table">
+            <table id="table">
             </table>
         </div>
     </div>
@@ -43,7 +43,13 @@
 
 <script>
 
-    var columnDefs = [
+    const columnDefs = [
+        {
+            title: "id",
+            type: "text",
+            visible: false,
+            disabled: true
+        },
         {
             title: "Name",
             type: "text"
@@ -55,53 +61,48 @@
     ];
 
 
-    let table = $('#channels-table').DataTable( {
-        "sPaginationType": "full_numbers",
-        columns: columnDefs,
-        dom: 'Bfrtip',        // Needs button container
-        select: 'single',
-        fixedHeader: true,
-        responsive: true,
-        altEditor: true,     // Enable altEditor
-        buttons: [
-            {
-                text: 'Add',
-                name: 'add'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Edit',
-                name: 'edit'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Delete',
-                name: 'delete'      // do not change name
-            }
-        ],
-        onDeleteRow: function(datatable, rowdata, success, error) {
-            success();
-        },
-        onAddRow: function(datatable, rowdata, success, error) {
-            success();
-        },
-    });
-
     // Load channels on DOM ready
     $(document).ready(function () {
+
+        // Render data table
+        let table = renderTable(columnDefs, addNewChannel, deleteChannel, editChannel);
 
         // Load channels
         getChannelsByCategory('editorial').then(function (response) {
             let channels = response.data;
             channels.forEach(function (channel) {
                 table.row
-                    .add([channel.name, channel.description])
+                    .add([channel._id, channel.name, channel.description])
                     .draw(false);
             });
         });
-
-
     });
+
+    async function addNewChannel(datatable, rowdata, success, error)
+    {
+        let result = await createChannel(rowdata[1], rowdata[2]);
+        if (result)
+            success();
+    }
+
+    async function deleteChannel(datatable, rowdata, success, error)
+    {
+        let result = await deleteChannelById(rowdata[0][0]);
+        if (result)
+            success();
+    }
+
+    async function editChannel(datatable, rowdata, success, error)
+    {
+        let result = await editChannelById(rowdata[0], rowdata[1], rowdata[2]);
+        if (result)
+        {
+            // Refresh page
+            location.reload();
+        }
+    }
+
+
 </script>
 
 

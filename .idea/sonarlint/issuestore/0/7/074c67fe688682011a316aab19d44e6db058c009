@@ -1,0 +1,9 @@
+
+Fjavascript:S125I"Remove this commented out code.(…šÒÛÿÿÿÿÿ8¸ÍÅ¦¼1
+hjavascript:S2589g"@This always evaluates to truthy. Consider refactoring this code.(‹íÊ³úÿÿÿÿ8¹ÍÅ¦¼1
+Ljavascript:S3504€")Unexpected var, use let or const instead.(á<8¹ÍÅ¦¼1
+Rjavascript:S3504–")Unexpected var, use let or const instead.(Ô—óµûÿÿÿÿ8¹ÍÅ¦¼1
+‡javascript:S2392–"^Consider moving declaration of 'category' as it is referenced outside current binding context.(Ô—óµûÿÿÿÿ8¹ÍÅ¦¼1
+Rjavascript:S3504š")Unexpected var, use let or const instead.(ÎŞ¨úÿÿÿÿ8¹ÍÅ¦¼1
+Gjavascript:S2814š"'category' is already defined.(ÎŞ¨úÿÿÿÿ8¹ÍÅ¦¼1
+kjavascript:S6353°"BUse concise character class syntax '\w' instead of '[a-zA-Z0-9_]'.(è´ğêùÿÿÿÿ8Ş³„§¼1

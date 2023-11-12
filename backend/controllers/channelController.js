@@ -64,7 +64,7 @@ exports.unsubscribeFromChannel = async (req, res, next) => {
     }
 }
 
-// DEBUG ONLY
+// MODERATOR ONLY
 exports.getAllChannels = async (req, res, next) => {
 
     try {
@@ -101,7 +101,7 @@ exports.getChannelsByCategory = async (req, res, next) => {
             // Search for channels by name (if search param is present)
             const query = {};
             if (search && search !== "" && search !== "undefined")
-                query.name = { $regex: search, $options: "i" };
+                query.name = {$regex: search, $options: "i"};
             if (category)
                 query.category = category;
             const channels = await Channel.find(query);
@@ -111,7 +111,7 @@ exports.getChannelsByCategory = async (req, res, next) => {
             return res.status(200).json(channels);
         }
 
-        // Get all channels from the database with the specified category
+        // Get all channels from the database with the specified category, ordered by creation date
         const channels = await Channel.find({category: category});
 
         // Send the channels as the response
@@ -128,12 +128,12 @@ exports.createChannel = async (req, res, next) => {
     var name = req.body.name;
 
     // Check if contains illegal characters (any character that is not a letter, a number or an underscore)
-    if (name.match(/[^a-zA-Z0-9_]/)) {
+    if (illegalName(name)) {
         return res.status(400).json({error: "Il nome del canale può contenere solo lettere, numeri e underscore"});
     }
 
     // Add the symbol to the channel name
-    name ='§' + name.toLowerCase();
+    name = '§' + name.toLowerCase();
 
     // Check if channel with the same name already exists
     let conflict = await Channel.where('name').equals(name).exec();
@@ -143,8 +143,16 @@ exports.createChannel = async (req, res, next) => {
         return res.status(409).json({error: "Un canale con questo nome esiste già"});
     }
 
-    // The channel category is always public
-    const category = "public";
+    // Check if user is moderator or normal user
+    if (req.user.type === "moderator") {
+
+        // The channel category is editorial when created by a moderator
+        var category = "editorial";
+        name = name.toUpperCase();
+    } else {
+        // The channel category is always public when created by a normal user
+        var category = "public";
+    }
 
     // Get the channel description from the request
     const description = req.body.description;
@@ -167,7 +175,7 @@ exports.createChannel = async (req, res, next) => {
         // Add the channel to the logged user's createdChannels and subscribedChannels
         let user = await User.findById(req.user.id)
             .select("+createdChannels +subscribedChannels")
-            .populate('createdChannels','subscribedChannels');
+            .populate('createdChannels', 'subscribedChannels');
         user.subscribedChannels.push(newChannel._id);
         user.createdChannels.push(newChannel._id);
         await user.save();
@@ -175,7 +183,7 @@ exports.createChannel = async (req, res, next) => {
         // Return the channel as the response
         res.status(201).json(newChannel);
 
-    }catch (error) {
+    } catch (error) {
         next(error);
     }
 }
@@ -216,4 +224,82 @@ exports.bandUserFromChannel = async (req, res, next) => {
 
     // OK
     res.status(200).json({success: `L'utente ${user.username} é stato bannato dal canale ${channel.name}`});
+}
+
+exports.deleteChannel = async (req, res, next) => {
+
+    // Get the channel to delete
+    const channel = await Channel.findById(req.params.channelId);
+
+    // Check if channel exists
+    if (!channel) {
+        return res.status(404).json({error: "Il canale non é stato trovato"});
+    }
+
+    // Check if user is admin of the channel (or user is moderator)
+    if ((channel.admins == null || !channel.admins.includes(req.user.id)) && req.user.type !== "moderator") {
+        return res.status(403).json({error: "Non sei amministratore di questo canale"});
+    }
+
+    // Actually delete the channel
+    await channel.deleteOne();
+
+    // OK
+    res.status(200).json({success: `Il canale ${channel.name} é stato cancellato`});
+}
+
+exports.editChannel = async (req, res, next) => {
+
+    // Get the channel to edit
+    const channel = await Channel.findById(req.params.channelId);
+
+    // Check if channel exists
+    if (!channel) {
+        return res.status(404).json({error: "Il canale non é stato trovato"});
+    }
+
+    // Check if user is admin of the channel (or user is moderator)
+    if ((channel.admins == null || !channel.admins.includes(req.user.id)) && req.user.type !== "moderator") {
+        return res.status(403).json({error: "Non sei amministratore di questo canale"});
+    }
+
+    // Get the new channel name from the request
+    let newName = req.body.name;
+
+    // Check if contains illegal characters (any character that is not a letter, a number or an underscore)
+    if (illegalName(newName)) {
+        return res.status(400).json({error: "Il nome del canale può contenere solo lettere, numeri e underscore"});
+    }
+
+    // Add the symbol to the channel name (if not already present)
+    if (newName.charAt(0) !== '§') {
+        newName = '§' + newName.toLowerCase();
+    }
+
+    // Check if channel with the same name already exists (except the current one)
+    let conflict = await Channel.where('name').equals(newName).where('_id').ne(channel._id).exec();
+
+    // If channel with the same name already exists, abort
+    if (conflict.length > 0) {
+        return res.status(409).json({error: "Un canale con questo nome esiste già"});
+    }
+
+    // Get the new channel description from the request
+    const newDescription = req.body.description;
+
+    // Actually edit the channel
+    channel.name = newName;
+    channel.description = newDescription;
+
+    // Save the channel
+    await channel.save();
+
+    // OK
+    res.status(200).json({success: `Il canale ${channel.name} é stato modificato`});
+}
+
+function illegalName(name) {
+
+    // Allow only letters, numbers, and underscores, and § as the first character
+    return !name.match(/^(§?[a-zA-Z0-9_]+)$/);
 }

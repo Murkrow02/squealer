@@ -27,6 +27,19 @@ function banUserFromChannel(channelId, userId) {
     return api.patch("channels/" + channelId + "/ban/" + userId);
 }
 
+// Delete channel
+function deleteChannelById(channelId) {
+    return api.delete("channels/" + channelId);
+}
+
+// Edit channel
+function editChannelById(channelId, channelName, channelDescription) {
+    return api.put("channels/" + channelId, {
+        name: channelName,
+        description: channelDescription,
+    });
+}
+
 // Get all channels (Moderator only)
 function getAllChannels() {
     return api.get("channels");
