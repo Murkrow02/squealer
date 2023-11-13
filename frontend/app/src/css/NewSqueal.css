@@ -217,3 +217,21 @@ select {
     color: white;
     font-weight: bold;
 }
+
+
+.temporized-input-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.temporized-inner-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#ttl-input, #et-input {
+    max-width: 50px;
+}

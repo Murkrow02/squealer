@@ -190,8 +190,6 @@ export default function Editor(props) {
         //update char count
         decreaseCharCount(event.target.value.length);
 
-
-
         //split text into array
         const segments = event.target.value.split(" ");
 
@@ -280,7 +278,6 @@ export default function Editor(props) {
             }
             //update variables list
             setVariablesList(tmpVariables);
-            console.log(tmpVariables);
         }
     }
     function handleSquealTextFocus(event) {
@@ -611,13 +608,43 @@ export default function Editor(props) {
         squeal["contentType"] = squealType === "image" ? "media" : squealType;
         //upload switch
         let uploadNeeded = false;
+
+        function areTemporizedInputsValid() {
+            let ttlInput = document.getElementById("ttl-input");
+            let etInput = document.getElementById("et-input");
+
+            if (!ttlInput || !etInput || ttlInput.value === "" || etInput.value === "" || isNaN(ttlInput.value) || isNaN(etInput.value)) {
+                return false;
+            }
+            if (parseInt(ttlInput.value) < 0 || parseInt(etInput.value) < 0) {
+                return false;
+            }
+            if (parseInt(ttlInput.value) < parseInt(etInput.value) / 60) {
+                return false;
+            }
+
+            return [ttlInput.value * 60 * 1000, etInput.value * 1000];
+        }
+
+        let temporizedValues = areTemporizedInputsValid();
+        if ((isSquealTemporized || isLiveLocation) && temporizedValues === false) {
+            alert("Invalid temporized values");
+            return;
+        }
+
+        if (isSquealTemporized) {
+            //check that variables are set
+            for (let i = 0; i < variablesList.length; i++) {
+                if (variablesList[i].type === "unset") {
+                    alert("Please set " + variablesList[i].name + " variable");
+                    return;
+                }
+            }
+        }
+
         //get content
         switch (squealType) {
             case "text":
-                if (isSquealTemporized) {
-                    alert("Not supported yet");
-                    return;
-                }
                 squeal["content"] = document.getElementById("masked-content").innerHTML
                 break;
             case "image":
@@ -659,10 +686,20 @@ export default function Editor(props) {
                 //get response json
                 let resJson = response.data;
 
+
                 if (squealType === "location" && isLiveLocation) {
                     console.log("live location");
-                    window.sendLiveLocationSqueal(3000, 15000, resJson, 0, channels);
+                    console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
+                    window.sendLiveLocationSqueal(temporizedValues[1], temporizedValues[0], resJson, 0, channels);
+                } else if (squealType === "text" && isSquealTemporized) {
+                    console.log("temporized text");
+                    console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
+                    console.log(variablesList);
+                    window.sendVariablesSqueal(temporizedValues[1], temporizedValues[0], resJson, 0, channels, variablesList);
                 }
+
+
+
             } else {
                 alert(response.error);
             }
@@ -930,6 +967,27 @@ export default function Editor(props) {
                                 </div>
                 : null
             }
+            {
+                isSquealTemporized || isLiveLocation ?
+                    <div>
+                        <div className={"temporized-input-row"}>
+                            <Typography>Send for</Typography>
+                            <div className={"temporized-inner-input-container"}>
+                                <Typography>mins</Typography>
+                                <TextField placeholder={"0"} type={"number"} id="ttl-input" variant="outlined" />
+                            </div>
+                        </div>
+                        <div className={"temporized-input-row"}>
+                            <Typography>Send every</Typography>
+                            <div className={"temporized-inner-input-container"}>
+                                <Typography>secs</Typography>
+                                <TextField placeholder={"0"} type={"number"} id="et-input" variant="outlined" />
+                            </div>
+                        </div>
+                    </div>
+                : null
+            }
+
             <div onClick={postSquealClicked} style={{margin: '0 -10px'}}>
                 <ActionButton classes={"profile-action-button"} text={"Post"} type={"primary"} />
             </div>

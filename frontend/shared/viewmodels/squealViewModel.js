@@ -55,14 +55,11 @@ function sendLiveLocationSqueal(sendAfterMs, sendForMs, lastSentSqueal, squealSe
 
         //get user current position
         navigator.geolocation.getCurrentPosition((position) => {
+            console.log(position);
             points.push({latitude: position.coords.latitude, longitude: position.coords.longitude});
         }, (error) => {
             console.log(error);
-            return
         });
-
-        // Aggiungi nuovo punto posizione
-        //points.push({latitude: 0, longitude: 0});
 
         //remove id parameter from lastSentSqueal if exists
         if(lastSentSqueal._id){
@@ -77,7 +74,7 @@ function sendLiveLocationSqueal(sendAfterMs, sendForMs, lastSentSqueal, squealSe
 
         let newPostedSqueal = null;
 
-        postSqueal(lastSentSqueal, targetChannels, points).then((response) => {
+        postSqueal(lastSentSquealCopy, targetChannels, points).then((response) => {
             if (response.status === 201) {
                 newPostedSqueal = response.data;
                 console.log(newPostedSqueal);
@@ -85,9 +82,58 @@ function sendLiveLocationSqueal(sendAfterMs, sendForMs, lastSentSqueal, squealSe
                 // Aggiorna contatore squeal inviati
                 squealSentCount++;
 
-                sendLiveLocationSqueal(sendAfterMs, sendForMs - sendAfterMs, newPostedSqueal, squealSentCount, targetChannels);
+                sendLiveLocationSqueal(sendAfterMs, sendForMs - sendAfterMs, newPostedSqueal, squealSentCount + 1, targetChannels);
             }
         });
+    }, sendAfterMs);
+}
+
+function sendVariablesSqueal(sendAfterMs, sendForMs, varSqueal, squealSentCount, targetChannels, variables) {
+    if (sendForMs <= sendAfterMs) {
+        return;
+    }
+    console.log("waiting " + sendAfterMs + "ms to send squeal " + squealSentCount + "...");
+    setTimeout(() => {
+
+        //remove id parameter from lastSentSqueal if exists
+        if(varSqueal._id){
+            delete varSqueal._id;
+        }
+
+        let content = varSqueal.content;
+
+        //iterate over variables
+        for (let i = 0; i < variables.length; i++) {
+            let replacement = "";
+
+            switch (variables[i].type) {
+                case "date":
+                    replacement = new Date().toLocaleDateString();
+                    break;
+                case "time":
+                    replacement = new Date().toLocaleTimeString();
+                    break;
+                case "number":
+                    replacement = squealSentCount;
+            }
+
+            //replace all variables with their value
+            content = content.replace(variables[i].name, replacement);
+        }
+
+        // Copy lastSentSqueal
+        let lastSentSquealCopy = Object.assign({}, varSqueal);
+        // Update content
+        lastSentSquealCopy.content = content;
+
+        postSqueal(lastSentSquealCopy, targetChannels).then((response) => {
+            if (response.status === 201) {
+                let newPostedSqueal = response.data;
+                console.log(newPostedSqueal);
+                sendVariablesSqueal(sendAfterMs, sendForMs - sendAfterMs, varSqueal, squealSentCount + 1, targetChannels, variables);
+            }
+        });
+
     }, sendAfterMs);
 }
 
