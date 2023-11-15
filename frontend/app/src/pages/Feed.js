@@ -1,6 +1,6 @@
 
 //basic react imports
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Squeal from '../components/Squeal';
@@ -12,7 +12,7 @@ import {Popover, Tab, Tabs, Typography} from "@mui/material";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 
-function Feed() {
+function Feed(props) {
 
     const [squeals, setSqueals] = useState([]);
     const [avaiableReactions, setAvaiableReactions] = useState([])
@@ -69,13 +69,23 @@ function Feed() {
 
     const [value, setValue] = React.useState('1');
 
+    const childRef = useRef(null);
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
+
+
+    const moveToNewSqueal = () => {
+        props.moveToNewSqueal();
+    }
+
+
+
+
     return(
         <body>
-            <header style={{position:'fixed', top:'0', zIndex:'1', backgroundColor:'white'}}>
+            <header style={{position:'relative', top:'0', zIndex:'1', backgroundColor:'white'}}>
                 <nav style={{ width:'100vw', display:"flex", flexFlow:"column", padding: '20px 0', borderBottom: 'solid 2px #aaaaaa'}}>
                     <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
                     <div id={"search-container"}>
@@ -155,24 +165,50 @@ function Feed() {
                 </nav>
             </header>
 
-            <div style={{marginTop: '30vh'}}>
+            <div style={{}}>
                 {squeals.map((squeal) => (
-                    <Squeal id={squeal._id}
-                            username={squeal.createdBy.username}
-                            reactions={squeal.reactions}
-                            avaiableReactions={avaiableReactions}
-                            content={squeal.content}
-                            mediaUrl={squeal.mediaUrl}
-                            mapPoints={squeal.mapPoints}
-                            variant={squeal.variant}
-                            karma="112"
-                            type={squeal.contentType}
-                            tags={["test", "tag"]}
-                            channels={
-                                squeal.postedInChannels.map((channel) => (
-                                    channel.name.substring(1)
-                                ))
-                            }/>
+                    <>
+                        <Squeal id={squeal._id}
+                                username={squeal.createdBy.username}
+                                reactions={squeal.reactions}
+                                avaiableReactions={avaiableReactions}
+                                content={squeal.content}
+                                mediaUrl={squeal.mediaUrl}
+                                mapPoints={squeal.mapPoints}
+                                variant={squeal.variant}
+                                karma="112"
+                                type={squeal.contentType}
+                                tags={["test", "tag"]}
+                                moveToNewSqueal={moveToNewSqueal}
+                                channels={
+                                    squeal.postedInChannels.map((channel) => (
+                                        channel.name.substring(1)
+                                    ))
+                                }/>
+                        {
+                            squeal.replyTo != null ?
+                                <div style={{scale:'0.8', marginTop:'-20px'}}>
+                                    <Typography style={{textAlign:'center'}}>Risponde a</Typography>
+                                    <Squeal id={squeal.replyTo._id}
+                                            username={squeal.replyTo.createdBy.username}
+                                            reactions={squeal.replyTo.reactions}
+                                            avaiableReactions={avaiableReactions}
+                                            content={squeal.replyTo.content}
+                                            mediaUrl={squeal.replyTo.mediaUrl}
+                                            mapPoints={squeal.replyTo.mapPoints}
+                                            variant={squeal.replyTo.variant}
+                                            karma="112"
+                                            type={squeal.replyTo.contentType}
+                                            tags={["test", "tag"]}
+                                            isReply={true}
+                                            moveToNewSqueal={moveToNewSqueal}
+                                            />
+                                </div>
+
+                            : null
+
+                        }
+                    </>
                 ))}
             </div>
         </body>
