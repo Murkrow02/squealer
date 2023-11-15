@@ -9,11 +9,18 @@ function Profile(props) {
 
     const [username, setUsername] = useState('');
     const [type, setType] = useState(0);
+    const [dailyChars, setDailyChars] = useState(0);
+    const [weeklyChars, setWeeklyChars] = useState(0);
+    const [monthlyChars, setMonthlyChars] = useState(0);
+
     useEffect(() => {
         window.getProfile().then((response) =>{
             console.log(response.data)
             setUsername(response.data.username);
             setType(response.data.type);
+            setDailyChars(response.data.quota.dailyQuotaMax - response.data.quota.dailyQuotaUsed);
+            setWeeklyChars(response.data.quota.weeklyQuotaMax - response.data.quota.weeklyQuotaUsed);
+            setMonthlyChars(response.data.quota.monthlyQuotaMax - response.data.quota.monthlyQuotaUsed);
         });
     },[]);
 
@@ -39,15 +46,15 @@ function Profile(props) {
                     <div style={{backgroundColor: 'var(--light-bg)', transitionDuration:'0.3', width:'calc(100% - 30px - 20px)', margin: '20px 10px 0 10px', padding:'10px 15px', display:'flex', flexFlow:'column', gap:'10px', borderRadius:'10px'}}>
                         <div style={{display:'flex', justifyContent:'space-between', fontSize: '1.2rem'}}>
                             <span>Daily characters left:</span>
-                            <span style={{textAlign: 'end'}}>100</span>
+                            <span style={{textAlign: 'end'}}>{dailyChars}</span>
                         </div>
                         <div style={{display:'flex', justifyContent:'space-between', fontSize: '1.2rem'}}>
                             <span>Weekly characters left:</span>
-                            <span style={{textAlign: 'end'}}>200</span>
+                            <span style={{textAlign: 'end'}}>{weeklyChars}</span>
                         </div>
                         <div style={{display:'flex', justifyContent:'space-between', fontSize: '1.2rem'}}>
                             <span>Monthly characters left:</span>
-                            <span style={{textAlign: 'end'}}>300</span>
+                            <span style={{textAlign: 'end'}}>{monthlyChars}</span>
                         </div>
                     </div>
                     {
