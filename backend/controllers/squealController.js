@@ -442,7 +442,7 @@ async function createSqueal(squealData, userId, postInChannels)
     if(squeal.replyTo)
     {
         // Get replied squeal
-        let repliedSqueal = await Squeal.findById(squeal.replyTo);
+        let repliedSqueal = await Squeal.findById(squeal.replyTo).select('postedInChannels');
 
         // Throw error if replied squeal does not exist
         if(!repliedSqueal)
@@ -450,6 +450,9 @@ async function createSqueal(squealData, userId, postInChannels)
 
         // Set replied squeal as replied to
         squeal.replyTo = repliedSqueal._id;
+
+        // Copy channels from replied squeal
+        squeal.postedInChannels = repliedSqueal.postedInChannels;
     }
 
     //Create new empty reactions array with 0 reactions for each reaction

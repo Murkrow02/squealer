@@ -74,14 +74,36 @@
     <!-- Login form -->
     <form action="#" method="POST" id="login-form">
         <div class="input-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required autocomplete="username">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" name="username" required autocomplete="username">
         </div>
         <div class="input-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required autocomplete="current-password">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" required autocomplete="current-password">
         </div>
         <button type="submit">Login</button>
+    </form>
+
+    <!-- Register form -->
+    <form method="POST" id="register-form">
+
+        <div class="input-group">
+            <label for="register-username">Username</label>
+            <input type="text" id="register-username" name="username" required>
+        </div>
+
+        <div class="input-group">
+            <label for="register-username">Password</label>
+            <input type="text" id="register-password" name="password" required>
+        </div>
+
+        <div class="input-group">
+            <label for="register-username">Conferma password</label>
+            <input type="text" id="register-password-check" name="password-check" required>
+        </div>
+
+
+        <button type="submit">Registrati</button>
     </form>
 
     <!-- Guest button -->
@@ -95,10 +117,30 @@
         loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
 
             axios.post('/api/auth/login', { username, password })
+                .then(response => handleResponse(response))
+                .catch(error => handleError(error));
+        });
+
+        const registerForm = document.getElementById('register-form');
+
+        // Register form submit event
+        registerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const passwordCheck = document.getElementById('register-password-check').value;
+
+            if(password != passwordCheck) {
+                alert('Le password non coincidono');
+                return;
+            }
+
+            axios.post('/api/auth/register/false', { username, password })
                 .then(response => handleResponse(response))
                 .catch(error => handleError(error));
         });
