@@ -602,6 +602,7 @@ export default function Editor(props) {
 
         //manage receivers
         let channels = [];
+        console.log(receiverList);
         //get receivers
         for (let i = 0; i < receiverList.length; i++) {
             channels.push(receiverList[i].id);
@@ -677,15 +678,13 @@ export default function Editor(props) {
                 squeal["contentType"] = "map";
                 squeal["mapPoints"] = [{ "latitude": location[0], "longitude": location[1] }];
                 if (isSquealWeather) {
-                    alert("Not supported yet");
+                    squeal["variant"] = "weather";
                 }
                 break;
             default:
                 alert("Unsupported squeal type");
                 return;
         }
-
-        squeal["variant"] = "weather";
 
         console.log(squeal);
 

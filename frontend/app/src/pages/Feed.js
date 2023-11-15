@@ -164,6 +164,7 @@ function Feed() {
                             content={squeal.content}
                             mediaUrl={squeal.mediaUrl}
                             mapPoints={squeal.mapPoints}
+                            variant={squeal.variant}
                             karma="112"
                             type={squeal.contentType}
                             tags={["test", "tag"]}

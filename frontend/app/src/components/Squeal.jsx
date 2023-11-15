@@ -2,13 +2,14 @@ import * as React from 'react';
 import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import {Popover} from "@mui/material";
+import {Popover, Typography} from "@mui/material";
 import {useEffect} from "react";
 import {Circle, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import L from "leaflet";
 import 'leaflet/dist/leaflet.css';
+import weatherInfo from "../helpers/WeatherInfo.json";
 
 
 export default function Squeal(props) {
@@ -18,9 +19,15 @@ export default function Squeal(props) {
     const [avaiableReactions, setAvaiableReactions] = React.useState([]);
     const [reactions, setReactions] = React.useState([]);
 
+    const [locationLight, setLocationLight] = React.useState("day");
+    const [locationWeatherImage, setLocationWeatherImage] = React.useState("");
+    const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
+    const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
+
     useEffect(() => {
         setAvaiableReactions(props.avaiableReactions);
         setReactions(props.reactions);
+        updateWeatherData();
     }, []);
 
 
@@ -82,6 +89,36 @@ export default function Squeal(props) {
                 }
             }
         });
+    }
+
+    async function updateWeatherData() {
+
+        if (props.variant !== "weather" || props.mapPoints.length === 0) {
+            return;
+        }
+
+        let location = [props.mapPoints[0].latitude, props.mapPoints[0].longitude];
+
+        //fetch from openweather
+        console.log("map: " + location);
+
+        let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + location[0] + "&longitude=" + location[1] + "&current=temperature_2m,weathercode,is_day")
+        if (!weatherRequest.ok) {
+            console.log("Error while fetching weather data");
+            return;
+        }
+        //get json
+        let weatherResponse = await weatherRequest.json();
+        //get location light
+        setLocationLight(weatherResponse.current.is_day === 0 ? "night" : "day");
+        //get location temperature
+        setLocationWeatherTemperature(weatherResponse.current.temperature_2m);
+        //get json at helpers/WeatherInfo.json
+        let weatherInfo = require('../helpers/WeatherInfo.json');
+        //get weatherCode image
+        setLocationWeatherImage(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].image);
+        //get weatherCode description
+        setLocationWeatherDescription(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].description);
     }
 
 
@@ -160,6 +197,17 @@ export default function Squeal(props) {
                         : null
                     }
                 </div>
+                {
+                    props.variant === "weather" ?
+                        <div style={{display: 'flex', background: locationLight === "day" ? 'linear-gradient(261deg, #00affa 30%, #6cd1ff 70%)' : 'linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%)'}} className={"weather-info-container"}>
+                            <div style={{display:'flex', alignItems:'center'}}>
+                                <img src={locationWeatherImage}/>
+                                <Typography id={"weather-info-label"}>{locationWeatherDescription}</Typography>
+                            </div>
+                            <Typography id={"weather-temperature-label"}>{locationWeatherTemperature}°</Typography>
+                        </div>
+                    : null
+                }
                 <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
                     { reactions.map((reaction, index) => {
                         return(

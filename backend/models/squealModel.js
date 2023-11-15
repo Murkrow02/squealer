@@ -9,7 +9,7 @@ const squealSchema = new mongoose.Schema({
     createdBy: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     content: String,
     contentType: {type: String, enum: ['text', 'media', 'map']},
-    variant: {type: String, enum: ['', 'weather']},
+    variant: {type: String, enum: ['', 'weather'], default: ''},
     impressions: [{type: mongoose.Schema.Types.ObjectId, ref: "User", select: false, default: []}],
     positiveReactions: {type: Number, default: 0, select: false},
     negativeReactions: {type: Number, default: 0, select: false},
