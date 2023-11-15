@@ -20,13 +20,21 @@ function App() {
 
 
     const [value, setValue] = React.useState(0);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [profileType, setProfileType] = React.useState("guest");
     const ref = React.useRef(null);
 
-
+    useEffect(() => {
+        window.getProfile().then((response) =>{
+            console.log("profile");
+            console.log(response.data);
+            setProfileType(response.data.type);
+            setIsLoading(false);
+        });
+    });
 
     return (
       <div>
-
           {/*
           CHANNEL USAGE
           <Channel muted={true} subscribed={true}/>
@@ -34,35 +42,54 @@ function App() {
           /*
           PROFILE USAGE
            <Profile karma={int} hasSMM={true}/>
-
-
           */
           }
-          { value === 0  ?
-                <Feed/>
-            : value === 1 ?
-                <NewSqueal/>
-            : value === 2 ?
-                <Profile type={"pro"} karma={123} hasSMM={false}/>
-            : null
+
+
+          {
+              !isLoading ?
+                  <>
+                      {
+                          profileType !== "guest" ?
+                              value === 0  ?
+                                  <Feed/>
+                              : value === 1 ?
+                                  <NewSqueal/>
+                              : value === 2 ?
+                                  <Profile type={profileType} karma={123} hasSMM={false}/>
+                              : null
+                          :
+                              value === 0  ?
+                                  <Feed/>
+                              : value === 2 ?
+                                  <Profile type={profileType} karma={0} hasSMM={false}/>
+                              : null
+                      }
+                      <Box sx={{ pb: 7 }} ref={ref}>
+                          <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+                              <BottomNavigation
+                                  showLabels
+                                  value={value}
+                                  onChange={(event, newValue) => {
+                                      console.log(newValue);
+                                      setValue(newValue);
+                                  }}>
+                                  <BottomNavigationAction label="Feed" icon={<DynamicFeedIcon />} />
+                                  {
+                                      profileType !== "guest" ?
+                                          <BottomNavigationAction label="New Squeal" icon={<AddIcon />} />
+                                      : null
+                                  }
+                                  <BottomNavigationAction label="Profile" icon={<AssignmentIndIcon />} />
+                              </BottomNavigation>
+                          </Paper>
+                      </Box>
+                  </>
+              : null
+
           }
 
 
-          <Box sx={{ pb: 7 }} ref={ref}>
-              <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
-                  <BottomNavigation
-                      showLabels
-                      value={value}
-                      onChange={(event, newValue) => {
-                          setValue(newValue);
-                      }}
-                  >
-                      <BottomNavigationAction label="Feed" icon={<DynamicFeedIcon />} />
-                      <BottomNavigationAction label="New Squeal" icon={<AddIcon />} />
-                      <BottomNavigationAction label="Profile" icon={<AssignmentIndIcon />} />
-                  </BottomNavigation>
-              </Paper>
-          </Box>
       </div>
     );
 }

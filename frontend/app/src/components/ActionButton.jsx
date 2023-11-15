@@ -23,8 +23,15 @@ export default function ActionButton(props) {
             backgroundColor = 'var(--primary)';
     }
 
+    function buttonClick() {
+        if (props.redirect && props.redirect !== "") {
+            window.location.href = props.redirect;
+        }
+    }
+
+
     return(
-        <button className={props.classes} style={{width:'calc(100% - 20px)', border:'none', borderRadius:'10px', padding:'15px 0', fontWeight:'bold', fontSize:'1.2rem', cursor:'pointer', marginLeft:'10px', marginRight:'10px',
+        <button onClick={buttonClick} className={props.classes} style={{width:'calc(100% - 20px)', border:'none', borderRadius:'10px', padding:'15px 0', fontWeight:'bold', fontSize:'1.2rem', cursor:'pointer', marginLeft:'10px', marginRight:'10px',
             color:color,
             backgroundColor: backgroundColor}}>
             {props.text}

@@ -17,7 +17,7 @@ function Feed() {
     const [squeals, setSqueals] = useState([]);
     const [avaiableReactions, setAvaiableReactions] = useState([])
     useEffect(() => {
-        window.getAllSqueals().then((response) =>{
+        window.getFeed().then((response) =>{
             console.log(response.data)
             setSqueals(response.data)
         });
