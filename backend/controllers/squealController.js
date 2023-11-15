@@ -330,7 +330,6 @@ async function checkIfExceedsQuota(userId, squeal) {
         if (user.quota.dailyQuotaReset < currentDate) {
             user.quota.dailyQuotaUsed = 0;
             user.quota.dailyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
-            user.save();
         } else {
             return 'giornaliera';
         }
@@ -343,7 +342,6 @@ async function checkIfExceedsQuota(userId, squeal) {
         if (user.quota.weeklyQuotaReset < currentDate) {
             user.quota.weeklyQuotaUsed = 0;
             user.quota.weeklyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
-            user.save();
         } else {
             return 'settimanale';
         }
@@ -356,7 +354,6 @@ async function checkIfExceedsQuota(userId, squeal) {
         if (user.quota.monthlyQuotaReset < currentDate) {
             user.quota.monthlyQuotaUsed = 0;
             user.quota.monthlyQuotaReset = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-            user.save();
         } else {
             return 'mensile';
         }
@@ -408,10 +405,11 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
         .lean()
         .limit(50);
 
-    // Search on postedInChannels field of all squeals and remove
-    // every private channel (privacy) for exception to his own private channel
+    // Cycle on each squeal to perform various operations
     let squeals = await result.exec();
     squeals.forEach(squeal => {
+
+        // Remove every private channel (privacy) for exception to his own private channel
         squeal.postedInChannels = squeal.postedInChannels
             .filter(channel => channel.category !== "private" || channel._id == user.privateChannelId.toHexString());
 
@@ -439,6 +437,20 @@ async function createSqueal(squealData, userId, postInChannels)
     let squeal = new Squeal(squealData);
     squeal.createdBy = userId;
     squeal.postedInChannels = postInChannels;
+
+    // Check if squeal is a reply
+    if(squeal.replyTo)
+    {
+        // Get replied squeal
+        let repliedSqueal = await Squeal.findById(squeal.replyTo);
+
+        // Throw error if replied squeal does not exist
+        if(!repliedSqueal)
+            throw new Error('Squeal a cui rispondere non trovato');
+
+        // Set replied squeal as replied to
+        squeal.replyTo = repliedSqueal._id;
+    }
 
     //Create new empty reactions array with 0 reactions for each reaction
     let reactions = await Reaction.find();
