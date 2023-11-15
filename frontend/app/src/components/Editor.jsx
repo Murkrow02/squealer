@@ -26,6 +26,7 @@ import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import Box from "@mui/material/Box";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import ReplyRoundedIcon from "@mui/icons-material/ReplyRounded";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -108,6 +109,18 @@ export default function Editor(props) {
     const [locationWeatherImage, setLocationWeatherImage] = React.useState("");
     const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
     const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
+
+    //get values from session storage
+    console.log("session storage");
+    const [replySquealId, setReplySquealId] = React.useState(sessionStorage.getItem("replySquealId"));
+    const [replySquealUsername, setReplySquealUsername] = React.useState(sessionStorage.getItem("replySquealUsername"));
+    if (replySquealId != null && replySquealUsername != null) {
+        //remove values from session storage
+        sessionStorage.removeItem("replySquealId");
+        sessionStorage.removeItem("replySquealUsername");
+    }
+    console.log(replySquealId);
+    console.log(replySquealUsername);
 
     //Marker configuration
     L.Marker.prototype.options.icon = L.icon({
@@ -645,6 +658,10 @@ export default function Editor(props) {
             return;
         }
 
+        if (replySquealId !== null && replySquealUsername != null) {
+            squeal["replyTo"] = replySquealId;
+        }
+
         //get content
         switch (squealType) {
             case "text":
@@ -728,6 +745,14 @@ export default function Editor(props) {
 
     return(
         <div style={{padding: '0 20px', marginTop:'10vh'}}>
+            {
+                replySquealId != null && replySquealUsername != null ?
+                    <div style={{display: "flex", gap:'10px'}}>
+                        <ReplyRoundedIcon style={{color:'var(--black)'}}/>
+                        <Typography>replying to @{replySquealUsername}</Typography>
+                    </div>
+                : null
+            }
             <div>
                 <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>Receivers</Typography>
                 <div style={{display:"flex", gap:'10px', marginTop:'10px'}}>

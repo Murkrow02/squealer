@@ -12,7 +12,7 @@ import 'leaflet/dist/leaflet.css';
 import weatherInfo from "../helpers/WeatherInfo.json";
 
 
-export default function Squeal(props) {
+const Squeal = (props) => {
 
     const [reactionPopoverAnchorEl, setReactionPopoverAnchorEl] = React.useState(null);
 
@@ -122,6 +122,14 @@ export default function Squeal(props) {
     }
 
 
+    const moveToNewSqueal = () => {
+        //add to session storage
+        sessionStorage.setItem("replySquealId", props.id);
+        sessionStorage.setItem("replySquealUsername", props.username);
+        props.moveToNewSqueal();
+    }
+
+
     return(
         <div style={{width: '100vw', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
             <div style={{width: '90vw', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.24)', height: 'fit-content', padding:'15px', backgroundColor:"white",}}>
@@ -130,13 +138,18 @@ export default function Squeal(props) {
                     <span style={{fontWeight:"bold"}}>@{props.username}</span>
                     <span style={{color: 'var(--karma)', fontWeight:"bold"}}>{props.karma}pts.</span>
                 </div>
-                <div className={"channels-container"}>
-                    {props.channels.map((channel, index) => {
-                        return(
-                            <span style={{color: 'var(--primary)', fontSize:'0.8rem', padding:"8px 15px", borderRadius:'10px', backgroundColor:'var(--primary-bg)', fontWeight:"bold"}} key={index}>§{channel}</span>
-                        )
-                    })}
-                </div>
+                {
+                    props.channels != null && props.channels.length > 0 ?
+                        <div className={"channels-container"}>
+                            {props.channels.map((channel, index) => {
+                                return(
+                                    <span style={{color: 'var(--primary)', fontSize:'0.8rem', padding:"8px 15px", borderRadius:'10px', backgroundColor:'var(--primary-bg)', fontWeight:"bold"}} key={index}>§{channel}</span>
+                                )
+                            })}
+                        </div>
+                    : null
+                }
+
                 <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
                     {props.tags.map((tag, index) => {
                         return(
@@ -231,39 +244,45 @@ export default function Squeal(props) {
                         )
                     })}
                 </div>
-                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:"20px", marginTop:'20px'}}>
-                    <div aria-describedby={reactionPopoverId} onClick={handleReactionButtonClick} style={{backgroundColor:"white", padding:"10px", cursor:'pointer', gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
-                        <AddReactionRoundedIcon style={{color:'var(--text-light)'}}/>
-                        <span style={{color:"var(--text-light)"}}>React</span>
-                    </div>
-                    <Popover elevation={5} id={reactionPopoverId} open={reactionPopoverOpen} anchorEl={reactionPopoverAnchorEl} onClose={handleReactionPopoverClose}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                        }}
-                        transformOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                        }}
-                    >
-                       <div style={{display:'flex', gap:'10px', padding:'10px 30px', borderRadius:"15px",}}>
-                            {avaiableReactions.map((reaction, index) => {
-                                return(
-                                    <div onClick={() => {reactSqueal(reaction._id)}} style={{ padding:'5px', borderRadius:'10px', cursor:'pointer', display:'flex', gap:'3px'}}>
-                                        <span className={"avaiable-reaction-emoji"}>{reaction.emoji}</span>
-                                    </div>
-                                )})
-                            }
-                       </div>
-                    </Popover>
-                    <div style={{backgroundColor:"white", cursor:'pointer', padding:"10px", gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
-                        <ReplyRoundedIcon style={{color:'var(--text-light)'}}/>
-                        <span style={{color:"var(--text-light)"}}>Reply</span>
-                    </div>
-                </div>
+                {
+                    !props.isReply ?
+                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:"20px", marginTop:'20px'}}>
+                            <div aria-describedby={reactionPopoverId} onClick={handleReactionButtonClick} style={{backgroundColor:"white", padding:"10px", cursor:'pointer', gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
+                                <AddReactionRoundedIcon style={{color:'var(--text-light)'}}/>
+                                <span style={{color:"var(--text-light)"}}>React</span>
+                            </div>
+                            <Popover elevation={5} id={reactionPopoverId} open={reactionPopoverOpen} anchorEl={reactionPopoverAnchorEl} onClose={handleReactionPopoverClose}
+                                     anchorOrigin={{
+                                         vertical: 'top',
+                                         horizontal: 'center',
+                                     }}
+                                     transformOrigin={{
+                                         vertical: 'bottom',
+                                         horizontal: 'center',
+                                     }}
+                            >
+                                <div style={{display:'flex', gap:'10px', padding:'10px 30px', borderRadius:"15px",}}>
+                                    {avaiableReactions.map((reaction, index) => {
+                                        return(
+                                            <div onClick={() => {reactSqueal(reaction._id)}} style={{ padding:'5px', borderRadius:'10px', cursor:'pointer', display:'flex', gap:'3px'}}>
+                                                <span className={"avaiable-reaction-emoji"}>{reaction.emoji}</span>
+                                            </div>
+                                        )})
+                                    }
+                                </div>
+                            </Popover>
+                            <div onClick={moveToNewSqueal} style={{backgroundColor:"white", cursor:'pointer', padding:"10px", gap:'5px', alignItems:'center', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.16)', display:'flex', justifyContent:'center'}}>
+                                <ReplyRoundedIcon style={{color:'var(--text-light)'}}/>
+                                <span style={{color:"var(--text-light)"}}>Reply</span>
+                            </div>
+                        </div>
+                    : null
+                }
 
             </div>
         </div>
 
     );
 }
+
+export default Squeal;

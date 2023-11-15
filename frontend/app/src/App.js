@@ -33,6 +33,11 @@ function App() {
         });
     });
 
+
+    function moveToNewSqueal() {
+        setValue(1);
+    }
+
     return (
       <div>
           {/*
@@ -52,7 +57,7 @@ function App() {
                       {
                           profileType !== "guest" ?
                               value === 0  ?
-                                  <Feed/>
+                                  <Feed moveToNewSqueal={moveToNewSqueal}/>
                               : value === 1 ?
                                   <NewSqueal/>
                               : value === 2 ?
