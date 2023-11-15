@@ -51,6 +51,11 @@ exports.setSmm = async (req, res, next) => {
             return res.status(404).json({error: "L'utente da impostare come smm non é stato trovato"});
         }
 
+        // Check that user is pro user
+        if (user.type !== 'prouser') {
+            return res.status(400).json({error: `Devi essere pro user per impostare un social media manager`});
+        }
+
         // Check that target user is smm
         if (smm.type !== 'smm') {
             return res.status(400).json({error: `L'utente ${smm.username} non é un social media manager`});
@@ -70,10 +75,37 @@ exports.setSmm = async (req, res, next) => {
     }
 }
 
+// Remove smm for user
+exports.removeSmm = async (req, res, next) => {
+
+    // Get logged user
+    let user = await User.findById(req.user.id).select("+smmId");
+
+    try {
+
+        // Check if user has a smm
+        if (!user.smmId) {
+            return res.status(400).json({error: `Non hai nessun social media manager`});
+        }
+
+        // Remove smm
+        user.smmId = undefined;
+
+// Save the user
+        await user.save();
+
+        // OK
+        res.status(200).json({success: `Il tuo social media manager é stato rimosso`});
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.changePassword = async (req, res, next) => {
 
     // Get the old and new password from the request body
-    const { oldPassword, newPassword } = req.body;
+    const {oldPassword, newPassword} = req.body;
 
     try {
 
@@ -82,7 +114,7 @@ exports.changePassword = async (req, res, next) => {
 
         // Check if the user exists
         if (!user) {
-            return res.status(401).json({ message: 'Utente non trovato' });
+            return res.status(401).json({message: 'Utente non trovato'});
         }
 
         // Compare the provided password with the hashed password in the database
@@ -90,7 +122,7 @@ exports.changePassword = async (req, res, next) => {
 
         // If the password doesn't match
         if (!passwordMatch) {
-            return res.status(403).json({ message: 'Password non corretta' });
+            return res.status(403).json({message: 'Password non corretta'});
         }
 
         // Hash the new password
@@ -104,8 +136,7 @@ exports.changePassword = async (req, res, next) => {
 
         // OK
         res.status(200).json({message: "Password aggiornata correttamente"});
-    }
-    catch (error) {
+    } catch (error) {
         next(error);
     }
 }

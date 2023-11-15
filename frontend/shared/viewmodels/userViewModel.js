@@ -22,6 +22,10 @@ function setSmm(smmId) {
     return api.patch("users/setSmm/" + smmId);
 }
 
+function removeSmm() {
+    return api.patch("users/removeSmm");
+}
+
 function changePassword(oldPassword, newPassword) {
     return api.patch("users/profile/changePassword", { oldPassword, newPassword });
 }

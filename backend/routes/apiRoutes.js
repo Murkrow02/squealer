@@ -36,6 +36,9 @@ router.patch('/users/setSmm/:smmId',
 router.patch('/users/profile/changePassword',
     passport.authenticate('bearer', { session: false }),
     userController.changePassword);
+router.patch('/users/removeSmm',
+passport.authenticate('bearer', { session: false }),
+userController.removeSmm);
 
 // Squeals
 router.get('/squeals',
