@@ -382,15 +382,15 @@ export default function Editor(props) {
                 console.log(error);
             });
         } else if (receiverTabValue === '2') {
-            window.getProfile().then((profile) => {
+
+            window.getChannelsByCategory('public', searchValue).then((channels) => {
+                console.log(channels);
                 //get subscribed channels
-                let sub_channels = profile.data.subscribedChannels;
-                //filter sub_channels if type = 2
-                sub_channels = sub_channels.filter((channel) => {
-                    return channel.type !== "private" && channel.type !== "hashtag" && channel.name.toLowerCase().includes(event.target.value.toLowerCase());
+                let avail_channels = channels.data.filter((channel) => {
+                    return channel.category === 'public';
                 });
                 //set search list
-                setReceiverSearchList(sub_channels);
+                setReceiverSearchList(avail_channels);
             }).catch((error) => {
                 console.log(error);
             });
@@ -472,6 +472,8 @@ export default function Editor(props) {
     function showReceiverOverlay(event) {
         //show overlay
         setReceiverPopupVisible(true);
+
+
     }
     function hideReceiverOverlay(event) {
         //hide overlay
