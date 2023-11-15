@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     username: String,
     email: {type: String, select: false},
     password: {type: String, select: false},
-    type: {type: String, enum: ['guest','blocked','user', 'smm', 'moderator']},
+    type: {type: String, enum: ['guest','blocked','user', 'prouser', 'smm', 'moderator']},
     subscribedChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],
     smmId: {type: mongoose.Schema.Types.ObjectId, ref: "User", select: false},
     quota: {

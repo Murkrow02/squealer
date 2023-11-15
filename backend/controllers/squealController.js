@@ -25,6 +25,11 @@ exports.getFeed = async (req, res, next) => {
 // Create a new squeal
 exports.createSqueal = async (req, res, next) => {
 
+    // Return if user is guest
+    if (req.user.type === "guest") {
+        return res.status(403).json({error: 'Non sei un utente registrato'});
+    }
+
     try {
 
         // Get channels to post in
@@ -108,7 +113,7 @@ exports.searchByChannelId = async (req, res, next) => {
         const searchInMentionedChannels = (await Channel.findById(channelId)).category === "private";
 
         // Create feed for user
-        let squeals = await createFeedForUser(req.user.id, channelId, searchInMentionedChannels);
+        let squeals = await createFeedForUser(req.user.id, [channelId], searchInMentionedChannels);
 
         // Send the squeals as the response
         res.status(200).json(squeals);
@@ -370,13 +375,18 @@ async function checkIfExceedsQuota(userId, squeal) {
 }
 
 // Returns a list of squeals posted in the channels that the user is subscribed to (or in the channel provided as filter)
-async function createFeedForUser(userId, channelIdFilter = null, searchInMentionedChannels = false) {
+async function createFeedForUser(userId, filterChannels = null, searchInMentionedChannels = false) {
 
     // Get user from id
     let user = await User.findById(userId).select("+subscribedChannels").select("+privateChannelId");
 
+    // Check if user is guest
+    if (user.type === "guest") {
+        filterChannels = await Channel.find({category: "editorial"});
+    }
+
     // Now decide if filter out by subscribed channels or by channel id (if provided)
-    let channelsToFilter = channelIdFilter ? [channelIdFilter] : user.subscribedChannels;
+    let channelsToFilter = filterChannels || user.subscribedChannels;
 
     // Build query based on different cases
     let initialQuery;

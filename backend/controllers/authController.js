@@ -8,6 +8,7 @@ const crypto = require('crypto');
 // Redirects
 let redirects = {
     "user": "/app",
+    "prouser": "/app",
     "guest": "/app",
     "smm": "/smm",
     "moderator": "/moderator"
