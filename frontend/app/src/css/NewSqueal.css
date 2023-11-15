@@ -106,7 +106,7 @@
     width: 100vw;
     height: 100vh;
     background-color: #000000aa;
-    z-index: 2;
+    z-index: 1001;
     display: flex;
     justify-content: center;
     align-items: center;

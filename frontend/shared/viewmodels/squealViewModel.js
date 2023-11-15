@@ -53,37 +53,44 @@ function sendLiveLocationSqueal(sendAfterMs, sendForMs, lastSentSqueal, squealSe
         // Crea array punti posizione
         let points = position ? position : [];
 
-        //get user current position
-        navigator.geolocation.getCurrentPosition((position) => {
-            console.log(position);
-            points.push({latitude: position.coords.latitude, longitude: position.coords.longitude});
-        }, (error) => {
-            console.log(error);
-        });
-
-        //remove id parameter from lastSentSqueal if exists
-        if(lastSentSqueal._id){
-            delete lastSentSqueal._id;
-        }
-
+        console.log("Points before:");
         console.log(points);
 
-        // Aggiorna posizione
-        let lastSentSquealCopy = Object.assign({}, lastSentSqueal);
-        lastSentSquealCopy.mapPoints = points;
+        //get user current position
+        navigator.geolocation.getCurrentPosition((position) => {
+            console.log("Current position:")
+            console.log(position);
+            points.push({latitude: position.coords.latitude, longitude: position.coords.longitude});
 
-        let newPostedSqueal = null;
-
-        postSqueal(lastSentSquealCopy, targetChannels, points).then((response) => {
-            if (response.status === 201) {
-                newPostedSqueal = response.data;
-                console.log(newPostedSqueal);
-
-                // Aggiorna contatore squeal inviati
-                squealSentCount++;
-
-                sendLiveLocationSqueal(sendAfterMs, sendForMs - sendAfterMs, newPostedSqueal, squealSentCount + 1, targetChannels);
+            //remove id parameter from lastSentSqueal if exists
+            if(lastSentSqueal._id){
+                delete lastSentSqueal._id;
+                delete lastSentSqueal.reactions;
             }
+
+            console.log("Points after:");
+            console.log(points);
+
+            // Aggiorna posizione
+            let lastSentSquealCopy = Object.assign({}, lastSentSqueal);
+            lastSentSquealCopy.mapPoints = points;
+
+            let newPostedSqueal = null;
+
+            postSqueal(lastSentSquealCopy, targetChannels, points).then((response) => {
+                if (response.status === 201) {
+                    newPostedSqueal = response.data;
+                    console.log(newPostedSqueal);
+
+                    // Aggiorna contatore squeal inviati
+                    squealSentCount++;
+
+                    sendLiveLocationSqueal(sendAfterMs, sendForMs - sendAfterMs, newPostedSqueal, squealSentCount + 1, targetChannels);
+                }
+            });
+        }, (error) => {
+            console.log("Error getting position:");
+            console.log(error);
         });
     }, sendAfterMs);
 }
@@ -98,6 +105,7 @@ function sendVariablesSqueal(sendAfterMs, sendForMs, varSqueal, squealSentCount,
         //remove id parameter from lastSentSqueal if exists
         if(varSqueal._id){
             delete varSqueal._id;
+            delete varSqueal.reactions;
         }
 
         let content = varSqueal.content;

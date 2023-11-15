@@ -74,6 +74,8 @@ export default function Editor(props) {
         setReceiverSearchList([]);
         //Clear search input
         document.querySelector('.receivers-search-bar').value = "";
+        //Reload receiver list
+        onReceiverInputChange({target: {value: ""}});
     };
 
     //Receiver tab dict
@@ -362,16 +364,22 @@ export default function Editor(props) {
         alert("Unable to retrieve your location");
     }
     function onReceiverInputChange(event) {
-        //check if text is empty
-        if (event.target.value === "") {
+
+        let searchValue = event.target.value;
+        console.log("searching:" + searchValue);
+
+        if (searchValue.length <= 0) {
             return;
         }
+
         //check if type is @ (1)
         if (receiverTabValue === '1') {
             //get users
-            window.searchByUsername(event.target.value).then((users) => {
+            window.searchByUsername(searchValue).then((users) => {
                 setReceiverSearchList(users.data);
                 console.log(users);
+            }).catch((error) => {
+                console.log(error);
             });
         } else if (receiverTabValue === '2') {
             window.getProfile().then((profile) => {
@@ -383,6 +391,8 @@ export default function Editor(props) {
                 });
                 //set search list
                 setReceiverSearchList(sub_channels);
+            }).catch((error) => {
+                console.log(error);
             });
         } else if (receiverTabValue === '3') {
             //clear search list
@@ -632,20 +642,27 @@ export default function Editor(props) {
             return;
         }
 
-        if (isSquealTemporized) {
-            //check that variables are set
-            for (let i = 0; i < variablesList.length; i++) {
-                if (variablesList[i].type === "unset") {
-                    alert("Please set " + variablesList[i].name + " variable");
-                    return;
-                }
-            }
-        }
-
         //get content
         switch (squealType) {
             case "text":
                 squeal["content"] = document.getElementById("masked-content").innerHTML
+
+                if (isSquealTemporized) {
+                    //check that variables are set
+                    for (let i = 0; i < variablesList.length; i++) {
+                        if (variablesList[i].type === "unset") {
+                            alert("Please set " + variablesList[i].name + " variable");
+                            return;
+                        }
+                    }
+                    console.log("temporized text");
+                    console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
+                    console.log(variablesList);
+                    alert('Warning, page reload or app exit will stop the temporized squeal posting');
+                    window.sendVariablesSqueal(temporizedValues[1], temporizedValues[0], squeal, 0, channels, variablesList);
+                    alert("All squeals posted");
+                    return;
+                }
                 break;
             case "image":
                 squeal["contentType"] = "media";
@@ -667,6 +684,8 @@ export default function Editor(props) {
                 alert("Unsupported squeal type");
                 return;
         }
+
+        squeal["variant"] = "weather";
 
         console.log(squeal);
 
@@ -690,16 +709,9 @@ export default function Editor(props) {
                 if (squealType === "location" && isLiveLocation) {
                     console.log("live location");
                     console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
+                    alert('Warning, page reload or app exit will stop the live location posting');
                     window.sendLiveLocationSqueal(temporizedValues[1], temporizedValues[0], resJson, 0, channels);
-                } else if (squealType === "text" && isSquealTemporized) {
-                    console.log("temporized text");
-                    console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
-                    console.log(variablesList);
-                    window.sendVariablesSqueal(temporizedValues[1], temporizedValues[0], resJson, 0, channels, variablesList);
                 }
-
-
-
             } else {
                 alert(response.error);
             }
