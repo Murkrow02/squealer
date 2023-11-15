@@ -55,9 +55,11 @@ async function handlePopularOrControversial(squeal, criticalMass, wasPopular, wa
 async function markSquealAsControversial(squeal, postingUserId) {
 
     const controversialChannelId = (await Channel.findOne({name: "§CONTROVERSIAL"}))._id.toHexString();
-    squeal.postedInChannels.push(controversialChannelId);
-    console.log(`Marking squeal ${squeal._id} as controversial`);
 
+    // Check if the squeal is already marked as controversial
+    if (!squeal.postedInChannels.includes(controversialChannelId)) {
+        squeal.postedInChannels.push(controversialChannelId);
+    }
 
     if (squeal.markedAsPopular) {
         // Remove popular mark and update quota

@@ -380,39 +380,25 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
     // Get user from id
     let user = await User.findById(userId).select("+subscribedChannels").select("+privateChannelId");
 
-    // Check if user is guest
-    if (user.type === "guest") {
-        filterChannels = await Channel.find({category: "editorial"});
-    }
+    // Build channel array to filter (if filterChannels is not explicitly provided for search purposes)
+    if (!filterChannels) {
 
-    // Now decide if filter out by subscribed channels or by channel id (if provided)
-    let channelsToFilter = filterChannels || user.subscribedChannels;
+        // Editorial channels are always included (get their ids)
+        filterChannels = (await Channel.find({category: "editorial"})).map(channel => channel._id);
+
+        // If user is not guest, append his subscribed channels
+        if (user.type !== "guest") {
+            filterChannels.push(...user.subscribedChannels);
+        }
+    }
 
     // Build query based on different cases
-    let initialQuery;
-
-    // If user is guest, only squeals posted in editorial channels are shown
-    if (user.type === "guest") {
-
-        // Get editorial channels
-        let editorialChannels = await Channel.find({category: "editorial"});
-
-        // Build query
-        initialQuery = Squeal.find({postedInChannels: {$in: editorialChannels}});
-    }
-    else if (searchInMentionedChannels)
-    {
-        // Search on mentionedChannels field of all squeals
-        initialQuery = Squeal.find({mentionedChannels: {$in: channelsToFilter}});
-    }
-    else
-    {
-        // Search on postedInChannels field of all squeals
-        initialQuery = Squeal.find({postedInChannels: {$in: channelsToFilter}});
-    }
+    let query = searchInMentionedChannels ?
+        Squeal.find({mentionedChannels: {$in: filterChannels}}) :
+        Squeal.find({postedInChannels: {$in: filterChannels}});
 
     // Get all squeals from the database that are posted in the channels selected
-    let result = initialQuery
+    let result = query
         .sort({createdAt: -1})
         .populate('createdBy')
         .populate('postedInChannels')
