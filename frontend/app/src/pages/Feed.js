@@ -51,6 +51,14 @@ function Feed(props) {
         "tag": "#",
         "user": "@"
     };
+
+    let searchTypeTexts = {
+        "text": "text",
+        "channel": "channel",
+        "tag": "hashtag",
+        "user": "user"
+    }
+
     function changeSearchType(type) {
         setSearchType(type);
         setSearchTypeText(searchTypeIcon[type]);
@@ -60,18 +68,66 @@ function Feed(props) {
 
     //SEARCH TEXT HANDLING
     const [searchText, setSearchText] = useState("");
-    function handleSearchTextChange(event) {
+    let isSearching = false;
+
+    async function handleSearchTextChange(event) {
+
+        //set search text
         setSearchText(event.target.value);
+
+        await delay(100);
+
+        //take mutex
+        if (!isSearching) {
+            isSearching = true;
+        } else {
+            return;
+        }
 
         //check if text is empty
         if(event.target.value === "") {
+            window.getFeed().then((response) =>{
+                console.log(response.data)
+                setSqueals(response.data)
+            });
             return;
         }
+
+
+        if (searchType === "text") {
+            window.getFeed(event.target.value).then((response) =>{
+                console.log(response.data)
+                setSqueals(response.data)
+            });
+        }
+
+        //search for squeals
+        let urlSearchType = searchTypeTexts[searchType];
+        let urlSearchText = event.target.value;
+        let urlSearchDestination = searchType === "text" ? "content" : value === '1' ? "mentioned" : "content";
+
+
+        console.log("type: " + urlSearchType + " text: " + urlSearchText + " destination: " + urlSearchDestination);
+
+        window.searchByChannelName(urlSearchType, urlSearchText, urlSearchDestination).then((response) =>{
+            console.log(response.data);
+            setSqueals(response.data)
+        });
+    }
+
+    async function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     const [value, setValue] = React.useState('1');
 
     const childRef = useRef(null);
+
+    useEffect(() => {
+        // action on update of movies
+        handleSearchTextChange({target: {value: searchText}});
+    }, [value, searchType]);
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -92,7 +148,7 @@ function Feed(props) {
     return(
         <body>
             <header style={{position:'relative', top:'0', zIndex:'1', backgroundColor:'white'}}>
-                <nav style={{ width:'100vw', display:"flex", flexFlow:"column", padding: '20px 0', borderBottom: 'solid 2px #aaaaaa'}}>
+                <nav style={{ width:'100vw', display:"flex", paddingTop:'20px', flexFlow:"column", borderBottom: 'solid 2px #aaaaaa'}}>
                     <div style={{position:"relative"}}>
                         <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
                         <AddIcon onClick={handleChannelPopupVisibility} style={{color:"var(--primary)", cursor:"pointer", position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)"}}/>
@@ -127,12 +183,12 @@ function Feed(props) {
                             renderInput={(params) => <TextField onChange={handleSearchTextChange} {...params} label="Search..." />}
                         />
                     </div>
-                    <Stack style={{marginTop:'10px', padding:"0 10vw", justifyContent:'center'}} direction={'row'} spacing={1}>
+                    <Stack style={{marginTop:'10px', padding:"0 10vw", marginBottom:'10px', justifyContent:'center'}} direction={'row'} spacing={1}>
                         <Chip label="Popular" />
                         <Chip label="Controversed" />
                     </Stack>
                     {
-                        searchText !== "" ?
+                        searchType !== "text" ?
                         <>
                             <Box sx={{ width: '100%', marginTop:'20px' }}>
                                 <Tabs
@@ -151,24 +207,8 @@ function Feed(props) {
                                             <Tab value="2" label="Posted" />
                                             : null
                                     }
-                                    {
-                                        searchType === "channel" ?
-                                            <Tab value="3" label="Channels" />
-                                            : null
-                                    }
                                 </Tabs>
                             </Box>
-                            <div>
-                                {
-                                    value === "1" ?
-                                        <p>AOOOO1</p>
-                                        : value === "2" ?
-                                            <p>AOOOO2</p>
-                                            : value === "3" ?
-                                                <p>AOOOO3</p>
-                                                : null
-                                }
-                            </div>
                         </> : null
                     }
                 </nav>

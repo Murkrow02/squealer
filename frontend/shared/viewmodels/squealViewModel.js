@@ -5,8 +5,8 @@ function getAllSqueals(){
 }
 
 // Feed for logged user (squeals from subscribed channels)
-function getFeed(){
-    return api.get("squeals");
+function getFeed(searchQuery = ""){
+    return api.get("squeals" + (searchQuery !== "" ? "?search=" + searchQuery : ""));
 }
 
 // Create a new squeal
@@ -147,8 +147,13 @@ function sendVariablesSqueal(sendAfterMs, sendForMs, varSqueal, squealSentCount,
 
 
 // Get feed only of a specific channel
-function searchByChannelId(channelId){
-    return api.get("squeals/searchByChannelId/" + channelId);
+function searchByChannelName(searchType, channelName, destination){
+    //remove spaces
+    channelName = channelName.replace(/\s/g, '');
+
+    channelName = encodeURIComponent(channelName);
+
+    return api.get("squeals/searchByChannelName/" + searchType + "/" + channelName + "/" + destination);
 }
 
 // Get all possible reactions for a squeal
