@@ -11,6 +11,8 @@ import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownR
 import {Popover, Tab, Tabs, Typography} from "@mui/material";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
+import AddIcon from "@mui/icons-material/Add";
+import CreateChannel from "../components/CreateChannel";
 
 function Feed(props) {
 
@@ -81,13 +83,20 @@ function Feed(props) {
     }
 
 
-
+    const [newChannelPopupVisibility, setNewChannelPopupVisibility] = useState(false);
+    const handleChannelPopupVisibility = () => {
+        console.log("clicked");
+        setNewChannelPopupVisibility(!newChannelPopupVisibility);
+    }
 
     return(
         <body>
             <header style={{position:'relative', top:'0', zIndex:'1', backgroundColor:'white'}}>
                 <nav style={{ width:'100vw', display:"flex", flexFlow:"column", padding: '20px 0', borderBottom: 'solid 2px #aaaaaa'}}>
-                    <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
+                    <div style={{position:"relative"}}>
+                        <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
+                        <AddIcon onClick={handleChannelPopupVisibility} style={{color:"var(--primary)", cursor:"pointer", position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)"}}/>
+                    </div>
                     <div id={"search-container"}>
                         <div aria-describedby={popId} onClick={handleClick} id="search-type-container">
                             <span>{searchTypeText}</span>
@@ -211,6 +220,10 @@ function Feed(props) {
                     </>
                 ))}
             </div>
+
+            <CreateChannel closeFunction={handleChannelPopupVisibility} show={newChannelPopupVisibility}/>
+
+
         </body>
     );
 }

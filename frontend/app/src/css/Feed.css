@@ -86,3 +86,63 @@
     border: solid 5px var(--light-bg);
     border-radius: 10px;
 }
+
+
+.create-channel-overlay {
+    background-color: #000000aa;
+    width: 100vw;
+    height: 100vh;
+    position:fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top:0;
+    z-index: 1;
+}
+
+.create-channel-container {
+    background-color: white;
+    width: 80%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 10px 20px;
+}
+
+.create-channel-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.create-channel-input-container {
+    display: flex;
+    flex-flow: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.create-channel-input-container input, .create-channel-input-container textarea {
+    background-color: var(--light-bg);
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+}
+
+.create-channel-input-container button {
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+}
+
+.create-channel-confirm {
+    background-color: var(--primary);
+    color: white;
+}
+
+.create-channel-dismiss {
+    background-color: var(--light-bg);
+    color: black;
+}
