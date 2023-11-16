@@ -150,13 +150,6 @@ const Squeal = (props) => {
                     : null
                 }
 
-                <div style={{display:'flex', gap:"8px", marginTop:"10px"}}>
-                    {props.tags.map((tag, index) => {
-                        return(
-                            <span style={{color: 'var(--primary)', fontWeight:"bold"}} key={index}>#{tag}</span>
-                        )
-                    })}
-                </div>
                 <hr style={{marginTop:'10px', opacity:'0.4'}}></hr>
                 <div style={{width: '100%', marginTop:'5px', display:'flex', justifyContent:'center'}}>
                     {
