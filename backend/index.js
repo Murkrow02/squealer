@@ -21,6 +21,8 @@ mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
 app.use(express.json());
 app.use(passport.initialize());
 app.use(express.urlencoded({ extended: false }));
+//disable sending 304 status codes
+app.disable('etag');
 
 // Define API routes
 const apiRoutes = require('./routes/apiRoutes');
