@@ -305,7 +305,13 @@ exports.getAllSqueals = async (req, res, next) => {
         return res.status(403).json({error: 'Non sei un moderatore'});
     }
 
-    return res.status(200).json(await Squeal.find().populate('createdBy').populate('postedInChannels').populate('replyTo.createdBy').populate('reactions'));
+    return res.status(200).json(await Squeal.find().populate('createdBy').populate('postedInChannels').populate({
+        path: 'replyTo',
+        populate: {
+            path: 'createdBy',
+            model: 'User'
+        }
+    }).populate('reactions'));
 }
 
 // Returns the name of the quota that has been exceeded, or null if no quota has been exceeded
@@ -399,7 +405,13 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
         .sort({createdAt: -1})
         .populate('createdBy')
         .populate('postedInChannels')
-        .populate('replyTo')
+        .populate({
+            path: 'replyTo',
+            populate: {
+                path: 'createdBy',
+                model: 'User'
+            }
+        })
         .populate('reactions')
         .select('+reactions.users')
         .lean()
