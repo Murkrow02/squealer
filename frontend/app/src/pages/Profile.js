@@ -23,6 +23,46 @@ function Profile(props) {
         });
     },[]);
 
+
+    async function changePassword() {
+        //get values
+        let oldPassword = document.getElementById("old-pwd-input").value;
+        let newPassword = document.getElementById("new-pwd-input").value;
+        let confirmPassword = document.getElementById("confirm-pwd-input").value;
+
+
+        if (oldPassword === "" || newPassword === "" || confirmPassword === "") {
+            alert("Please fill all the fields");
+            return;
+        }
+
+        //check if new passwords match
+        if(newPassword !== confirmPassword){
+            alert("New passwords does not match");
+            return;
+        }
+
+        //send request
+        window.changePassword(oldPassword, newPassword).then((response) => {
+            if (response) {
+                alert("Password changed successfully");
+                handleChangePasswordPopupVisibility();
+            } else {
+                alert(response.data.message);
+            }
+        }).catch((error) => {
+            console.log(error);
+            alert("Error changing password");
+        });
+    }
+
+
+
+    const [changePasswordPopupVisibility, setChangePasswordPopupVisibility] = useState(false);
+    function handleChangePasswordPopupVisibility() {
+        setChangePasswordPopupVisibility(!changePasswordPopupVisibility);
+    }
+
     return(
         <body>
             <header>
@@ -80,7 +120,7 @@ function Profile(props) {
                 {
                     type !== "guest" ?
                         <div className={'universal-actions-container'}>
-                            <ActionButton classes={"profile-action-button"} text={"Edit password"} type={"secondary"}/>
+                            <ActionButton onClick={handleChangePasswordPopupVisibility} classes={"profile-action-button"} text={"Edit password"} type={"secondary"}/>
                             <ActionButton classes={"profile-action-button"} text={"Delete account"} type={"danger"}/>
                         </div>
                     :
@@ -89,7 +129,20 @@ function Profile(props) {
                         </div>
                 }
 
-
+                <div style={{display: changePasswordPopupVisibility ? "flex" : "none"}} className={"change-pwd-overlay"}>
+                    <div className={"change-pwd-container"}>
+                        <p className={"change-pwd-title"}>Change password</p>
+                        <div className={"change-pwd-form"} >
+                            <input id={"old-pwd-input"} name={"oldPassword"} type={"password"} placeholder={"Old password"}/>
+                            <input id={"new-pwd-input"} name={"newPassword"} type={"password"} placeholder={"New password"}/>
+                            <input id={"confirm-pwd-input"} name={"confirmPassword"} type={"password"} placeholder={"Confirm new password"}/>
+                            <div className={"change-pwd-buttons"}>
+                                <button onClick={handleChangePasswordPopupVisibility} className={"change-pwd-cancel"}>Cancel</button>
+                                <button onClick={changePassword} className={"change-pwd-confirm"}>Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </body>
     );

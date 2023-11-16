@@ -34,3 +34,72 @@ main {
 .universal-actions-container {
     margin-top: 50px;
 }
+
+.change-pwd-overlay {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000aa;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.change-pwd-container {
+    background-color: white;
+    width: 80%;
+    border-radius: 10px;
+    padding-bottom: 20px;
+}
+
+.change-pwd-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.change-pwd-form {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    margin-top: 10px;
+}
+
+.change-pwd-form input {
+    background-color: var(--light-bg);
+    border: none;
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+}
+
+.change-pwd-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-top: 10px;
+    gap: 15px;
+}
+
+.change-pwd-buttons button {
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.change-pwd-cancel {
+    background-color: var(--light-bg);
+    color: black;
+}
+
+.change-pwd-confirm {
+    background-color: var(--primary);
+    color: white;
+}
