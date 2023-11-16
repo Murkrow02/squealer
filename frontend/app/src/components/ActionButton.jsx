@@ -24,8 +24,14 @@ export default function ActionButton(props) {
     }
 
     function buttonClick() {
+
         if (props.redirect && props.redirect !== "") {
             window.location.href = props.redirect;
+            return;
+        }
+
+        if (props.onClick) {
+            props.onClick();
         }
     }
 

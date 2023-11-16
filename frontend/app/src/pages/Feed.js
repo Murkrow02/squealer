@@ -188,7 +188,7 @@ function Feed(props) {
                         {
                             squeal.replyTo != null ?
                                 <div style={{scale:'0.8', marginTop:'-20px'}}>
-                                    <Typography style={{textAlign:'center'}}>Risponde a</Typography>
+                                    <Typography style={{textAlign:'center'}}>Replyed to</Typography>
                                     <Squeal id={squeal.replyTo._id}
                                             username={squeal.replyTo.createdBy.username}
                                             reactions={squeal.replyTo.reactions}
