@@ -128,6 +128,17 @@ exports.searchByChannelName = async (req, res, next) => {
                 channelName = "#" + channelName;
                 break;
         }
+
+        try {
+
+            // Create feed for user
+            let squeals = await createFeedForUser(req.user.id, null, true, channelName);
+
+            // Send the squeals as the response
+            res.status(200).json(squeals);
+        } catch (error) {
+            next(error);
+        }
     }
 
     let channelIds = []
