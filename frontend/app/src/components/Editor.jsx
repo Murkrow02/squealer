@@ -9,7 +9,7 @@ import {
     RadioGroup,
     Switch,
     styled, Tab, Tabs,
-    TextField, Typography
+    TextField, Typography, Alert
 } from "@mui/material";
 import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -615,18 +615,24 @@ export default function Editor(props) {
 
     function postSquealClicked(event) {
 
+
         //manage receivers
         let channels = [];
-        console.log(receiverList);
-        //get receivers
-        for (let i = 0; i < receiverList.length; i++) {
-            channels.push(receiverList[i].id);
+
+        if (replySquealId === null) {
+
+            console.log(receiverList);
+            //get receivers
+            for (let i = 0; i < receiverList.length; i++) {
+                channels.push(receiverList[i].id);
+            }
+            //check if there are receivers
+            if (channels.length === 0) {
+                alert("No receivers selected");
+                return;
+            }
         }
-        //check if there are receivers
-        if (channels.length === 0) {
-            alert("No receivers selected");
-            return;
-        }
+
 
         //manage content
         let squeal = {};
@@ -753,71 +759,76 @@ export default function Editor(props) {
                     </div>
                 : null
             }
-            <div>
-                <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>Receivers</Typography>
-                <div style={{display:"flex", gap:'10px', marginTop:'10px'}}>
-                    <div className={"receivers-container"}>
-                        {
-                            receiverList.length === 0 ?
-                                <Typography>Please select at least one receiver.</Typography>
-                            :
-                            receiverList.map((receiver) => {
-                                return (
-                                    <div className={"receiver-item"}>
-                                        <span>{receiverTabSymbolDict[receiver.type] + receiver.name}</span>
-                                        <CloseRoundedIcon onClick={() => { removeReceiver(receiver.id, receiver.type)}}/>
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                    <div className={'receivers-add-button'} onClick={showReceiverOverlay}>
-                        <AddRoundedIcon />
-                    </div>
-                    <div style={{display: receiverPopupVisible ? "flex" : "none"}} className={"receivers-overlay"}>
-                        <div className={"receivers-popup"}>
-                            <div className={"receivers-popup-title-container"}>
-                                <CloseRoundedIcon style={{cursor:'pointer'}} onClick={hideReceiverOverlay}/>
-                            </div>
-                            <input onChange={onReceiverInputChange} className={"receivers-search-bar"} type={"search"} placeholder={"Search"}/>
-                            <Box sx={{ width: '100%', marginTop:'20px' }}>
-                                <Tabs value={receiverTabValue} onChange={handleReceiverTabChange} variant="fullWidth" aria-label="secondary tabs example">
-                                    <Tab value="1" label="@" />
-                                    <Tab value="2" label="§" />
-                                    <Tab value="3" label="#" />
-                                </Tabs>
-                            </Box>
-                            <div className={"receivers-search-content-container"}>
+            {
+                replySquealId != null && replySquealUsername != null ?
+                    <Alert style={{marginTop:"10px"}} severity={"info"}>Receivers are inherited from the post that you are replying to</Alert>
+                :
+                    <div>
+                        <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>Receivers</Typography>
+                        <div style={{display:"flex", gap:'10px', marginTop:'10px'}}>
+                            <div className={"receivers-container"}>
                                 {
-                                    receiverSearchList.length === 0 ?
-                                        <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>No results</Typography>
+                                    receiverList.length === 0 ?
+                                        <Typography>Please select at least one receiver.</Typography>
                                         :
-                                        receiverSearchList.map((receiver) => {
+                                        receiverList.map((receiver) => {
                                             return (
-                                                <div id={"searched-receiver-" + (receiverTabValue === '1' ? (receiver.privateChannelId ? receiver.privateChannelId : "none-" + receiver._id) : receiver._id)} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
-                                                    <Typography>{receiverTabSymbolDict[receiverTabValue] +
-                                                        (receiverTabValue === '1' ? receiver.username
-                                                            : receiverTabValue === '2' ?
-                                                                receiver.name.substring(1)
-                                                            : receiverTabValue === '3' ?
-                                                                receiver.content
-                                                            : null)
-                                                    }</Typography>
-                                                    {
-                                                        checkDuplicateReceiver(receiver._id, receiverTabValue) ?
-                                                            <CheckRoundedIcon style={{color:"var(--primary)"}} />
-                                                        :
-                                                            <AddRoundedIcon style={{color:"var(--primary)"}} />
-                                                    }
+                                                <div className={"receiver-item"}>
+                                                    <span>{receiverTabSymbolDict[receiver.type] + receiver.name}</span>
+                                                    <CloseRoundedIcon onClick={() => { removeReceiver(receiver.id, receiver.type)}}/>
                                                 </div>
                                             )
                                         })
                                 }
                             </div>
+                            <div className={'receivers-add-button'} onClick={showReceiverOverlay}>
+                                <AddRoundedIcon />
+                            </div>
+                            <div style={{display: receiverPopupVisible ? "flex" : "none"}} className={"receivers-overlay"}>
+                                <div className={"receivers-popup"}>
+                                    <div className={"receivers-popup-title-container"}>
+                                        <CloseRoundedIcon style={{cursor:'pointer'}} onClick={hideReceiverOverlay}/>
+                                    </div>
+                                    <input onChange={onReceiverInputChange} className={"receivers-search-bar"} type={"search"} placeholder={"Search"}/>
+                                    <Box sx={{ width: '100%', marginTop:'20px' }}>
+                                        <Tabs value={receiverTabValue} onChange={handleReceiverTabChange} variant="fullWidth" aria-label="secondary tabs example">
+                                            <Tab value="1" label="@" />
+                                            <Tab value="2" label="§" />
+                                            <Tab value="3" label="#" />
+                                        </Tabs>
+                                    </Box>
+                                    <div className={"receivers-search-content-container"}>
+                                        {
+                                            receiverSearchList.length === 0 ?
+                                                <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>No results</Typography>
+                                                :
+                                                receiverSearchList.map((receiver) => {
+                                                    return (
+                                                        <div id={"searched-receiver-" + (receiverTabValue === '1' ? (receiver.privateChannelId ? receiver.privateChannelId : "none-" + receiver._id) : receiver._id)} className={"receivers-search-item"} onClick={onReceiverSearchClick}>
+                                                            <Typography>{receiverTabSymbolDict[receiverTabValue] +
+                                                                (receiverTabValue === '1' ? receiver.username
+                                                                    : receiverTabValue === '2' ?
+                                                                        receiver.name.substring(1)
+                                                                        : receiverTabValue === '3' ?
+                                                                            receiver.content
+                                                                            : null)
+                                                            }</Typography>
+                                                            {
+                                                                checkDuplicateReceiver(receiver._id, receiverTabValue) ?
+                                                                    <CheckRoundedIcon style={{color:"var(--primary)"}} />
+                                                                    :
+                                                                    <AddRoundedIcon style={{color:"var(--primary)"}} />
+                                                            }
+                                                        </div>
+                                                    )
+                                                })
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+            }
             <FormControl style={{ width:'100%', marginTop:'20px'}}>
                 <FormLabel style={{textAlign:'center'}} id="demo-row-radio-buttons-group-label">Squeal type</FormLabel>
                 <RadioGroup

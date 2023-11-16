@@ -53,7 +53,6 @@ class CreateChannel extends React.Component {
         document.getElementById("channel-name-input").value = "";
         document.getElementById("channel-desc-input").value = "";
 
-
         this.props.closeFunction();
     }
 
