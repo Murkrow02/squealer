@@ -108,13 +108,27 @@ exports.addMediaToSqueal = async (req, res, next) => {
 exports.searchByChannelName = async (req, res, next) => {
 
     // Take channel name
-    const channelName = req.params.channelName;
+    let channelName = req.params.channelName;
 
     // Take channel type
     const channelType = req.params.channelType;
 
     // Check if needs to search in mentioned or posted channels
     const searchInMentionedChannels = req.params.searchIn === "mentioned";
+    if(searchInMentionedChannels)
+    {
+        switch (channelType) {
+            case "channel":
+                channelName = "§" + channelName;
+                break;
+            case "user":
+                channelName = "@" + channelName;
+                break;
+            case "hashtag":
+                channelName = "#" + channelName;
+                break;
+        }
+    }
 
     let channelIds = []
 
@@ -526,3 +540,45 @@ async function createSqueal(squealData, userId, postInChannels)
     // Save squeal
     return await squeal.save();
 }
+
+
+// function parseMentioned(htmlString) {
+//     // Create a temporary div element to parse the HTML string
+//     var tempDiv = document.createElement('div');
+//     tempDiv.innerHTML = htmlString;
+//
+//     // Find all elements with class 'highlight'
+//     var highlightedElements = tempDiv.getElementsByClassName('highlight');
+//
+//     // Initialize arrays for each category
+//     var atSymbols = [];
+//     var hashSymbols = [];
+//     var sectionSymbols = [];
+//
+//     // Iterate through the matching elements
+//     for (var i = 0; i < highlightedElements.length; i++) {
+//         var text = highlightedElements[i].textContent.trim();
+//
+//         // Check if the text starts with '@', '#', or '§' and categorize accordingly
+//         if (text.startsWith('@')) {
+//             atSymbols.push(text);
+//         } else if (text.startsWith('#')) {
+//             hashSymbols.push(text);
+//         } else if (text.startsWith('§')) {
+//             sectionSymbols.push(text);
+//         }
+//         // Ignore elements that don't start with the specified symbols
+//     }
+//
+//     // Create an object to hold the categorized arrays
+//     var result = {
+//         atSymbols: atSymbols,
+//         hashSymbols: hashSymbols,
+//         sectionSymbols: sectionSymbols
+//     };
+//
+//     // Find requested channels in db
+//
+//
+//     return result;
+// }
