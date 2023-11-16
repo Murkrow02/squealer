@@ -101,19 +101,48 @@ exports.addMediaToSqueal = async (req, res, next) => {
     res.status(200).json(squeal);
 }
 
-// Search squeals by channel id
+// Search squeals by channel name
 exports.searchByChannelName = async (req, res, next) => {
 
-    // We receive the channel id as a query parameter
-    const channelId = req.params.channelId;
+    // Take channel name
+    const channelName = req.params.channelName;
+
+    // Take channel type
+    const channelType = req.params.channelType;
+
+    // Check if needs to search in mentioned or posted channels
+    const searchInMentionedChannels = req.params.searchIn === "mentioned";
+
+    let channelIds = []
+
+    // If channel type is user, search users with that username and take their private channel id
+    if (channelType === "user") {
+        let users = await User.find({username: {$regex: channelName, $options: 'i'}}).select('privateChannelId');
+        channelIds = users.map(user => user.privateChannelId);
+    }
+
+    // Put together editorial and public channels as channel
+    else if (channelType === "channel"){
+        // Take all channel ids that contains the channel name
+        channelIds = (await Channel.find({
+            name: {$regex: channelName, $options: 'i'},
+            category: {$in: ["editorial", "public"]}
+        })).map(channel => channel._id);
+    }
+
+    // HashTag
+    else {
+        // Take all channel ids that contains the channel name
+        channelIds = (await Channel.find({
+            name: {$regex: channelName, $options: 'i'},
+            category: channelType
+        })).map(channel => channel._id);
+    }
 
     try {
 
-        // Check if requested channel is private one, in that case we only search in mentioned channels and not in posted in channels (privacy)
-        const searchInMentionedChannels = (await Channel.findById(channelId)).category === "private";
-
         // Create feed for user
-        let squeals = await createFeedForUser(req.user.id, [channelId], searchInMentionedChannels);
+        let squeals = await createFeedForUser(req.user.id, channelIds, searchInMentionedChannels);
 
         // Send the squeals as the response
         res.status(200).json(squeals);
@@ -476,6 +505,10 @@ async function createSqueal(squealData, userId, postInChannels)
             count: 0
         });
     });
+
+    // Add squeal to user private channel
+    let user = await User.findById(userId).select('privateChannelId');
+    squeal.postedInChannels.push(user.privateChannelId);
 
     // Save squeal
     return await squeal.save();

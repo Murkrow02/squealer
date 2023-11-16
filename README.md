@@ -54,6 +54,7 @@ Per evitare di inviare per ogni squeal la lista di utenti che hanno reagito, qua
 e un booleano per informare il client se l'utente loggato ha reagito o meno allo squeal e con quale reazione.
 
 #### Creazione
+Quando un utente crea uno squeal questo viene inserito di default nel suo canale privato
 
 #### Ricerca
 È possibile ricercare (o meglio filtrare) gli squeal tramite l'id di un canale (che include anche menzioni private).

@@ -51,7 +51,7 @@ router.post('/squeals/:squealId/media',
     upload.single('media'),
     passport.authenticate('bearer', { session: false}),
     squealController.addMediaToSqueal);
-router.get('/squeals/searchByChannelId/:channelId',
+router.get('/squeals/searchByChannelName/:channelType/:channelName/:searchIn',
     passport.authenticate('bearer', { session: false}),
     squealController.searchByChannelName);
 router.get('/squeals/allReactions',
