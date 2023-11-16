@@ -227,7 +227,6 @@ function Feed(props) {
                                 variant={squeal.variant}
                                 karma="112"
                                 type={squeal.contentType}
-                                tags={["test", "tag"]}
                                 moveToNewSqueal={moveToNewSqueal}
                                 channels={
                                     squeal.postedInChannels.map((channel) => (
@@ -248,7 +247,6 @@ function Feed(props) {
                                             variant={squeal.replyTo.variant}
                                             karma="112"
                                             type={squeal.replyTo.contentType}
-                                            tags={["test", "tag"]}
                                             isReply={true}
                                             moveToNewSqueal={moveToNewSqueal}
                                             />

@@ -616,11 +616,13 @@ export default function Editor(props) {
     function postSquealClicked(event) {
 
 
+
         //manage receivers
         let channels = [];
 
         if (replySquealId === null) {
 
+            console.log("recievers");
             console.log(receiverList);
             //get receivers
             for (let i = 0; i < receiverList.length; i++) {
@@ -672,6 +674,12 @@ export default function Editor(props) {
         switch (squealType) {
             case "text":
                 squeal["content"] = document.getElementById("masked-content").innerHTML
+
+                //check if content is empty
+                if (squeal["content"] === "") {
+                    alert("Content is empty");
+                    return;
+                }
 
                 if (isSquealTemporized) {
                     //check that variables are set
