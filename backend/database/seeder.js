@@ -1,7 +1,7 @@
-const UserSeeder = require('./seeders/UserSeeder');
-const SquealSeeder = require('./seeders/SquealSeeder');
-const ChannelSeeder = require('./seeders/ChannelSeeder');
-const ReactionSeeder = require('./seeders/ReactionSeeder');
+const UserSeeder = require('./seeders/userSeeder');
+const SquealSeeder = require('./seeders/squealSeeder');
+const ChannelSeeder = require('./seeders/channelSeeder');
+const ReactionSeeder = require('./seeders/reactionSeeder');
 const User = require('../models/userModel');
 
 async function seed() {

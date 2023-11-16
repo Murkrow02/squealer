@@ -102,7 +102,7 @@ exports.addMediaToSqueal = async (req, res, next) => {
 }
 
 // Search squeals by channel id
-exports.searchByChannelId = async (req, res, next) => {
+exports.searchByChannelName = async (req, res, next) => {
 
     // We receive the channel id as a query parameter
     const channelId = req.params.channelId;
@@ -305,7 +305,7 @@ exports.getAllSqueals = async (req, res, next) => {
         return res.status(403).json({error: 'Non sei un moderatore'});
     }
 
-    return res.status(200).json(await Squeal.find().populate('createdBy').populate('postedInChannels').populate('replyTo').populate('reactions'));
+    return res.status(200).json(await Squeal.find().populate('createdBy').populate('postedInChannels').populate('replyTo.createdBy').populate('reactions'));
 }
 
 // Returns the name of the quota that has been exceeded, or null if no quota has been exceeded
@@ -451,8 +451,8 @@ async function createSqueal(squealData, userId, postInChannels)
         // Set replied squeal as replied to
         squeal.replyTo = repliedSqueal._id;
 
-        // Copy channels from replied squeal
-        squeal.postedInChannels = repliedSqueal.postedInChannels;
+        // Copy channels from replied squeal except from private
+        squeal.postedInChannels = repliedSqueal.postedInChannels.filter(channel => channel.category !== "private");
     }
 
     //Create new empty reactions array with 0 reactions for each reaction
