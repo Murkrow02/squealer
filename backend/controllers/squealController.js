@@ -12,8 +12,11 @@ const {json} = require("express");
 exports.getFeed = async (req, res, next) => {
     try {
 
+        // Get query for search
+        const searchQuery = req.query.search;
+
         // Create feed for user
-        const squeals = await createFeedForUser(req.user.id);
+        const squeals = await createFeedForUser(req.user.id, null, false, searchQuery)
 
         // Send the squeals as the response
         res.status(200).json(squeals);
@@ -150,6 +153,7 @@ exports.searchByChannelName = async (req, res, next) => {
         next(error);
     }
 }
+
 
 // React to squeal
 exports.reactToSqueal = async (req, res, next) => {
@@ -407,13 +411,13 @@ async function checkIfExceedsQuota(userId, squeal) {
 }
 
 // Returns a list of squeals posted in the channels that the user is subscribed to (or in the channel provided as filter)
-async function createFeedForUser(userId, filterChannels = null, searchInMentionedChannels = false) {
+async function createFeedForUser(userId, filterChannels = null, searchInMentionedChannels = false, searchQuery = null) {
 
     // Get user from id
     let user = await User.findById(userId).select("+subscribedChannels").select("+privateChannelId");
 
     // Build channel array to filter (if filterChannels is not explicitly provided for search purposes)
-    if (!filterChannels) {
+    if (!filterChannels && searchQuery == null) {
 
         // Editorial channels are always included (get their ids)
         filterChannels = (await Channel.find({category: "editorial"})).map(channel => channel._id);
@@ -425,9 +429,18 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
     }
 
     // Build query based on different cases
-    let query = searchInMentionedChannels ?
-        Squeal.find({mentionedChannels: {$in: filterChannels}}) :
-        Squeal.find({postedInChannels: {$in: filterChannels}});
+    let query;
+    if (searchQuery != null) {
+        query = Squeal.find({
+            $or: [
+                {content: {$regex: searchQuery, $options: 'i'}},
+            ]
+        });
+    } else if (searchInMentionedChannels) {
+        query = Squeal.find({mentionedChannels: {$in: filterChannels}});
+    } else {
+        query = Squeal.find({postedInChannels: {$in: filterChannels}});
+    }
 
     // Get all squeals from the database that are posted in the channels selected
     let result = query
