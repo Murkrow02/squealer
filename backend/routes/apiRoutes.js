@@ -53,7 +53,7 @@ router.post('/squeals/:squealId/media',
     squealController.addMediaToSqueal);
 router.get('/squeals/searchByChannelId/:channelId',
     passport.authenticate('bearer', { session: false}),
-    squealController.searchByChannelId);
+    squealController.searchByChannelName);
 router.get('/squeals/allReactions',
     passport.authenticate('bearer', { session: false}),
     squealController.getAllReactions);
