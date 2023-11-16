@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // category:
 // 0: private (@)
 // 1: public and user administrated (§)
-// 2: PUBLIC BUT REDAZIONE (§)
+// 2: editorial (§)
 // 3: hashtag (#)
 
 const channelSchema = new mongoose.Schema({

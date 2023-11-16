@@ -27,8 +27,10 @@ exports.getProfile = async (req, res, next) => {
 // Search users by username
 exports.searchByUsername = async (req, res, next) => {
     try {
-        const users = await User.find({username: {$regex: req.params.username, $options: 'i'}})
-            .select('_id username');
+
+        // Search all users except guests
+        const users = await User.find({username: {$regex: req.params.username, $options: 'i'}, type: {$ne: 'guest'}}).select('_id username');
+
         res.json(users);
     } catch (error) {
         next(error);

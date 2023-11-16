@@ -36,10 +36,13 @@ exports.createSqueal = async (req, res, next) => {
     try {
 
         // Get channels to post in
-        const channelsArray = req.body.channels;
+        let channelsArray = req.body.channels;
 
         // Get actual squeal content
         const squealData = req.body.squeal;
+
+        // Parse hashtag channels
+        channelsArray = await filterHashtagChannels(channelsArray);
 
         // Check if provided channels are all valid
         const validChannels = await Channel.find({_id: {$in: channelsArray}});
@@ -136,6 +139,7 @@ exports.searchByChannelName = async (req, res, next) => {
 
             // Send the squeals as the response
             res.status(200).json(squeals);
+            return;
         } catch (error) {
             next(error);
         }
@@ -550,6 +554,30 @@ async function createSqueal(squealData, userId, postInChannels)
 
     // Save squeal
     return await squeal.save();
+}
+
+async function filterHashtagChannels(postInChannels) {
+    let hashtagChannels = postInChannels.filter(channel => channel.startsWith("#"));
+    postInChannels = postInChannels.filter(channel => !channel.startsWith("#"));
+
+    for (const channel of hashtagChannels) {
+        let existingChannel = await Channel.where({ name: channel, category: "hashtag" });
+
+        if (existingChannel.length === 0) {
+            var newChannel = new Channel({
+                name: channel,
+                category: "hashtag"
+            });
+
+            newChannel = await newChannel.save();
+            postInChannels.push(newChannel._id);
+        } else {
+            postInChannels.push(existingChannel[0]._id.toHexString());
+        }
+    }
+
+    console.log(postInChannels);
+    return postInChannels;
 }
 
 
