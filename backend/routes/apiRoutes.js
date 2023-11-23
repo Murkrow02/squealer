@@ -22,23 +22,30 @@ const upload = multer({ storage });
 
 // Users
 router.get('/users',
-    passport.authenticate('bearer', { session: false }),
+    passport.authenticate('bearer', {session: false}),
     userController.getAllUsers);
 router.get('/users/profile',
-    passport.authenticate('bearer', { session: false }),
+    passport.authenticate('bearer', {session: false}),
     userController.getProfile);
 router.get('/users/searchByUsername/:username',
-    passport.authenticate('bearer', { session: false }),
+    passport.authenticate('bearer', {session: false}),
     userController.searchByUsername);
 router.patch('/users/setSmm/:smmId',
-    passport.authenticate('bearer', { session: false }),
+    passport.authenticate('bearer', {session: false}),
     userController.setSmm);
 router.patch('/users/profile/changePassword',
-    passport.authenticate('bearer', { session: false }),
+    passport.authenticate('bearer', {session: false}),
     userController.changePassword);
 router.patch('/users/removeSmm',
-passport.authenticate('bearer', { session: false }),
-userController.removeSmm);
+    passport.authenticate('bearer', {session: false}),
+    userController.removeSmm);
+router.delete('/users/profile',
+    passport.authenticate('bearer', {session: false}),
+    userController.deleteProfile);
+router.patch('/users/gopro',
+    passport.authenticate('bearer', {session: false}),
+    userController.goPro);
+
 
 // Squeals
 router.get('/squeals',
@@ -66,6 +73,9 @@ router.patch('/squeals/:squealId/unreact/:reactionId',
 router.patch('/squeals/:squealId/impression',
     passport.authenticate('bearer', { session: false}),
     squealController.addImpression);
+router.put('/squeals/:squealId',
+    passport.authenticate('bearer', { session: false}),
+    squealController.updateSqueal);
 
 
 // Squeals for moderator

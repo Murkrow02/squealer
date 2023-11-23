@@ -34,6 +34,18 @@
             text-align: left;
         }
 
+        .a-like-button{
+            background-color: transparent;
+            border: none;
+            color: #007BFF;
+            cursor: pointer;
+        }
+
+        .a-like-button:hover{
+            text-decoration: underline;
+            background: transparent;
+        }
+
         label {
             display: block;
             margin-bottom: 5px;
@@ -69,7 +81,7 @@
 </head>
 <body>
 <div class="login-container">
-    <h2>Login</h2>
+    <h2 id="header-label">Login</h2>
 
     <!-- Login form -->
     <form action="#" method="POST" id="login-form">
@@ -82,10 +94,12 @@
             <input type="password" id="login-password" name="password" required autocomplete="current-password">
         </div>
         <button type="submit">Login</button>
+
+        <button type="button" class="a-like-button" onclick="showRegister()">Non hai un account?</button>
     </form>
 
     <!-- Register form -->
-    <form method="POST" id="register-form">
+    <form method="POST" id="register-form" style="display: none">
 
         <div class="input-group">
             <label for="register-username">Username</label>
@@ -104,10 +118,12 @@
 
 
         <button type="submit">Registrati</button>
+
+        <button type="button" class="a-like-button" onclick="showLogin()">Hai gia un account?</button>
     </form>
 
     <!-- Guest button -->
-    <button type="button" onclick="guestLogin()">Entra come guest</button>
+    <button type="button" style="margin-top: 10px" onclick="guestLogin()">Entra come guest</button>
 
 
     <script>
@@ -135,7 +151,7 @@
             const password = document.getElementById('register-password').value;
             const passwordCheck = document.getElementById('register-password-check').value;
 
-            if(password != passwordCheck) {
+            if(password !== passwordCheck) {
                 alert('Le password non coincidono');
                 return;
             }
@@ -171,6 +187,18 @@
             } else {
                 alert('Si é verificato un errore');
             }
+        }
+
+        function showLogin() {
+            document.getElementById('header-label').innerHTML = 'Login';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('header-label').innerHTML = 'Registrati';
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
         }
     </script>
 </div>

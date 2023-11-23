@@ -4,7 +4,7 @@ Object.assign(DataTable.defaults, {
     pageLength: 50,
 });
 
-function addSearchToColumns( columnDefs = []){
+function addSearchToColumns( columnDefs = [], table){
 
     let tableId = "#table";
 
@@ -21,47 +21,65 @@ function addSearchToColumns( columnDefs = []){
 
         $(this).html('<input type="text" placeholder="Search ' + title + '" />');
         $('input', this).on('keyup change', function () {
-            if (table.column(i).search() !== this.value) {
-                table
-                    .column(i)
-                    .search(this.value)
-                    .draw();
-            }
+
+            console.log("searching column " + i + " for " + this.value);
+            table.search(this.value).draw();
+            //columnDefs[i].searchFunction(this.value);
+
+            // if (table.column(i).search() !== this.value) {
+            //     table
+            //         .column(i)
+            //         .search(this.value)
+            //         .draw();
+            // }
         });
     });
 }
 
 function renderTable(columnDefs = [], addFunction = null, deleteFunction = null, editFunction = null){
 
-    return $('#table').DataTable( {
+    let config = {
         "sPaginationType": "full_numbers",
         columns: columnDefs,
         dom: 'Bfrtip',        // Needs button container
         select: 'single',
         fixedHeader: true,
-        searching: false,
+        searching: true,
         responsive: true,
         altEditor: true,     // Enable altEditor
-        buttons: [
-            {
-                text: 'Aggiungi',
-                name: 'add'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Modifica',
-                name: 'edit'        // do not change name
-            },
-            {
-                extend: 'selected', // Bind to Selected row
-                text: 'Elimina',
-                name: 'delete'      // do not change name
-            }
-        ],
         onDeleteRow: deleteFunction,
         onAddRow: addFunction,
         onEditRow: editFunction,
-    });
+    };
+
+    config.buttons = [];
+
+    if(addFunction !== null){
+        config.buttons.push({
+            text: 'Add',
+            name: 'add'        // do not change name
+        });
+    }
+
+    if(deleteFunction !== null){
+        config.buttons.push({
+            extend: 'selected', // Bind to Selected row
+            text: 'Delete',
+            name: 'delete'      // do not change name
+        });
+    }
+
+    if(editFunction !== null){
+        config.buttons.push({
+            extend: 'selected', // Bind to Selected row
+            text: 'Edit',
+            name: 'edit'        // do not change name
+        });
+    }
+
+
+
+    return $('#table').DataTable(config);
 }
 
 function formatDate(datetimeString)

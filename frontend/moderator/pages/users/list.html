@@ -2,11 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Users</title>
+
+    <!-- Datatables -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.datatables.net/v/dt/dt-1.13.6/b-2.4.2/fh-3.4.0/r-2.5.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/v/dt/dt-1.13.6/b-2.4.2/fh-3.4.0/r-2.5.0/sl-1.7.0/datatables.min.js"></script>
+    <script src="/moderator/js/editor.js"></script>
+
+    <!-- Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.js" ></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.css" rel="stylesheet">
+
+    <!-- Axios -->
+    <script src="/static/axios"></script>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js" ></script>
+
+    <!-- Site asssets -->
+    <script src="/moderator/js/moderator.js"></script>
+    <link rel="stylesheet" href="/moderator/css/moderator.css">
+
+    <!--View Models-->
+    <script src="/static/viewModels/base"></script>
+    <script src="/static/viewModels/user"></script>
 </head>
 <body>
 
 <script id="include-navbar" src="/moderator/js/include-navbar.js"></script>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Lista utenti</h1>
+            <!-- Table of squeals -->
+            <table id="table">
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const columnDefs = [
+        {
+            title: "_id",
+            type: "text",
+            visible: false,
+            disabled: true,
+        },
+        {
+            title: "Username",
+            type: "text",
+        },
+        {
+            title: "Type",
+            type: "text",
+            // searchable: true,
+        },
+        {
+            title: "Popular squeals",
+            type: "text",
+            disabled: true,
+            searchable: false,
+        },
+        {
+            title: "Unpopular squeals",
+            type: "text",
+            disabled: true,
+            searchable: false,
+        }
+    ];
+
+
+    // Load channels on DOM ready
+    let table = null;
+    let allReactions = null;
+    $(document).ready(async function () {
+
+
+        // Render data table
+        table = renderTable(columnDefs, null, null, null);
+
+        // Add search to columns
+        //addSearchToColumns(columnDefs, table);
+
+        // Get users
+        let users = await getAllUsers();
+        console.log(users);
+        users.data.forEach(function (user) {
+
+            // Add reaction counts to row
+            let row = [user._id, user.username, user.type, user.popularSquealCount, user.unpopularSquealCount];
+
+            // Add row
+            table.row
+                .add(row)
+                .draw(false);
+        });
+
+    });
+
+
+
+</script>
 
 
 </body>

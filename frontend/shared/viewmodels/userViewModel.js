@@ -14,8 +14,8 @@ function getProfile() {
     return api.get("users/profile");
 }
 
-function searchByUsername(username) {
-    return api.get("users/searchByUsername/" + username);
+function searchByUsername(username, type = null) {
+    return api.get("users/searchByUsername/" + username + (type ? "?type=" + type : ""));
 }
 
 function setSmm(smmId) {
@@ -28,4 +28,16 @@ function removeSmm() {
 
 function changePassword(oldPassword, newPassword) {
     return api.patch("users/profile/changePassword", { oldPassword, newPassword });
+}
+
+function getAllUsers() {
+    return api.get("users");
+}
+
+function deleteAccount() {
+    return api.delete("users/profile");
+}
+
+function goPro() {
+    return api.patch("users/gopro");
 }

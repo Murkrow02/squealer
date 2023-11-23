@@ -42,6 +42,10 @@ function Feed(props) {
     const popId = open ? 'simple-popover' : undefined;
 
 
+
+
+
+
     //SEARCH TYPE HANDLING
     const [searchType, setSearchType] = useState("text");
     const [searchTypeText, setSearchTypeText] = useState("aA");
@@ -70,6 +74,8 @@ function Feed(props) {
     const [searchText, setSearchText] = useState("");
     let isSearching = false;
 
+    const [displaySearchType, setDisplaySearchType] = useState("squeal");
+
     async function handleSearchTextChange(event) {
 
         //set search text
@@ -84,6 +90,19 @@ function Feed(props) {
             return;
         }
 
+        if (searchType === "channel" && value === "3") {
+            let publicSqueals = await window.getChannelsByCategory("public", event.target.value);
+            let editorialSqueals = await window.getChannelsByCategory("editorial", event.target.value);
+
+            let squeals = publicSqueals.data.concat(editorialSqueals.data);
+            setSqueals([]);
+            setDisplaySearchType("channel");
+            setSqueals(squeals);
+            return;
+        }
+
+        setDisplaySearchType("squeal");
+
         //check if text is empty
         if(event.target.value === "") {
             window.getFeed().then((response) =>{
@@ -94,12 +113,18 @@ function Feed(props) {
         }
 
 
+
+
         if (searchType === "text") {
             window.getFeed(event.target.value).then((response) =>{
                 console.log(response.data)
                 setSqueals(response.data)
             });
+            return;
         }
+
+
+
 
         //search for squeals
         let urlSearchType = searchTypeTexts[searchType];
@@ -129,20 +154,60 @@ function Feed(props) {
     }, [value, searchType]);
 
     const handleChange = (event, newValue) => {
+        if (newValue !== "3") {
+            setSqueals([]);
+            setDisplaySearchType("squeal");
+        }
         setValue(newValue);
     };
-
-
 
     const moveToNewSqueal = () => {
         props.moveToNewSqueal();
     }
 
-
     const [newChannelPopupVisibility, setNewChannelPopupVisibility] = useState(false);
     const handleChannelPopupVisibility = () => {
         console.log("clicked");
         setNewChannelPopupVisibility(!newChannelPopupVisibility);
+    }
+
+    function findChannelFromId(channelId) {
+        return squeals.find((channel) => {
+            return channel._id === channelId;
+        });
+    }
+    
+    function subscribeToChannel(channelId) {
+        console.log(channelId);
+        window.subscribeToChannel(channelId).then((response) =>{
+
+            if (response) {
+                alert("Subscribed to channel!");
+                //change subscribed status
+                let channel = findChannelFromId(channelId);
+                channel.subscribed = true;
+                setSqueals([...squeals]);
+
+            }
+        }).catch((error) => {
+            alert("Error subscribing to channel!");
+            console.log(error);
+        });
+    }
+
+    function unsubscribeFromChannel(channelId) {
+        window.unsubscribeFromChannel(channelId).then((response) =>{
+            if (response) {
+                alert("Unsubscribed from channel!");
+                //change subscribed status
+                let channel = findChannelFromId(channelId);
+                channel.subscribed = false;
+                setSqueals([...squeals]);
+            }
+        }).catch((error) => {
+            alert("Error unsubscribing from channel!");
+            console.log(error);
+        });
     }
 
     return(
@@ -207,6 +272,11 @@ function Feed(props) {
                                             <Tab value="2" label="Posted" />
                                             : null
                                     }
+                                    {
+                                        searchType === "channel" ?
+                                            <Tab value="3" label="List" />
+                                            : null
+                                    }
                                 </Tabs>
                             </Box>
                         </> : null
@@ -214,49 +284,61 @@ function Feed(props) {
                 </nav>
             </header>
 
-            <div style={{}}>
-                {squeals.map((squeal) => (
-                    <>
-                        <Squeal id={squeal._id}
-                                username={squeal.createdBy.username}
-                                reactions={squeal.reactions}
-                                avaiableReactions={avaiableReactions}
-                                content={squeal.content}
-                                mediaUrl={squeal.mediaUrl}
-                                mapPoints={squeal.mapPoints}
-                                variant={squeal.variant}
-                                karma="112"
-                                type={squeal.contentType}
-                                moveToNewSqueal={moveToNewSqueal}
-                                channels={
-                                    squeal.postedInChannels.map((channel) => (
-                                        channel.name.substring(1)
-                                    ))
-                                }/>
-                        {
-                            squeal.replyTo != null ?
-                                <div style={{scale:'0.8', marginTop:'-20px'}}>
-                                    <Typography style={{textAlign:'center'}}>Replyed to</Typography>
-                                    <Squeal id={squeal.replyTo._id}
-                                            username={squeal.replyTo.createdBy.username}
-                                            reactions={squeal.replyTo.reactions}
-                                            avaiableReactions={avaiableReactions}
-                                            content={squeal.replyTo.content}
-                                            mediaUrl={squeal.replyTo.mediaUrl}
-                                            mapPoints={squeal.replyTo.mapPoints}
-                                            variant={squeal.replyTo.variant}
-                                            karma="112"
-                                            type={squeal.replyTo.contentType}
-                                            isReply={true}
-                                            moveToNewSqueal={moveToNewSqueal}
-                                            />
-                                </div>
+            <div>
+                {
+                    displaySearchType === "squeal" ?
+                        squeals.map((squeal) => (
+                            <>
+                                <Squeal id={squeal._id}
+                                        username={squeal.createdBy.username}
+                                        reactions={squeal.reactions}
+                                        avaiableReactions={avaiableReactions}
+                                        content={squeal.content}
+                                        mediaUrl={squeal.mediaUrl}
+                                        mapPoints={squeal.mapPoints}
+                                        variant={squeal.variant}
+                                        type={squeal.contentType}
+                                        moveToNewSqueal={moveToNewSqueal}
+                                        channels={
+                                            squeal.postedInChannels.map((channel) => (
+                                                channel.name
+                                            ))
+                                        }/>
+                                {
+                                    squeal.replyTo != null ?
+                                        <div style={{scale:'0.8', marginTop:'-20px'}}>
+                                            <Typography style={{textAlign:'center'}}>Replyed to</Typography>
+                                            <Squeal id={squeal.replyTo._id}
+                                                    username={squeal.replyTo.createdBy.username}
+                                                    reactions={squeal.replyTo.reactions}
+                                                    avaiableReactions={avaiableReactions}
+                                                    content={squeal.replyTo.content}
+                                                    mediaUrl={squeal.replyTo.mediaUrl}
+                                                    mapPoints={squeal.replyTo.mapPoints}
+                                                    variant={squeal.replyTo.variant}
+                                                    type={squeal.replyTo.contentType}
+                                                    isReply={true}
+                                                    moveToNewSqueal={moveToNewSqueal}
+                                                    />
+                                        </div>
 
-                            : null
+                                    : null
 
-                        }
-                    </>
-                ))}
+                                }
+                            </>
+                        ))
+                    :
+                        <div className={"channels-list"}>
+                            {
+                                squeals.map((channel) => (
+                                    <div className={"channel-row-container"}>
+                                        <p>{channel.name}</p>
+                                        <button className={channel.subscribed ? "channel-subscribed-button" : "channel-unsubscribed-button"} onClick={channel.subscribed ? () => { unsubscribeFromChannel(channel._id)} : () => { subscribeToChannel(channel._id)} }>{channel.subscribed ? "Unsubscribe" : "Subscribe"}</button>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                }
             </div>
 
             <CreateChannel closeFunction={handleChannelPopupVisibility} show={newChannelPopupVisibility}/>

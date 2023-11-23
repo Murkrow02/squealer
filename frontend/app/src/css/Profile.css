@@ -35,7 +35,7 @@ main {
     margin-top: 50px;
 }
 
-.change-pwd-overlay {
+.change-pwd-overlay, .search-smm-overlay {
     position: absolute;
     width: 100vw;
     height: 100vh;
@@ -103,3 +103,58 @@ main {
     background-color: var(--primary);
     color: white;
 }
+
+.search-smm-container {
+    background-color: white;
+    width: 80%;
+    border-radius: 10px;
+    padding: 0 20px 20px 20px;
+    position:relative;
+}
+
+#search-smm-input {
+    width: 100%;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: var(--light-bg);
+    border: none;
+    font-size: 1.2rem;
+}
+
+
+.smm-card {
+    background-color: var(--light-bg);
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+.smm-card-header {
+    display: flex;
+    justify-content: space-between;
+}
+.smm-card-header-left {
+    display: flex;
+    align-items: center;
+}
+.smm-card-header-right {
+    display: flex;
+    align-items: center;
+}
+.smm-card-header-right svg {
+    cursor: pointer;
+}
+
+.search-smm-list {
+    max-height: 50vh;
+    overflow: scroll;
+}
+
+.search-smm-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+

@@ -154,3 +154,49 @@
     background-color: var(--light-bg);
     color: black;
 }
+
+.channel-row-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: var(--light-bg);
+    border-radius: 5px;
+    width: 100%;
+}
+
+.channel-row-container p {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.channel-row-container button {
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+}
+
+.channel-unsubscribed-button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.channel-subscribed-button {
+    background-color: var(--danger);
+    color: white;
+}
+
+.channels-list {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px 0 20px;
+}
+
+.squeal-text-container span {
+    word-wrap: anywhere;
+}

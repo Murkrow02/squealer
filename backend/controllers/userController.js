@@ -2,10 +2,16 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 
-// Only for debug
+// Only for moderator
 exports.getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.find().select('_id username');
+
+        // Check that user is smm
+        if (req.user.type !== 'moderator') {
+            return res.status(400).json({error: `Non sei un social media manager`});
+        }
+
+        const users = await User.find().select('_id username type popularSquealCount unpopularSquealCount')
         res.json(users);
     } catch (error) {
         next(error);
@@ -17,7 +23,7 @@ exports.getProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id)
             .select('_id username type subscribedChannels smmId quota createdChannels')
-            .populate('subscribedChannels createdChannels');
+            .populate('subscribedChannels createdChannels smmId');
         res.json(user);
     } catch (error) {
         next(error);
@@ -28,10 +34,17 @@ exports.getProfile = async (req, res, next) => {
 exports.searchByUsername = async (req, res, next) => {
     try {
 
-        // Search all users except guests
-        const users = await User.find({username: {$regex: req.params.username, $options: 'i'}, type: {$ne: 'guest'}}).select('_id username');
+        let userType = req.query.type;
 
-        res.json(users);
+        // Search all users except guests
+        let users = User.find({username: {$regex: req.params.username, $options: 'i'}, type: {$ne: 'guest'}}).select('_id username');
+
+        // Filter users by type
+        if (userType) {
+            users = users.find({type: userType});
+        }
+
+        res.json(await users);
     } catch (error) {
         next(error);
     }
@@ -139,6 +152,47 @@ exports.changePassword = async (req, res, next) => {
         // OK
         res.status(200).json({message: "Password aggiornata correttamente"});
     } catch (error) {
+        next(error);
+    }
+}
+
+exports.deleteProfile = async (req, res, next) => {
+    try {
+
+        // Get the user
+        let user = await User.findById(req.user.id);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(401).json({message: 'Utente non trovato'});
+        }
+
+        // Delete the user
+        await user.deleteOne();
+
+        // OK
+        res.status(200).json({message: "Profilo eliminato correttamente"});
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.goPro = async (req, res, next) => {
+    try {
+        //get user
+        let user = await User.findById(req.user.id);
+        //check if user is already pro
+        if (user.type === 'prouser') {
+            return res.status(400).json({error: 'You are already a pro user'});
+        }
+        //make user pro
+        user.type = 'prouser';
+        //save user
+        await user.save();
+        //return success
+        res.status(200).json({success: 'Now you are a pro user'});
+    }
+    catch (error) {
         next(error);
     }
 }

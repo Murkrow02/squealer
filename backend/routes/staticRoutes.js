@@ -26,5 +26,9 @@ router.get('/viewModels/user', (req, res) => {
     res.sendFile(path.join(__dirname,'../../frontend/shared/viewmodels/userViewModel.js'));
 });
 
+router.get('/quack', (req, res) => {
+    res.sendFile(path.join(__dirname,'../../frontend/app/src/assets/audio/quack.mp3'));
+});
+
 
 module.exports = router;

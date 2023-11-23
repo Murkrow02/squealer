@@ -26,6 +26,9 @@ function postSqueal(squeal, targetChannels, mapPoints = []){
         channels: targetChannels
     }
 
+
+
+
     return api.post("squeals", post);
 }
 
@@ -82,6 +85,14 @@ function sendLiveLocationSqueal(sendAfterMs, sendForMs, lastSentSqueal, squealSe
                     newPostedSqueal = response.data;
                     console.log(newPostedSqueal);
 
+                    try {
+                        let quack = new Audio("/static/quack");
+                        console.log(quack);
+                        quack.play();
+                    } catch (error) {
+                        console.log(error);
+                    }
+
                     // Aggiorna contatore squeal inviati
                     squealSentCount++;
 
@@ -137,6 +148,16 @@ function sendVariablesSqueal(sendAfterMs, sendForMs, varSqueal, squealSentCount,
         postSqueal(lastSentSquealCopy, targetChannels).then((response) => {
             if (response.status === 201) {
                 let newPostedSqueal = response.data;
+
+                //get quack sound
+                try {
+                    let quack = new Audio("/static/quack");
+                    console.log(quack);
+                    quack.play();
+                } catch (error) {
+                    console.log(error);
+                }
+
                 console.log(newPostedSqueal);
                 sendVariablesSqueal(sendAfterMs, sendForMs - sendAfterMs, varSqueal, squealSentCount + 1, targetChannels, variables);
             }
@@ -174,4 +195,8 @@ function unreactToSqueal(squealId, reactionId){
 // Add an impression to a squeal (should be called every time a squeal is viewed)
 function addImpression(squealId){
     return api.patch("squeals/" + squealId + "/impression");
+}
+
+function updateSqueal(squealId, squeal){
+    return api.put("squeals/" + squealId, squeal);
 }

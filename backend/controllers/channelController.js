@@ -106,6 +106,21 @@ exports.getChannelsByCategory = async (req, res, next) => {
                 query.category = category;
             const channels = await Channel.find(query);
 
+            // Foreach channel check if user is subscribed and add subscribed field
+            for (let i = 0; i < channels.length; i++) {
+
+                // Get user from database
+                let user = await User.findById(req.user.id).select("+subscribedChannels");
+
+                // Check if user is subscribed to the channel
+                if (user.subscribedChannels.includes(channels[i]._id)) {
+                    channels[i] = channels[i].toObject();
+                    channels[i]['subscribed'] = true;
+                } else {
+                    channels[i] = channels[i].toObject();
+                    channels[i]['subscribed'] = false;
+                }
+            }
 
             // Send the channels as the response
             return res.status(200).json(channels);

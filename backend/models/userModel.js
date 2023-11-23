@@ -26,12 +26,6 @@ const userSchema = new mongoose.Schema({
             monthlyQuotaReset: {type: Date, select: true},
         }, select: false
     },
-    karma: {
-        type:{
-            popularSquealCount: {type: Number, default: 0, select: true},
-            impopularSquealCount: {type: Number, default: 0, select: true},
-        }, select: false
-    },
     popularSquealCount: {type: Number, default: 0, select: false},
     unpopularSquealCount: {type: Number, default: 0, select: false},
     createdChannels: [{type: mongoose.Schema.Types.ObjectId, ref: "Channel", select: false}],

@@ -136,14 +136,13 @@ const Squeal = (props) => {
                 <div style={{display:'flex', gap:"5px"}}>
                     <span>Posted by</span>
                     <span style={{fontWeight:"bold"}}>@{props.username}</span>
-                    <span style={{color: 'var(--karma)', fontWeight:"bold"}}>{props.karma}pts.</span>
                 </div>
                 {
                     props.channels != null && props.channels.length > 0 ?
                         <div className={"channels-container"}>
                             {props.channels.map((channel, index) => {
                                 return(
-                                    <span style={{color: 'var(--primary)', fontSize:'0.8rem', padding:"8px 15px", borderRadius:'10px', backgroundColor:'var(--primary-bg)', fontWeight:"bold"}} key={index}>§{channel}</span>
+                                    <span style={{color: 'var(--primary)', fontSize:'0.8rem', padding:"8px 15px", borderRadius:'10px', backgroundColor:'var(--primary-bg)', fontWeight:"bold"}} key={index}>{channel}</span>
                                 )
                             })}
                         </div>
@@ -154,13 +153,8 @@ const Squeal = (props) => {
                 <div style={{width: '100%', marginTop:'5px', display:'flex', justifyContent:'center'}}>
                     {
                         props.type === "text" ?
-                        <div style={{ backgroundColor:'var(--light-bg)', width: '95%', borderRadius:'10px', height:'fit-content', padding:'10px'}}>
+                        <div className={"squeal-text-container"} style={{ backgroundColor:'var(--light-bg)', width: '95%', borderRadius:'10px', height:'fit-content', padding:'10px'}}>
                             <div dangerouslySetInnerHTML={{ __html: props.content }} />
-                            {props.content.length > 500 && (
-                                <div style={{display:'flex', justifyContent:'flex-end'}}>
-                                    <span style={{color:'var(--primary)', cursor:'pointer'}}>Read more...</span>
-                                </div>
-                            )}
                         </div>
                         : props.type === "media" ?
                             /\.(jpg|jpeg|png|webp|avif|heic|gif)$/.test(props.mediaUrl) ?

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import "../css/Profile.css";
 import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloseIcon from '@mui/icons-material/Close';
 import {Typography} from "@mui/material";
 import ActionButton from "../components/ActionButton";
 
@@ -29,7 +31,6 @@ function Profile(props) {
         let oldPassword = document.getElementById("old-pwd-input").value;
         let newPassword = document.getElementById("new-pwd-input").value;
         let confirmPassword = document.getElementById("confirm-pwd-input").value;
-
 
         if (oldPassword === "" || newPassword === "" || confirmPassword === "") {
             alert("Please fill all the fields");
@@ -63,6 +64,95 @@ function Profile(props) {
         setChangePasswordPopupVisibility(!changePasswordPopupVisibility);
     }
 
+
+    const [searchSMMOverlayVisibility, setSearchSMMOverlayVisibility] = useState(false);
+    function handleSearchSMMOverlayVisibility() {
+        setSearchSMMOverlayVisibility(!searchSMMOverlayVisibility);
+    }
+
+    const [smmList, setSmmList] = useState([]);
+    function smmSearchInputChanged(event) {
+
+        let value = event.target.value;
+
+        window.searchByUsername(value, "smm").then((response) => {
+            console.log(response.data);
+            setSmmList(response.data);
+        }).catch((error) => {
+            console.log(error);
+            alert("Error searching SMM");
+        });
+    }
+
+    const [hasSMM, setHasSMM] = useState(!!props.smm);
+    function addSmm(smmId) {
+        window.setSmm(smmId).then((response) => {
+            console.log(response.data);
+            alert("SMM added successfully");
+            setHasSMM(true);
+            handleSearchSMMOverlayVisibility();
+        }).catch((error) => {
+            console.log(error);
+            alert("Error adding SMM");
+        });
+    }
+
+    function removeSmm() {
+        window.removeSmm().then((response) => {
+            console.log(response.data);
+            setHasSMM(false);
+            alert("SMM removed successfully");
+        }).catch((error) => {
+            console.log(error);
+            alert("Error removing SMM");
+        });
+    }
+
+    async function deleteAccount() {
+
+        let confirm = window.confirm("Are you sure you want to delete your account?");
+        if (!confirm) {
+            return;
+        }
+
+        window.deleteAccount().then((response) => {
+            if (response) {
+                alert("Account deleted successfully");
+                window.location.href = "/static/auth";
+            } else {
+                alert(response.data.message);
+            }
+        });
+    }
+
+
+    async function goPro() {
+        let confirm = window.confirm("500€ will be charged from your account. Are you sure you want to go PRO?");
+
+        if (!confirm) {
+            return;
+        }
+
+        window.goPro().then((response) => {
+            if (response) {
+                alert("Account upgraded successfully");
+                setType("prouser");
+            } else {
+                alert(response.data.message);
+            }
+        }).catch((error) => {
+            console.log(error);
+            alert("Error upgrading account");
+        });
+    }
+
+    function logout() {
+        //remove item from local storage
+        localStorage.removeItem("token");
+        window.location.href = "/static/auth";
+    }
+
+    let style = {};
     return(
         <body>
             <header>
@@ -99,19 +189,22 @@ function Profile(props) {
 
                     {
                         type === "user" ?
-                            <ActionButton classes={"profile-action-button"} text={"Go PRO"} type={"primary"}/>
+                            <ActionButton onClick={goPro} classes={"profile-action-button"} text={"Go PRO"} type={"primary"}/>
                             : null
                     }
                     {
                         type === "prouser" ?
                             <>
-                                <ActionButton classes={"profile-action-button"} text={"Buy Characters"} type={"primary"}/>
-                                {
-                                    props.hasSMM ?
-                                        <ActionButton classes={"profile-action-button"} text={"Remove social media manager"} type={"danger"}/>
-                                        :
-                                        <ActionButton classes={"profile-action-button"} text={"Add a social media manager"} type={"primary"}/>
-                                }
+                            {/*<ActionButton classes={"profile-action-button"} text={"Buy Characters"} type={"primary"}/>*/}
+                            {
+                                hasSMM ?
+                                    <div>
+                                        <Typography style={{fontSize:'1.3rem', color:'var(--primary)', textAlign:'center', marginTop:'20px', fontWeight:'bold'}}>SMM: @{props.smm.username}</Typography>
+                                        <ActionButton onClick={removeSmm} classes={"profile-action-button"} text={"Remove social media manager"} type={"danger"}/>
+                                    </div>
+                                    :
+                                    <ActionButton onClick={handleSearchSMMOverlayVisibility} classes={"profile-action-button"} text={"Add a social media manager"} type={"primary"}/>
+                            }
                             </>
                             : null
                     }
@@ -121,7 +214,8 @@ function Profile(props) {
                     type !== "guest" ?
                         <div className={'universal-actions-container'}>
                             <ActionButton onClick={handleChangePasswordPopupVisibility} classes={"profile-action-button"} text={"Edit password"} type={"secondary"}/>
-                            <ActionButton classes={"profile-action-button"} text={"Delete account"} type={"danger"}/>
+                            <ActionButton onClick={logout} classes={"profile-action-button"} text={"Logout"} type={"danger"}/>
+                            <ActionButton onClick={deleteAccount} classes={"profile-action-button"} text={"Delete account"} type={"danger"}/>
                         </div>
                     :
                         <div className={'universal-actions-container'}>
@@ -141,6 +235,34 @@ function Profile(props) {
                                 <button onClick={changePassword} className={"change-pwd-confirm"}>Confirm</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+
+                <div style={{display: searchSMMOverlayVisibility ? "flex" : "none"}} className={"search-smm-overlay"}>
+                    <div className={"search-smm-container"}>
+                        <p className={"change-pwd-title"}>Search SMM</p>
+
+                        <input id={"search-smm-input"} onChange={smmSearchInputChanged} type={"search"} placeholder={"Search"}></input>
+                        <div className={"search-smm-list"}>
+                            {
+                                smmList.map((smm) => {
+                                    return(
+                                        <div onClick={() => {addSmm(smm._id)}} className={"smm-card"}>
+                                            <div className={"smm-card-header"}>
+                                                <div className={"smm-card-header-left"}>
+                                                    <p>{smm.username}</p>
+                                                </div>
+                                                <div className={"smm-card-header-right"}>
+                                                    <ArrowForwardIcon style={{color: "var(--primary)"}}/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        <CloseIcon onClick={handleSearchSMMOverlayVisibility} className={"search-smm-close-button"}></CloseIcon>
                     </div>
                 </div>
             </main>

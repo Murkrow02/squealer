@@ -376,6 +376,41 @@ exports.getAllSqueals = async (req, res, next) => {
     }).populate('reactions'));
 }
 
+// Update squeal for moderator
+exports.updateSqueal = async (req, res, next) => {
+
+    // Return if not moderator
+    if (req.user.type !== "moderator") {
+        return res.status(403).json({error: 'Non sei un moderatore'});
+    }
+
+    // Get squeal id
+    const squealId = req.params.squealId;
+
+    // Get squeal from database
+    let squeal = await Squeal.findById(squealId).select('+reactions').populate('reactions');
+    console.log(squeal);
+
+    // Check if squeal exists
+    if (!squeal) {
+        return res.status(404).json({error: 'Squeal non trovato'});
+    }
+
+    // Update squeal
+    squeal.postedInChannels = req.body.postedInChannels;
+
+    // Add fake reactions
+    for (let i = 0; i < req.body.reactions.length; i++) {
+        squeal.reactions.filter(reaction => reaction.reactionId.toHexString() === req.body.reactions[i].reactionId)[0].count = req.body.reactions[i].count;
+    }
+
+    // Save squeal
+    await squeal.save();
+
+    // Return squeal as response
+    res.status(200).json(squeal);
+}
+
 // Returns the name of the quota that has been exceeded, or null if no quota has been exceeded
 async function checkIfExceedsQuota(userId, squeal) {
 
@@ -490,14 +525,29 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
 
     // Cycle on each squeal to perform various operations
     let squeals = await result.exec();
-    squeals.forEach(squeal => {
 
+
+    for(let i = 0; i < squeals.length; i++)
+    {
         // Remove every private channel (privacy) for exception to his own private channel
-        squeal.postedInChannels = squeal.postedInChannels
-            .filter(channel => channel.category !== "private" || channel._id == user.privateChannelId.toHexString());
+        if(squeals[i].createdBy._id.toHexString() !== user._id.toHexString())
+        {
+            squeals[i].postedInChannels = squeals[i].postedInChannels
+                .filter(channel => channel.category !== "private" || channel._id == user.privateChannelId.toHexString());
+        }
 
-        // Check if logged user reacted to squeal
-        squeal.reactions.forEach(reaction => {
+
+        // User who created squeal should be able to see also private channels
+        for(let j = 0; j < squeals[i].postedInChannels.length; j++)
+        {
+            if (squeals[i].postedInChannels[j].category === "private") {
+                let a = await User.findOne({privateChannelId: squeals[i].postedInChannels[j]._id.toHexString()}).select('username');
+                squeals[i].postedInChannels[j].name = '@'+a.username;
+            }
+        }
+
+        // Cycle on each reaction of squeal
+        squeals[i].reactions.forEach(reaction => {
 
             // Check if user reacted to squeal
             reaction.users.forEach(userId => {
@@ -506,10 +556,13 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
                 }
             });
 
+            // Update count of reaction with delta adjusted from moderator
+            reaction.count += reaction.delta;
+
             // Remove users array from reaction
             delete reaction.users;
         });
-    });
+    }
 
     return squeals;
 }

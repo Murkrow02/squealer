@@ -22,6 +22,7 @@ function App() {
     const [value, setValue] = React.useState(0);
     const [isLoading, setIsLoading] = React.useState(true);
     const [profileType, setProfileType] = React.useState("guest");
+    const [profileSMM, setProfileSMM] = React.useState(null);
     const ref = React.useRef(null);
 
     useEffect(() => {
@@ -29,6 +30,7 @@ function App() {
             console.log("profile");
             console.log(response.data);
             setProfileType(response.data.type);
+            setProfileSMM(response.data.smmId);
             setIsLoading(false);
         });
     });
@@ -61,13 +63,13 @@ function App() {
                               : value === 1 ?
                                   <NewSqueal/>
                               : value === 2 ?
-                                  <Profile type={profileType} karma={123} hasSMM={false}/>
+                                  <Profile type={profileType} karma={123} smm={profileSMM}/>
                               : null
                           :
                               value === 0  ?
                                   <Feed/>
                               : value === 2 ?
-                                  <Profile type={profileType} karma={0} hasSMM={false}/>
+                                  <Profile type={profileType} karma={0} smm={null}/>
                               : null
                       }
                       <Box sx={{ pb: 7 }} ref={ref}>

@@ -50,31 +50,41 @@
 
     const columnDefs = [
         {
+            title: "_id",
+            type: "text",
+            visible: false,
+            disabled: true,
+        },
+        {
             title: "Author",
-            type: "text"
+            type: "text",
+            disabled: true,
         },
         {
             title: "Date",
             type: "text",
-            searchable: false,
+            disabled: true,
+            // searchable: true,
         }
     ];
 
 
     // Load channels on DOM ready
+    let table = null;
+    let allReactions = null;
     $(document).ready(async function () {
 
         // Process channels
         let channels = await processChannels();
 
         // Process reactions
-        let allReactions = await processReactions();
+        allReactions = await processReactions();
 
         // Render data table
-        let table = renderTable(columnDefs);
+        table = renderTable(columnDefs, null, null, editRow);
 
         // Add search to columns
-        addSearchToColumns(columnDefs);
+        //addSearchToColumns(columnDefs, table);
 
         // Load squeals
         let squeals = await getAllSqueals();
@@ -101,7 +111,7 @@
             });
 
             // Add reaction counts to row
-            let row = [squeal.createdBy.username, formatDate(squeal.createdAt), channelIds];
+            let row = [squeal._id, squeal.createdBy.username, formatDate(squeal.createdAt), channelIds];
             squealReactions.forEach(function (reaction) {
                 row.push(reaction.count);
             });
@@ -182,6 +192,38 @@
     //         // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
     //     }
     // },
+    function editRow(datatable, rowdata, success, error) {
+
+        console.log(rowdata);
+
+        // Get reactions
+        let reactions = [];
+        allReactions.forEach(function (reaction) {
+            reactions.push({
+                reactionId: reaction._id,
+                count: rowdata[4 + allReactions.indexOf(reaction)],
+            });
+        });
+
+        // Create new squeal data
+        let squeal = {
+            postedInChannels: rowdata[3],
+            reactions: reactions,
+        };
+
+        //console.log(squeal);
+       // return;
+
+        updateSqueal(rowdata[0], squeal)
+            .then(function (response) {
+                success();
+                // Reload page
+                location.reload();
+            })
+            .catch(function (err) {
+                error(err);
+            });
+    }
 </script>
 
 
