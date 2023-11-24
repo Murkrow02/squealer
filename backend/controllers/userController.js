@@ -11,7 +11,7 @@ exports.getAllUsers = async (req, res, next) => {
             return res.status(400).json({error: `Non sei un social media manager`});
         }
 
-        const users = await User.find().select('_id username type popularSquealCount unpopularSquealCount')
+        const users = await User.find().select('_id username type popularSquealCount unpopularSquealCount quota')
         res.json(users);
     } catch (error) {
         next(error);
@@ -175,6 +175,36 @@ exports.deleteProfile = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+}
+
+exports.updateUser = async (req, res, next) => {
+
+    // Only for moderator
+    if (req.user.type !== 'moderator') {
+        return res.status(400).json({error: `Non sei un social media manager`});
+    }
+
+    try {
+        // Get the user
+        let user = await User.findById(req.params.userId);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(401).json({message: 'Utente non trovato'});
+        }
+
+        // Update the user
+        user.type = req.body.type;
+
+        // Save the user
+        await user.save();
+
+        // OK
+        res.status(200).json({message: "Utente aggiornato correttamente"});
+    } catch (error) {
+        next(error);
+    }
+
 }
 
 exports.goPro = async (req, res, next) => {

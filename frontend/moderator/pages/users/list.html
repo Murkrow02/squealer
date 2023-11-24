@@ -57,10 +57,12 @@
         {
             title: "Username",
             type: "text",
+            disabled: true,
         },
         {
             title: "Type",
-            type: "text",
+            options: ['guest','blocked','user', 'prouser', 'smm', 'moderator'],
+            type: "select",
             // searchable: true,
         },
         {
@@ -74,7 +76,22 @@
             type: "text",
             disabled: true,
             searchable: false,
-        }
+        },
+        {
+            title: "Daily quota",
+            type: "text",
+            searchable: false,
+        },
+        {
+            title: "Weekly quota",
+            type: "text",
+            searchable: false,
+        },
+        {
+            title: "Monthly quota",
+            type: "text",
+            searchable: false,
+        },
     ];
 
 
@@ -85,7 +102,7 @@
 
 
         // Render data table
-        table = renderTable(columnDefs, null, null, null);
+        table = renderTable(columnDefs, null, null, editRow);
 
         // Add search to columns
         //addSearchToColumns(columnDefs, table);
@@ -95,8 +112,19 @@
         console.log(users);
         users.data.forEach(function (user) {
 
-            // Add reaction counts to row
+            // Create row
             let row = [user._id, user.username, user.type, user.popularSquealCount, user.unpopularSquealCount];
+
+            // Check if quota object is present
+            if (user.quota) {
+                row.push(user.quota.dailyQuotaMax);
+                row.push(user.quota.weeklyQuotaMax);
+                row.push(user.quota.monthlyQuotaMax);
+            } else {
+                row.push(null);
+                row.push(null);
+                row.push(null);
+            }
 
             // Add row
             table.row
@@ -105,6 +133,16 @@
         });
 
     });
+
+    function editRow(datatable, rowdata, success, error) {
+        updateUser(rowdata[0], rowdata[2],rowdata[5],rowdata[6],rowdata[7]).then(function (response) {
+            if (response.status === 200) {
+                success();
+            } else {
+                error();
+            }
+        });
+    }
 
 
 

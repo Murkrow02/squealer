@@ -45,6 +45,9 @@ router.delete('/users/profile',
 router.patch('/users/gopro',
     passport.authenticate('bearer', {session: false}),
     userController.goPro);
+router.patch('/users/:userId',
+    passport.authenticate('bearer', {session: false}),
+    userController.updateUser);
 
 
 // Squeals

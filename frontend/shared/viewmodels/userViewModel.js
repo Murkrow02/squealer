@@ -41,3 +41,20 @@ function deleteAccount() {
 function goPro() {
     return api.patch("users/gopro");
 }
+
+// Only smm
+function updateUser(id, type, dailyQuotaMax, weeklyQuotaMax, monthlyQuotaMax) {
+
+    let user = {
+        type,
+        quota: {
+            dailyQuotaMax,
+            weeklyQuotaMax,
+            monthlyQuotaMax
+        }
+    }
+
+    return console.log(user);
+
+    return api.patch("users/" + user._id, user);
+}
