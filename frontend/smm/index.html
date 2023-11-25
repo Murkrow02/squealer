@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pines UI</title>
+    <style>[x-cloak] {
+        display: none
+    }</style>
+    <!-- Include the Alpine library on your page -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <!-- Include the TailwindCSS library on your page -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-start justify-center h-full bg-gray-50">
+<div class="flex flex-col items-center justify-center w-full max-w-full p-5">
+
+    <!-- Welcome card -->
+    <div class="max-w-2xl bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60 grow">
+        <a href="#_" class="block mb-3">
+            <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Ciao Maiz</h5>
+        </a>
+        <p class="mb-4 text-neutral-500">Stai amministrando l'account <strong>Maiz</strong>.</p>
+
+        <!-- Quotas -->
+        <div class="flex flex-row">
+
+                <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                    <a href="#_" class="block mb-3">
+                        <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota giornaliera</h5>
+                    </a>
+                    <p class="mb-4 text-neutral-500">10/50</p>
+
+
+                    <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                        <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                    </div>
+
+
+                </div>
+                <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                    <a href="#_" class="block mb-3">
+                        <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota settimanale</h5>
+                    </a>
+                    <p class="mb-4 text-neutral-500">10/50</p>
+
+                    <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                        <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                    </div>
+                </div>
+
+            <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                <a href="#_" class="block mb-3">
+                    <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota mensile</h5>
+                </a>
+                <p class="mb-4 text-neutral-500">10/50</p>
+
+                <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                    <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                </div>
+            </div>
+        </div>
+
+
+        <button class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
+            <span>Crea un nuovo Squeal</span>
+            <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+        </button>
+    </div>
+
+
+
+    <div class="p-10">
+        <div class="flex flex-col">
+            <div class="overflow-x-auto">
+                <div class="inline-block min-w-full">
+                    <div class="overflow-hidden border rounded-lg" x-data="dataTable()" x-init="init">
+                        <table class="min-w-full divide-y divide-neutral-200" x-ref="table" class="pine">
+                            <thead class="bg-neutral-50">
+                            <tr class="text-neutral-500">
+                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Contenuto</th>
+                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Data</th>
+                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Canali</th>
+                                <th class="px-5 py-3 text-xs font-medium text-right uppercase">Reazioni</th>
+                                <th class="px-5 py-3 text-xs font-medium text-right uppercase">Azioni</th>
+
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-neutral-200">
+                            <template x-for="(user, index) in users" :key="index">
+                                <tr class="pine">
+                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.name"></td>
+                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.email"></td>
+                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.age"></td>
+                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.age"></td>
+
+                                    <td class="px-5 py-4 text-sm font-medium text-right whitespace-nowrap">
+                                        <button class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
+                                            <span>Reagisci</span>
+                                            <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function dataTable() {
+            return {
+                users: [
+                    {name: 'John Doe', email: 'john@example.com', age: 30},
+                    {name: 'Jane Doe', email: 'jane@example.com', age: 25},
+                    // Add more user data as needed
+                ],
+                init() {
+                },
+            };
+        }
+    </script>
+
+</div>
+</body>
+</html>

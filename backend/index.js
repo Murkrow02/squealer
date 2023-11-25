@@ -46,7 +46,7 @@ app.get('/app', (req, res) => {
 });
 
 // Serve the SMM app
-let smmBuildPath = path.join(__dirname, '../frontend/smm/build');
+let smmBuildPath = path.join(__dirname, '../frontend/smm');
 app.use("smm", express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));

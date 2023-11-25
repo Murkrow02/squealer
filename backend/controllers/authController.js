@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
 
     //Check if blocked
     if(user.type === 'blocked'){
-        return res.status(500).json({ error: 'Account bloccato'});
+        return res.status(500).json({ message: 'Account bloccato'});
     }
 
     // Create a token for the user

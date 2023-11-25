@@ -186,7 +186,7 @@ exports.updateUser = async (req, res, next) => {
 
     try {
         // Get the user
-        let user = await User.findById(req.params.userId);
+        let user = await User.findById(req.params.userId).select("+type +quota").populate('quota');
 
         // Check if the user exists
         if (!user) {
@@ -195,6 +195,12 @@ exports.updateUser = async (req, res, next) => {
 
         // Update the user
         user.type = req.body.type;
+        user.quota.dailyQuotaMax = req.body.quota.dailyQuotaMax;
+        user.quota.weeklyQuotaMax = req.body.quota.weeklyQuotaMax;
+        user.quota.monthlyQuotaMax = req.body.quota.monthlyQuotaMax;
+        user.quota.dailyQuotaUsed = req.body.quota.dailyQuotaUsed;
+        user.quota.weeklyQuotaUsed = req.body.quota.weeklyQuotaUsed;
+        user.quota.monthlyQuotaUsed = req.body.quota.monthlyQuotaUsed;
 
         // Save the user
         await user.save();

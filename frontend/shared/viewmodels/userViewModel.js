@@ -43,18 +43,19 @@ function goPro() {
 }
 
 // Only smm
-function updateUser(id, type, dailyQuotaMax, weeklyQuotaMax, monthlyQuotaMax) {
+function updateUser(id, type, dailyQuotaMax, dailyQuotaUsed, weeklyQuotaMax, weeklyQuotaUsed, monthlyQuotaMax, monthlyQuotaUsed) {
 
     let user = {
         type,
         quota: {
             dailyQuotaMax,
+            dailyQuotaUsed,
             weeklyQuotaMax,
-            monthlyQuotaMax
+            weeklyQuotaUsed,
+            monthlyQuotaMax,
+            monthlyQuotaUsed
         }
     }
 
-    return console.log(user);
-
-    return api.patch("users/" + user._id, user);
+    return api.patch("users/" + id, user);
 }

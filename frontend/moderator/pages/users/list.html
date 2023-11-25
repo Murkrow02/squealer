@@ -83,12 +83,27 @@
             searchable: false,
         },
         {
+            title: "Daily quota used",
+            type: "text",
+            searchable: false,
+        },
+        {
             title: "Weekly quota",
             type: "text",
             searchable: false,
         },
         {
+            title: "Weekly quota used",
+            type: "text",
+            searchable: false,
+        },
+        {
             title: "Monthly quota",
+            type: "text",
+            searchable: false,
+        },
+        {
+            title: "Monthly quota used",
             type: "text",
             searchable: false,
         },
@@ -118,9 +133,15 @@
             // Check if quota object is present
             if (user.quota) {
                 row.push(user.quota.dailyQuotaMax);
+                row.push(user.quota.dailyQuotaUsed);
                 row.push(user.quota.weeklyQuotaMax);
+                row.push(user.quota.weeklyQuotaUsed);
                 row.push(user.quota.monthlyQuotaMax);
+                row.push(user.quota.monthlyQuotaUsed);
             } else {
+                row.push(null);
+                row.push(null);
+                row.push(null);
                 row.push(null);
                 row.push(null);
                 row.push(null);
@@ -135,9 +156,10 @@
     });
 
     function editRow(datatable, rowdata, success, error) {
-        updateUser(rowdata[0], rowdata[2],rowdata[5],rowdata[6],rowdata[7]).then(function (response) {
+        updateUser(rowdata[0], rowdata[2],rowdata[5],rowdata[6],rowdata[7],rowdata[8],rowdata[9],rowdata[10]).then(function (response) {
             if (response.status === 200) {
                 success();
+                window.location.reload();
             } else {
                 error();
             }
