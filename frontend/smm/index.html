@@ -4,126 +4,384 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pines UI</title>
-    <style>[x-cloak] {
-        display: none
-    }</style>
+    <title>Moderator dashnoard</title>
+    <!-- Alpine plugin-->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
     <!-- Include the Alpine library on your page -->
     <script src="https://unpkg.com/alpinejs" defer></script>
     <!-- Include the TailwindCSS library on your page -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Axios -->
+    <script type="text/javascript" src="/static/axios"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <!--View Models-->
+    <script type="text/javascript" src="/static/viewModels/base"></script>
+    <script type="text/javascript" src="/static/viewModels/squeal"></script>
+    <script type="text/javascript" src="/static/viewModels/smm"></script>
 </head>
 <body class="flex items-start justify-center h-full bg-gray-50">
-<div class="flex flex-col items-center justify-center w-full max-w-full p-5">
+
+<div class="flex flex-col items-center justify-center w-full max-w-full sm:p-5 p-2" x-data="pageData()" x-init="init">
 
     <!-- Welcome card -->
     <div class="max-w-2xl bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60 grow">
-        <a href="#_" class="block mb-3">
-            <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Ciao Maiz</h5>
-        </a>
-        <p class="mb-4 text-neutral-500">Stai amministrando l'account <strong>Maiz</strong>.</p>
-
-        <!-- Quotas -->
-        <div class="flex flex-row">
-
-                <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
-                    <a href="#_" class="block mb-3">
-                        <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota giornaliera</h5>
-                    </a>
-                    <p class="mb-4 text-neutral-500">10/50</p>
-
-
-                    <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
-                        <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
-                    </div>
-
-
-                </div>
-                <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
-                    <a href="#_" class="block mb-3">
-                        <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota settimanale</h5>
-                    </a>
-                    <p class="mb-4 text-neutral-500">10/50</p>
-
-                    <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
-                        <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
-                    </div>
-                </div>
-
-            <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+        <template x-if="administratedUser">
+            <div>
                 <a href="#_" class="block mb-3">
-                    <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota mensile</h5>
+                    <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900" x-text="'Ciao ' + administratedUser.smmId.username"></h5>
                 </a>
-                <p class="mb-4 text-neutral-500">10/50</p>
+                <p class="mb-4 text-neutral-500">Stai amministrando l'account <strong x-text="administratedUser.username"></strong>.</p>
+                <!-- Quotas -->
+                <div class="flex flex-col sm:flex-row">
 
-                <div x-data="{ progress: 10 }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
-                    <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                    <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                        <a href="#_" class="block mb-3">
+                            <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota giornaliera</h5>
+                        </a>
+                        <p class="mb-4 text-neutral-500" x-text="administratedUser.quota.dailyQuotaUsed + '/' + administratedUser.quota.dailyQuotaMax"></p>
+
+                        <div x-data="{ progress: Math.floor((administratedUser.quota.dailyQuotaUsed * 100) / administratedUser.quota.dailyQuotaMax) }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                            <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                        </div>
+
+                    </div>
+
+                    <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                        <a href="#_" class="block mb-3">
+                            <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota settimanale</h5>
+                        </a>
+                        <p class="mb-4 text-neutral-500" x-text="administratedUser.quota.weeklyQuotaUsed + '/' + administratedUser.quota.weeklyQuotaMax"></p>
+
+                        <div x-data="{ progress: Math.floor((administratedUser.quota.weeklyQuotaUsed * 100) / administratedUser.quota.weeklyQuotaMax) }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                            <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                        </div>
+                    </div>
+
+
+
+                    <div class="flex-1 bg-white border rounded-lg shadow-sm border-neutral-200/60 p-2 m-2">
+                        <a href="#_" class="block mb-3">
+                            <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Quota mensile</h5>
+                        </a>
+                        <p class="mb-4 text-neutral-500" x-text="administratedUser.quota.monthlyQuotaUsed + '/' + administratedUser.quota.monthlyQuotaMax"></p>
+
+                        <div x-data="{ progress: Math.floor((administratedUser.quota.monthlyQuotaUsed * 100) / administratedUser.quota.monthlyQuotaMax) }" class="relative w-full h-3 overflow-hidden rounded-full bg-neutral-100">
+                            <span :style="'width:' + progress + '%'" class="absolute w-24 h-full duration-300 ease-linear bg-neutral-900" x-cloak></span>
+                        </div>
+                    </div>
                 </div>
+
+
+                <button class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
+                    <span>Crea un nuovo Squeal</span>
+                    <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
             </div>
-        </div>
+        </template>
 
-
-        <button class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
-            <span>Crea un nuovo Squeal</span>
-            <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-        </button>
     </div>
 
 
-
-    <div class="p-10">
-        <div class="flex flex-col">
-            <div class="overflow-x-auto">
-                <div class="inline-block min-w-full">
-                    <div class="overflow-hidden border rounded-lg" x-data="dataTable()" x-init="init">
-                        <table class="min-w-full divide-y divide-neutral-200" x-ref="table" class="pine">
-                            <thead class="bg-neutral-50">
-                            <tr class="text-neutral-500">
-                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Contenuto</th>
-                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Data</th>
-                                <th class="px-5 py-3 text-xs font-medium text-left uppercase">Canali</th>
-                                <th class="px-5 py-3 text-xs font-medium text-right uppercase">Reazioni</th>
-                                <th class="px-5 py-3 text-xs font-medium text-right uppercase">Azioni</th>
-
-                            </tr>
-                            </thead>
-                            <tbody class="divide-y divide-neutral-200">
-                            <template x-for="(user, index) in users" :key="index">
-                                <tr class="pine">
-                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.name"></td>
-                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.email"></td>
-                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.age"></td>
-                                    <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="user.age"></td>
-
-                                    <td class="px-5 py-4 text-sm font-medium text-right whitespace-nowrap">
-                                        <button class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
-                                            <span>Reagisci</span>
-                                            <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                        </button>
-                                    </td>
+    <!-- Squeals -->
+    <template x-if="squeals">
+        <div class="p-4 overflow-x-scroll max-w-full">
+            <h1 class="text-left mb-2 font-bold text-lg">Gli squeal di <strong x-text="administratedUser.username"></strong></h1>
+            <div class="flex flex-col">
+                <div class="overflow-x-auto">
+                    <div class="inline-block min-w-full">
+                        <div class="overflow-hidden border rounded-lg">
+                            <table class="min-w-full divide-y divide-neutral-200" x-ref="table" class="pine">
+                                <thead class="bg-neutral-50">
+                                <tr class="text-neutral-500">
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Tipo</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Data</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Canali</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Reazioni</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Tag</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-left uppercase">Azioni</th>
                                 </tr>
-                            </template>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-neutral-200">
+                                <template x-for="(squeal, index) in squeals" :key="index">
+                                    <tr class="pine">
+                                        <td class="px-5 py-4 text-sm font-medium whitespace-nowrap capitalize" x-text="squeal.contentType"></td>
+                                        <td class="px-5 py-4 text-sm font-medium whitespace-nowrap" x-text="(new Date(squeal.createdAt)).toLocaleDateString('en-US')"></td>
+                                        <td class="px-5 py-4 gap-2 text-sm font-medium whitespace-nowrap">
+                                            <div class="max-w-xs overflow-x-scroll py-3">
+                                                <template x-for="channel in squeal.postedInChannels">
+                                                    <span class="bg-blue-100 text-blue-800 ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full" x-text="channel.name"></span>
+                                                </template>
+                                            </div>
+                                        </td>
+                                        <td class="px-5 py-4 text-sm font-medium whitespace-nowrap">
+                                            <template x-if="reactions">
+                                                <div x-data="{ modalOpen: false }"
+                                                     @keydown.escape.window="modalOpen = false"
+                                                     class="relative z-50 w-auto h-auto">
+                                                    <button @click="modalOpen=true" class="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors bg-white border rounded-md hover:bg-neutral-100 active:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-200/60 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none">
+                                                        <span class="inline-flex items-center cursor-pointer underline justify-center text-xs font-bold leading-none "
+                                                            x-init="loadReactionsCount = () => {
+                                                                count = 0;
+                                                                squeal.reactions.forEach(reaction => {
+                                                                    count += reaction.count;
+                                                                });
+                                                            }" x-text="count"></span>
+                                                    </button>
+                                                    <template x-teleport="body">
+                                                        <div x-show="modalOpen" class="fixed top-0 left-0 z-[99] flex items-center justify-center w-screen h-screen" x-cloak>
+                                                            <div x-show="modalOpen"
+                                                                 x-transition:enter="ease-out duration-300"
+                                                                 x-transition:enter-start="opacity-0"
+                                                                 x-transition:enter-end="opacity-100"
+                                                                 x-transition:leave="ease-in duration-300"
+                                                                 x-transition:leave-start="opacity-100"
+                                                                 x-transition:leave-end="opacity-0"
+                                                                 @click="modalOpen=false" class="absolute inset-0 w-full h-full bg-black bg-opacity-40"></div>
+                                                            <div x-show="modalOpen"
+                                                                 x-trap.inert.noscroll="modalOpen"
+                                                                 x-transition:enter="ease-out duration-300"
+                                                                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                                                 x-transition:leave="ease-in duration-200"
+                                                                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                                                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                                 class="relative w-full py-6 bg-white px-7 sm:max-w-lg sm:rounded-lg">
+                                                                <div class="flex items-center justify-between pb-2">
+                                                                    <h3 class="text-lg font-semibold">Reazioni</h3>
+                                                                    <button @click="modalOpen=false" class="absolute top-0 right-0 flex items-center justify-center w-8 h-8 mt-5 mr-5 text-gray-600 rounded-full hover:text-gray-800 hover:bg-gray-50">
+                                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="relative w-auto">
+                                                                    <div class="flex items-center gap-3">
+                                                                        <template x-for="(reaction, index) in reactions">
+                                                                            <div class="flex items-center gap-1">
+                                                                                <span x-text="reaction.emoji"></span>
+                                                                                <span x-text="squeal.reactions[index].count"></span>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </td>
+                                        <td class="px-5 py-4 text-sm font-medium whitespace-nowrap">
+                                            <template x-if="squeal.markedAsPopular">
+                                                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-green-500 rounded-full" x-text="user.tag"></span>
+                                            </template>
+                                            <template x-if="squeal.markedAsUnpopular">
+                                                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full" x-text="user.tag"></span>
+                                            </template>
+                                            <template x-if="false">
+                                                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-slate-500 rounded-full" x-text="user.tag"></span>
+                                            </template>
+                                        </td>
+                                        <td class="px-5 py-4 text-sm font-medium text-right whitespace-nowrap">
+                                            <div x-data="{
+                                                    slideOverOpen: false
+                                                }"
+                                                 class="relative z-50 w-auto h-auto">
+                                                <button @click="slideOverOpen=true" class="inline-flex items-center justify-between w-auto h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">
+                                                    <span>Risposte</span>
+                                                    <svg class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                                </button>
+                                                <template x-teleport="body">
+                                                    <div
+                                                            x-show="slideOverOpen"
+                                                            @keydown.window.escape="slideOverOpen=false"
+                                                            class="relative z-[99]">
+                                                        <div x-show="slideOverOpen" x-transition.opacity.duration.600ms @click="slideOverOpen = false" class="fixed inset-0 bg-black bg-opacity-10"></div>
+                                                        <div class="fixed inset-0 overflow-hidden">
+                                                            <div class="absolute inset-0 overflow-hidden">
+                                                                <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
+                                                                    <div
+                                                                            x-show="slideOverOpen"
+                                                                            @click.away="slideOverOpen = false"
+                                                                            x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+                                                                            x-transition:enter-start="translate-x-full"
+                                                                            x-transition:enter-end="translate-x-0"
+                                                                            x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+                                                                            x-transition:leave-start="translate-x-0"
+                                                                            x-transition:leave-end="translate-x-full"
+                                                                            class="w-screen max-w-md">
+                                                                        <div class="flex flex-col h-full py-5 overflow-y-scroll bg-white border-l shadow-lg border-neutral-100/70">
+                                                                            <div class="px-4 sm:px-5">
+                                                                                <div class="flex items-start justify-between pb-1">
+                                                                                    <h2 class="text-base font-semibold leading-6 text-gray-900" id="slide-over-title">Risposte allo squeal</h2>
+                                                                                    <div class="flex items-center h-auto ml-3">
+                                                                                        <button @click="slideOverOpen=false" class="absolute top-0 right-0 z-30 flex items-center justify-center px-3 py-2 mt-4 mr-5 space-x-1 text-xs font-medium uppercase border rounded-md border-neutral-200 text-neutral-600 hover:bg-neutral-100">
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                                                            <span>Close</span>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="relative flex-1 px-4 mt-5 sm:px-5">
+                                                                                <div class="absolute inset-0 px-4 sm:px-5">
+                                                                                    <div class="relative h-full overflow-x-hidden overflow-y-scroll flex flex-col items-center py-3 border border-dashed rounded-md border-neutral-300">
+                                                                                        <template x-if="slideOverOpen">
+                                                                                            <div x-data="loadReplies(squeal._id)" x-init="init" class="flex flex-col gap-3">
+                                                                                                <template x-if="replies">
+                                                                                                    <template x-for="reply in replies">
+                                                                                                        <div class="rounded-lg overflow-hidden border border-neutral-200/60 bg-white text-neutral-700 shadow-sm w-[380px]">
+                                                                                                            <template x-if="reply.contentType === 'media'">
+                                                                                                                <div class="relative">
+                                                                                                                    <img :src="reply.mediaUrl" class="w-full h-auto" />
+                                                                                                                </div>
+                                                                                                            </template>
+                                                                                                            <template x-if="reply.contentType === 'map'">
+                                                                                                                <div>
+                                                                                                                    <div :onload="() => {
+                                                                                                                        var map = L.map('map-' + reply._id).setView([reply.mapPoints[0].latitude, reply.mapPoints[0].longitude], 13);
+                                                                                                                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                                                                                            maxZoom: 19,
+                                                                                                                        }).addTo(map);
+                                                                                                                        if (reply.mapPoints.length === 1) {
+                                                                                                                            var marker = L.marker([reply.mapPoints[0].latitude, reply.mapPoints[0].longitude]).addTo(map);
+                                                                                                                        } else if (reply.mapPoints.length > 1) {
+                                                                                                                            let points = reply.mapPoints.map((point) => {
+                                                                                                                                return [point.latitude, point.longitude];
+                                                                                                                            })
+                                                                                                                            var polyline = L.polyline([
+                                                                                                                                points
+                                                                                                                            ], {color: 'red'}).addTo(map);
+                                                                                                                        }
+                                                                                                                    }" style="height: 180px" :id="'map-' + reply._id">
+
+                                                                                                                    </div>
+                                                                                                                    <style>
+                                                                                                                        .weather-info-container {
+                                                                                                                            background: linear-gradient(261deg, #00affa 30%, #6cd1ff 70%);
+                                                                                                                        }
+                                                                                                                        .weather-info-container-night {
+                                                                                                                            background: linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%);
+                                                                                                                        }
+                                                                                                                    </style>
+                                                                                                                    <template x-if="reply.variant === 'weather'">
+                                                                                                                        <div x-data="loadWeatherData(reply.mapPoints[0])" x-init="init" class="w-full">
+                                                                                                                            <template x-if="current">
+                                                                                                                                <div class="flex justify-between items-center py-3 px-4 " :class="{'weather-info-container' : current.is_day !== 0, 'weather-info-container-night' : current.is_day === 0}"}>
+                                                                                                                                    <template x-if="image && description">
+                                                                                                                                        <div class="flex items-center gap-2">
+                                                                                                                                            <img class="w-[40px]" :src="image">
+                                                                                                                                            <p class="text-white font-bold" x-text="description"></p>
+                                                                                                                                        </div>
+                                                                                                                                    </template>
+                                                                                                                                    <p class="text-white font-bold" x-text="current.temperature_2m + '°'"></p>
+                                                                                                                                </div>
+                                                                                                                            </template>
+                                                                                                                        </div>
+                                                                                                                    </template>
+                                                                                                                </div>
+                                                                                                            </template>
+                                                                                                            <div class="p-7">
+                                                                                                                <h2 class="mb-2 text-lg font-bold leading-none tracking-tight" x-text="'@' + reply.createdBy.username"></h2>
+                                                                                                                <template x-if="reply.contentType === 'text'">
+                                                                                                                    <p class="mb-2 text-neutral-500" x-text="reply.content"></p>
+                                                                                                                </template>
+                                                                                                                <div class="flex mb-4 items-center">
+                                                                                                                    <template x-for="(reaction, index) in reactions">
+                                                                                                                        <div class="flex items-center gap-1 mr-3">
+                                                                                                                            <span x-text="reaction.emoji"></span>
+                                                                                                                            <span x-text="reply.reactions[index].count"></span>
+                                                                                                                        </div>
+                                                                                                                    </template>
+                                                                                                                </div>
+                                                                                                                <button class="inline-flex items-center justify-center w-full h-10 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-neutral-950 hover:bg-neutral-950/90">Reply</button>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </template>
+                                                                                                </template>
+                                                                                            </div>
+                                                                                        </template>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </template>
 
 
     <script>
-        function dataTable() {
+        function pageData() {
             return {
-                users: [
-                    {name: 'John Doe', email: 'john@example.com', age: 30},
-                    {name: 'Jane Doe', email: 'jane@example.com', age: 25},
-                    // Add more user data as needed
-                ],
-                init() {
+                administratedUser: null,
+                reactions: null,
+                squeals: null,
+                async init() {
+                    let feed = await getSmmFeed();
+                    this.squeals = feed.data.squeals;
+                    this.administratedUser = feed.data.administratedUser;
+                    let reactions = await getAllReactions();
+                    this.reactions = reactions.data;
+                    console.log(this.squeals);
                 },
             };
         }
+
+        function loadReplies(squealId) {
+            return {
+                replies: null,
+                async init() {
+                    let replies = await getReplies(squealId);
+                    this.replies = replies.data.replies;
+                }
+            }
+        }
+
+        function loadWeatherData(mapPoint) {
+            return {
+                current: null,
+                image: null,
+                description: null,
+                async init() {
+                    let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + mapPoint.latitude + "&longitude=" + mapPoint.longitude + "&current=temperature_2m,weathercode,is_day");
+                    if (!weatherRequest.ok) {
+                        console.log("Error while fetching weather data");
+                        return;
+                    }
+                    //get json
+                    let weatherResponse = await weatherRequest.json();
+                    this.current = weatherResponse.current;
+
+
+                    let weatherInfoRequest = await fetch("/static/weatherinfo");
+                    let weatherInfo = await weatherInfoRequest.json();
+                    this.image = weatherInfo[this.current.weathercode][this.current.is_day === 0 ? "night" : "day"].image;
+                    this.description = weatherInfo[this.current.weathercode][this.current.is_day === 0 ? "night" : "day"].description;
+                }
+            }
+        }
+
+
     </script>
 
 </div>

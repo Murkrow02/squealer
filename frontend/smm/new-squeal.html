@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator dashnoard</title>
+    <!-- Alpine plugin-->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <!-- Include the Alpine library on your page -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <!-- Include the TailwindCSS library on your page -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Axios -->
+    <script type="text/javascript" src="/static/axios"></script>
+
+    <!--View Models-->
+    <script type="text/javascript" src="/static/viewModels/base"></script>
+    <script type="text/javascript" src="/static/viewModels/squeal"></script>
+    <script type="text/javascript" src="/static/viewModels/smm"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body class="flex items-start justify-center h-full bg-gray-50">
+
+<div class="flex flex-col items-center justify-center w-full max-w-full sm:p-5 p-2">
+
+
+    <div class="rounded-lg overflow-hidden border border-neutral-200/60 bg-white text-neutral-700 shadow-sm max-w-[800px] w-full">
+
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-semibold p-4">New Squeal</h1>
+        </div>
+
+
+        <!-- Card new squeal -->
+        <div class="p-4">
+
+            <!-- Channels -->
+            <div class="flex flex-row">
+                <label class="flex flex-col p-2 flex-1">
+                    Canali pubblici
+                    <select id="public-channels" multiple="multiple">
+                    </select>
+                </label>
+
+                <label class="flex flex-col p-2 flex-1">
+                    Tagga utenti
+                    <select id="tagged-users" multiple="multiple">
+                    </select>
+                </label>
+            </div>
+
+            <!-- Tabs -->
+            <div class="relative w-full mt-4" x-data="{        tabSelected: 1,        tabId: $id('tabs'),        tabButtonClicked(tabButton){            this.tabSelected = tabButton.id.replace(this.tabId + '-', '');  window.tabSelected = this.tabSelected;           this.tabRepositionMarker(tabButton);        },        tabRepositionMarker(tabButton){            this.$refs.tabMarker.style.width=tabButton.offsetWidth + 'px';            this.$refs.tabMarker.style.height=tabButton.offsetHeight + 'px';            this.$refs.tabMarker.style.left=tabButton.offsetLeft + 'px';        },        tabContentActive(tabContent){            return this.tabSelected == tabContent.id.replace(this.tabId + '-content-', '');        },        tabButtonActive(tabContent){            const tabId = tabContent.id.split('-').slice(-1);            return this.tabSelected == tabId;        }    }" x-init="tabRepositionMarker($refs.tabButtons.firstElementChild);" >
+
+                <!-- Tabs buttons -->
+                <div x-ref="tabButtons" class="relative inline-grid items-center justify-center w-full h-10 grid-cols-3 p-1 text-gray-500 bg-white border border-gray-100 rounded-lg select-none">
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Text</button>
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Media</button>
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Location</button>
+                    <div x-ref="tabMarker" class="absolute left-0 z-10 w-1/2 h-full duration-300 ease-out" x-cloak><div class="w-full h-full bg-gray-100 rounded-md shadow-sm"></div></div>
+                </div>
+
+                <!-- Tabs content -->
+                <div class="relative flex items-center justify-center w-full  mt-2 text-xs text-gray-400 border rounded-md content border-gray-200/70">
+
+                    <!-- Text -->
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full ">
+                        <textarea id="squeal-text" class="w-full h-full  p-2 min-h-[100px]" type="text" placeholder="Type your squeal here" ></textarea>
+                    </div>
+
+                    <!-- Media -->
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative p-4 w-full" x-cloak>
+                        <div x-data="{ switchOn: false }" class="w-full">
+
+                            <!-- Switch media or url -->
+                            <div class="mb-4 flex items-center justify-center space-x-2">
+                                <input id="thisId" type="checkbox" name="switch" class="hidden" :checked="switchOn">
+
+                                <label @click="$refs.switchButton.click(); $refs.switchButton.focus()"
+                                       :id="$id('switch')"
+                                       :class="{ 'text-blue-600': !switchOn, 'text-gray-400': switchOn }"
+                                       class="text-sm select-none"
+                                       x-cloak>
+                                    Url
+                                </label>
+                                <button
+                                        x-ref="switchButton"
+                                        type="button"
+                                        @click="switchOn = ! switchOn"
+                                        :class="switchOn ? 'bg-blue-600' : 'bg-neutral-200'"
+                                        class="relative inline-flex h-6 py-0.5 ml-4 focus:outline-none rounded-full w-10"
+                                        x-cloak>
+                                    <span :class="switchOn ? 'translate-x-[18px]' : 'translate-x-0.5'"
+                                          class="w-5 h-5 duration-200 ease-in-out bg-white rounded-full shadow-md"></span>
+                                </button>
+
+                                <label @click="$refs.switchButton.click(); $refs.switchButton.focus()"
+                                       :id="$id('switch')"
+                                       :class="{ 'text-blue-600': switchOn, 'text-gray-400': ! switchOn }"
+                                       class="text-sm select-none"
+                                       x-cloak>
+                                    Upload
+                                </label>
+                            </div>
+
+                            <!-- Url -->
+                            <div class="w-full max-w-xs mx-auto" :class="{ 'hidden': switchOn }">
+                                <input type="text" placeholder="Insert url"
+                                       class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"/>
+                            </div>
+
+                            <!-- Upload -->
+                            <div class="w-full max-w-xs mx-auto" :class="{ 'hidden': !switchOn }">
+                                <input type="file" placeholder="File"
+                                       class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"/>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative" x-cloak>
+                        Finally, this is the content for Tab3
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <button type="button" onclick="submit()" class="w-full mt-5 inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide transition-colors duration-100 bg-white border-2 rounded-md text-neutral-900 hover:text-white border-neutral-900 hover:bg-neutral-900">
+                Upload squeal
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        // Public channels
+        $('#public-channels').select2({
+            ajax: {
+                url: '/api/channels/public',
+                dataType: 'json',
+                delay: 250,
+                headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')},
+                data: function (params) {
+                    return {
+                        search: params.term, // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.map(function (item) {
+                            return {
+                                id: item._id,
+                                text: item.name
+                            }
+                        })
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Cerca canali pubblici',
+            minimumInputLength: 1
+        });
+
+
+        $('#tagged-users').select2({
+            ajax: {
+                url: '/api/users/searchByUsername',
+                dataType: 'json',
+                delay: 250,
+                headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')},
+                data: function (params) {
+                    return {
+                        search: params.term, // search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.map(function (item) {
+                            return {
+                                id: item.privateChannelId,
+                                text: item.username
+                            }
+                        })
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Cerca utenti',
+            minimumInputLength: 1
+        });
+
+    });
+
+    function submit() {
+
+        // Init squeal
+        let squeal = {};
+
+        // Get selected media type
+        switch (window.tabSelected) {
+            default:
+                squeal.contentType = "text";
+                squeal.content = $('#squeal-text').val();
+                break;
+            case "2":
+                squeal.contentType = "media";
+
+                // Check if url or file
+                if ($('#switch').hasClass('text-blue-600')) {
+                    console.log('url');
+                    //squeal.content = $('#thisId').val();
+                } else {
+                    console.log('file');
+                    squeal.content = $('#thisId').val();
+                }
+
+                break;
+            case "3":
+                squeal.contentType = "location";
+                break;
+        }
+
+        // Get selected channels
+        let selectedChannels = $('#public-channels').select2('data').map(function (item) {
+            return item.id;
+        });
+        // Append private channels from tagged users
+        $('#tagged-users').select2('data').map(function (item) {
+            selectedChannels.push(item.id);
+        });
+
+        // Post squeal
+        postSqueal(squeal, selectedChannels);
+
+        console.log(squeal);
+    }
+
+</script>
+
+
+</body>

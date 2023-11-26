@@ -4,6 +4,7 @@ const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const squealController = require("../controllers/squealController");
 const channelController = require("../controllers/channelController");
+const smmController = require("../controllers/smmController");
 const passport = require('passport');
 const multer = require("multer");
 const path = require("path");
@@ -27,7 +28,7 @@ router.get('/users',
 router.get('/users/profile',
     passport.authenticate('bearer', {session: false}),
     userController.getProfile);
-router.get('/users/searchByUsername/:username',
+router.get('/users/searchByUsername',
     passport.authenticate('bearer', {session: false}),
     userController.searchByUsername);
 router.patch('/users/setSmm/:smmId',
@@ -79,9 +80,6 @@ router.patch('/squeals/:squealId/impression',
 router.put('/squeals/:squealId',
     passport.authenticate('bearer', { session: false}),
     squealController.updateSqueal);
-
-
-// Squeals for moderator
 router.get('/squeals/all',
     passport.authenticate('bearer', { session: false}),
     squealController.getAllSqueals);
@@ -111,6 +109,14 @@ router.delete('/channels/:channelId/',
 router.put('/channels/:channelId',
     passport.authenticate('bearer', { session: false}),
     channelController.editChannel);
+
+// Smm
+router.get('/smm/feed',
+    passport.authenticate('bearer', { session: false}),
+    smmController.smmFeed);
+router.get('/smm/:squealId/replies',
+    passport.authenticate('bearer', { session: false}),
+    smmController.getReplies);
 
 // Auth
 router.post('/auth/login', authController.login);

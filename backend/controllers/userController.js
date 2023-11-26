@@ -37,7 +37,7 @@ exports.searchByUsername = async (req, res, next) => {
         let userType = req.query.type;
 
         // Search all users except guests
-        let users = User.find({username: {$regex: req.params.username, $options: 'i'}, type: {$ne: 'guest'}}).select('_id username');
+        let users = User.find({username: {$regex: req.query.search, $options: 'i'}, type: {$ne: 'guest'}}).select('_id username');
 
         // Filter users by type
         if (userType) {

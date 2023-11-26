@@ -15,7 +15,7 @@ function getProfile() {
 }
 
 function searchByUsername(username, type = null) {
-    return api.get("users/searchByUsername/" + username + (type ? "?type=" + type : ""));
+    return api.get("users/searchByUsername?search=" + username + (type ? "&type=" + type : ""));
 }
 
 function setSmm(smmId) {

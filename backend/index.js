@@ -51,6 +51,9 @@ app.use("smm", express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
+app.get('/test', (req, res) => {
+    res.sendFile(path.join(smmBuildPath, 'new-squeal.html'));
+});
 
 // Serve the moderator app
 let moderatorBuildPath = path.join(__dirname, '../frontend/moderator');

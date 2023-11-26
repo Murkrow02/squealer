@@ -411,6 +411,7 @@ exports.updateSqueal = async (req, res, next) => {
     res.status(200).json(squeal);
 }
 
+
 // Returns the name of the quota that has been exceeded, or null if no quota has been exceeded
 async function checkIfExceedsQuota(userId, squeal) {
 
@@ -569,10 +570,27 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
 
 async function createSqueal(squealData, userId, postInChannels)
 {
+    let user = await User.findById(userId).select('+privateChannelId');
+
     // Create squeal
     let squeal = new Squeal(squealData);
-    squeal.createdBy = userId;
+
+    // Add channels to squeal
     squeal.postedInChannels = postInChannels;
+
+    // Check if smm is creating squeal, in this case createdBy is smm managed user
+    if(user.type === "smm")
+    {
+        let managedUser = await User.findOne({smmId: user._id});
+        squeal.createdBy = managedUser._id;
+        squeal.postedInChannels.push(managedUser.privateChannelId);
+    }
+    else
+    {
+        squeal.postedInChannels.push(user.privateChannelId);
+        squeal.createdBy = user._id;
+    }
+
 
     // Check if squeal is a reply
     if(squeal.replyTo)
@@ -600,10 +618,6 @@ async function createSqueal(squealData, userId, postInChannels)
             count: 0
         });
     });
-
-    // Add squeal to user private channel
-    let user = await User.findById(userId).select('privateChannelId');
-    squeal.postedInChannels.push(user.privateChannelId);
 
     // Save squeal
     return await squeal.save();
