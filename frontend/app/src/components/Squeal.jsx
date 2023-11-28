@@ -113,7 +113,7 @@ const Squeal = (props) => {
         setLocationLight(weatherResponse.current.is_day === 0 ? "night" : "day");
         //get location temperature
         setLocationWeatherTemperature(weatherResponse.current.temperature_2m);
-        //get json at helpers/WeatherInfo.json
+        //get json at helpers.js/WeatherInfo.json
         let weatherInfo = require('../helpers/WeatherInfo.json');
         //get weatherCode image
         setLocationWeatherImage(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].image);
@@ -131,7 +131,7 @@ const Squeal = (props) => {
 
 
     return(
-        <div style={{width: '100vw', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
+        <div style={{width: '100%', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
             <div style={{width: '90vw', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.24)', height: 'fit-content', padding:'15px', backgroundColor:"white",}}>
                 <div style={{display:'flex', gap:"5px"}}>
                     <span>Posted by</span>

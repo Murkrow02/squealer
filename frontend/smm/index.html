@@ -36,9 +36,69 @@
     <div class="max-w-2xl bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60 grow">
         <template x-if="administratedUser">
             <div>
-                <a href="#_" class="block mb-3">
-                    <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900" x-text="'Ciao ' + administratedUser.smmId.username"></h5>
-                </a>
+                <div class="flex justify-between items-center">
+                    <a href="#_" class="block mb-3">
+                        <h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900" x-text="'Ciao ' + administratedUser.smmId.username"></h5>
+                    </a>
+                    <div x-data="{
+                            popoverOpen: false,
+                            popoverArrow: true,
+                            popoverPosition: 'bottom',
+                            popoverHeight: 0,
+                            popoverOffset: 8,
+                            popoverHeightCalculate() {
+                                this.$refs.popover.classList.add('invisible');
+                                this.popoverOpen=true;
+                                let that=this;
+                                $nextTick(function(){
+                                    that.popoverHeight = that.$refs.popover.offsetHeight;
+                                    that.popoverOpen=false;
+                                    that.$refs.popover.classList.remove('invisible');
+                                    that.$refs.popoverInner.setAttribute('x-transition', '');
+                                    that.popoverPositionCalculate();
+                                });
+                            },
+                            popoverPositionCalculate(){
+                                if(window.innerHeight < (this.$refs.popoverButton.getBoundingClientRect().top + this.$refs.popoverButton.offsetHeight + this.popoverOffset + this.popoverHeight)){
+                                    this.popoverPosition = 'top';
+                                } else {
+                                    this.popoverPosition = 'bottom';
+                                }
+                            }
+                        }"
+                         x-init="
+                            that = this;
+                            window.addEventListener('resize', function(){
+                                popoverPositionCalculate();
+                            });
+                            $watch('popoverOpen', function(value){
+                                if(value){ popoverPositionCalculate(); document.getElementById('width').focus();  }
+                            });
+                        "
+                         class="relative">
+
+                        <button x-ref="popoverButton" @click="popoverOpen=!popoverOpen" class="flex items-center justify-center p-3 bg-white border rounded-md shadow-sm cursor-pointer hover:bg-neutral-100 focus-visible:ring-gray-400 focus-visible:ring-2 focus-visible:outline-none active:bg-white border-neutral-200/70">
+                            Profilo
+                        </button>
+
+                        <div x-ref="popover"
+                             x-show="popoverOpen"
+                             x-init="setTimeout(function(){ popoverHeightCalculate(); }, 100);"
+                             x-trap.inert="popoverOpen"
+                             @click.away="popoverOpen=false;"
+                             @keydown.escape.window="popoverOpen=false"
+                             :class="{ 'top-0 mt-12' : popoverPosition == 'bottom', 'bottom-0 mb-12' : popoverPosition == 'top' }"
+                             class="absolute w-[300px] max-w-lg -translate-x-1/2 left-1/2" x-cloak>
+                            <div x-ref="popoverInner" x-show="popoverOpen" class="w-full p-4 bg-white border rounded-md shadow-sm border-neutral-200/70">
+                                <div x-show="popoverArrow && popoverPosition == 'bottom'" class="absolute top-0 inline-block w-5 mt-px overflow-hidden -translate-x-2 -translate-y-2.5 left-1/2"><div class="w-2.5 h-2.5 origin-bottom-left transform rotate-45 bg-white border-t border-l rounded-sm"></div></div>
+                                <div x-show="popoverArrow  && popoverPosition == 'top'" class="absolute bottom-0 inline-block w-5 mb-px overflow-hidden -translate-x-2 translate-y-2.5 left-1/2"><div class="w-2.5 h-2.5 origin-top-left transform -rotate-45 bg-white border-b border-l rounded-sm"></div></div>
+                                <div class="grid gap-4">
+                                    <button onclick="logout()" class="bg-red-500 rounded-md text-white pt-2 pb-2">Logout</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <p class="mb-4 text-neutral-500">Stai amministrando l'account <strong x-text="administratedUser.username"></strong>.</p>
                 <!-- Quotas -->
                 <div class="flex flex-col sm:flex-row">
@@ -163,11 +223,13 @@
                                                                 </div>
                                                                 <div class="relative w-auto">
                                                                     <div class="flex items-center gap-3">
-                                                                        <template x-for="(reaction, index) in reactions">
-                                                                            <div class="flex items-center gap-1">
-                                                                                <span x-text="reaction.emoji"></span>
-                                                                                <span x-text="squeal.reactions[index].count"></span>
-                                                                            </div>
+                                                                        <template x-if="reactions">
+                                                                            <template x-for="(reaction, index) in reactions">
+                                                                                <div class="flex items-center gap-1">
+                                                                                    <span x-text="reaction.emoji"></span>
+                                                                                    <span x-text="squeal.reactions[index].count"></span>
+                                                                                </div>
+                                                                            </template>
                                                                         </template>
                                                                     </div>
                                                                 </div>
@@ -336,6 +398,7 @@
                 administratedUser: null,
                 reactions: null,
                 squeals: null,
+                filter:"none",
                 async init() {
                     let feed = await getSmmFeed();
                     this.squeals = feed.data.squeals;
@@ -379,6 +442,12 @@
                     this.description = weatherInfo[this.current.weathercode][this.current.is_day === 0 ? "night" : "day"].description;
                 }
             }
+        }
+
+        function logout() {
+            //remove item from local storage
+            localStorage.removeItem("token");
+            window.location.href = "/static/auth";
         }
 
 

@@ -14,7 +14,7 @@ import PropTypes from "prop-types";
 import AddIcon from "@mui/icons-material/Add";
 import CreateChannel from "../components/CreateChannel";
 
-function Feed(props) {
+function 1Feed(props) {
 
     const [squeals, setSqueals] = useState([]);
     const [avaiableReactions, setAvaiableReactions] = useState([])

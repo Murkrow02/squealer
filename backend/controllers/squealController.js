@@ -35,6 +35,14 @@ exports.createSqueal = async (req, res, next) => {
 
     try {
 
+        // Check if smm is creating squeal, in this case createdBy is smm managed user
+        let user = await User.findById(req.user.id).select('+privateChannelId');
+        if(user.type === "smm")
+        {
+            // Get user to be managed
+            user = await User.findOne({smmId: req.user.id}).select('+privateChannelId');
+        }
+
         // Get channels to post in
         let channelsArray = req.body.channels;
 
@@ -55,22 +63,20 @@ exports.createSqueal = async (req, res, next) => {
         validChannels.forEach(channel => {
 
             // Found channel that is not private, so we should check quota
-            if (channel.category !== 0) {
+            if (channel.category !== 'private') {
                 shouldCheckQuota = true;
             }
-
-            //TODO: also check if user can post in channel
         });
 
         // Check if user has exceeded quota
         if (shouldCheckQuota) {
-            let quotaExceeded = await checkIfExceedsQuota(req.user.id, squealData)
+            let quotaExceeded = await checkIfExceedsQuota(user._id.toHexString(), squealData)
             if (quotaExceeded)
                 return res.status(400).json({error: `Hai superato la quota ${quotaExceeded}`});
         }
 
         // No quota was exceeded, create a new squeal
-        let squeal = await createSqueal(squealData,req.user._id, channelsArray);
+        let squeal = await createSqueal(squealData, user._id.toHexString(), channelsArray);
 
         // Send the squeal as response
         res.status(201).json(squeal);
@@ -420,7 +426,7 @@ async function checkIfExceedsQuota(userId, squeal) {
 
     // Get new squeal quota (based on content type, text characters count or 125 if image or map)
     const squealQuota = squeal.contentType === "text"
-        ? squeal.content.length
+        ?  squeal.content.match(/<[^>]*>([^<]*)<\/[^>]*>/)[1].trim().length
         : 125;
 
     // Re-get user from database this time with quota fields
@@ -570,26 +576,13 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
 
 async function createSqueal(squealData, userId, postInChannels)
 {
-    let user = await User.findById(userId).select('+privateChannelId');
 
     // Create squeal
     let squeal = new Squeal(squealData);
+    squeal.createdBy = userId;
 
     // Add channels to squeal
     squeal.postedInChannels = postInChannels;
-
-    // Check if smm is creating squeal, in this case createdBy is smm managed user
-    if(user.type === "smm")
-    {
-        let managedUser = await User.findOne({smmId: user._id});
-        squeal.createdBy = managedUser._id;
-        squeal.postedInChannels.push(managedUser.privateChannelId);
-    }
-    else
-    {
-        squeal.postedInChannels.push(user.privateChannelId);
-        squeal.createdBy = user._id;
-    }
 
 
     // Check if squeal is a reply

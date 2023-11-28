@@ -27,8 +27,6 @@ function App() {
 
     useEffect(() => {
         window.getProfile().then((response) =>{
-            console.log("profile");
-            console.log(response.data);
             setProfileType(response.data.type);
             setProfileSMM(response.data.smmId);
             setIsLoading(false);

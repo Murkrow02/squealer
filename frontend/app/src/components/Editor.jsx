@@ -92,6 +92,9 @@ export default function Editor(props) {
         3: "#"
     }
 
+    // Show "not using quota" alert
+    const [showQuotaAlert, setShowQuotaAlert] = React.useState(true);
+
     //Receiver popup visibility
     const [receiverPopupVisible, setReceiverPopupVisible] = React.useState(false);
 
@@ -111,7 +114,6 @@ export default function Editor(props) {
     const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
 
     //get values from session storage
-    console.log("session storage");
     const [replySquealId, setReplySquealId] = React.useState(sessionStorage.getItem("replySquealId"));
     const [replySquealUsername, setReplySquealUsername] = React.useState(sessionStorage.getItem("replySquealUsername"));
     if (replySquealId != null && replySquealUsername != null) {
@@ -119,8 +121,6 @@ export default function Editor(props) {
         sessionStorage.removeItem("replySquealId");
         sessionStorage.removeItem("replySquealUsername");
     }
-    console.log(replySquealId);
-    console.log(replySquealUsername);
 
     //Marker configuration
     L.Marker.prototype.options.icon = L.icon({
@@ -164,6 +164,9 @@ export default function Editor(props) {
     }
     function decreaseCharCount(value) {
 
+        if(showQuotaAlert)
+            return;
+
         //check if max chars reached
         if ((initialDayChars - value) < 0 || (initialWeekChars - value) < 0 || (initialMonthChars - value) < 0) {
             //check if type is text
@@ -185,116 +188,8 @@ export default function Editor(props) {
 
     //regex for mentions, urls and variables
     const urlRegex = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}(?:\/\S*)?/g;
-    const mentionRegex = /^[@#§]\w+/g;
-    const variableRegex = /^[$]\w+/g;
 
-    function handleSquealTextChange(event) {
-        //check if squeal type is text
-        if (squealType !== "text") {
-            return;
-        }
 
-        //check if last char is invalid
-        if (event.target.value.endsWith(">") || event.target.value.endsWith("<")) {
-            //remove last character from text
-            document.getElementById("outlined-multiline-flexible").value = document.getElementById("outlined-multiline-flexible").value.slice(0, -1);
-            alert("Invalid character.");
-            return;
-        }
-
-        //update char count
-        decreaseCharCount(event.target.value.length);
-
-        //split text into array
-        const segments = event.target.value.split(" ");
-
-        //iterate over segments
-        for (let i = 0; i < segments.length; i++) {
-            if (segments[i] === '\n') {
-                continue;
-            }
-            //check if segment contains \n
-            if (segments[i].includes("\n")) {
-
-                //split segment into array
-                const lines = segments[i].split("\n");
-                let tmp_seg = [];
-                //iterate over lines
-                for (let j = 0; j < lines.length; j++) {
-                    //push line to tmp array
-                    tmp_seg.push(lines[j]);
-                    //push \n
-                    tmp_seg.push("\n");
-                }
-                //remove last char, if segment ends with \n is empty while if it does not ends with \n is \n
-                tmp_seg.pop();
-                //insert tmp array into segments at index i
-                segments.splice(i, 1, ...tmp_seg);
-            }
-        }
-
-        //check if last segment's last char is \n
-        if (segments[segments.length - 1].endsWith("\n")) {
-            if (segments[segments.length - 1] !== "\n") {
-                //remove last char
-                segments[segments.length - 1] = segments[segments.length - 1].slice(0, -1);
-                //push \n to new segment
-                segments.push("\n");
-            }
-        }
-
-        //clear variables and store them for later check
-        let variables = variablesList;
-        let tmpVariables = [];
-
-        //generate HTML & update masked content
-        document.getElementById("masked-content").innerHTML = segments.map((segment, index) => {
-
-            if (segment.match(urlRegex)) {
-                //check if segment starts with http
-                let href = segment;
-                if (!segment.startsWith("http")) {
-                    //add http
-                    href = "https://" + segment;
-                }
-                return `<a href="${href}" target="_blank" class="highlight">${segment}</a>`
-            }
-            else if (segment.match(mentionRegex)) {
-                return `<span class="highlight">${segment}</span>`
-            }
-            else if ( isSquealTemporized && segment.match(variableRegex)) {
-                //push variable to tmp variables list
-                tmpVariables.push({name: segment, type: "unset"});
-                return `<span class="variable">${segment}</span>`
-            } else if (segment.includes("\n")) {
-                //check if next segment exists
-                if (segments[index + 1] !== undefined && segments[index + 1] !== "") {
-                    return `<br>`
-                } else {
-                    //put whitespace to trigger new line on div
-                    return `<br><span style="color: transparent">*</span>`
-                }
-            } else if (segment === "") {
-                return ``;
-            } else {
-                return `<span>${segment}</span>`
-            }
-        }).join(' ');
-
-        if (isSquealTemporized) {
-            for (let i = 0; i < tmpVariables.length; i++) {
-                //check if variables[i] still exists
-                if (variables[i] !== undefined) {
-                    if (tmpVariables[i].name === variables[i].name) {
-                        //set type
-                        tmpVariables[i].type = variables[i].type;
-                    }
-                }
-            }
-            //update variables list
-            setVariablesList(tmpVariables);
-        }
-    }
     function handleSquealTextFocus(event) {
         //check if squeal type is text
         if (squealType !== "text") {
@@ -358,9 +253,9 @@ export default function Editor(props) {
         }
 
         //add symbol to text
-        document.getElementById("outlined-multiline-flexible").value += (" " + symbol);
+        document.getElementById("outlined-multiline-flexible").value += ("" + symbol);
         //trigger change event
-        handleSquealTextChange({target: {value: document.getElementById("outlined-multiline-flexible").value}});
+        squealTextChanged();
         //focus on text
         document.getElementById("outlined-multiline-flexible").focus();
 
@@ -413,6 +308,8 @@ export default function Editor(props) {
             //set written tag in list, id is the value so don't have to handle it as receivers are univoque per type
             setReceiverSearchList([{ _id: event.target.value, content: event.target.value, type: "3" }]);
         }
+
+
     }
     function checkDuplicateReceiver(receiver_id, receiver_type) {
         //get receivers list
@@ -429,6 +326,7 @@ export default function Editor(props) {
         return false;
     }
     function addReceiver(receiver_id, receiver_name, receiver_type) {
+
         //check if receiver already exists
         if (checkDuplicateReceiver(receiver_id, receiver_type)) {
             alert("Receiver already in the list");
@@ -436,13 +334,24 @@ export default function Editor(props) {
         }
         //get receivers list
         let list = receiverList;
+
         //add receiver
         list.push({id: receiver_id, name: receiver_name, type: receiver_type});
 
-        console.log(list);
         //update receivers list
         setReceiverList(list);
+
+        // Check if only users are selected, if so show alert of not using quota
+        let allUsers = true;
+        for (let i = 0; i < receiverList.length; i++) {
+            if (receiverList[i].type !== "1") {
+                allUsers = false;
+                break;
+            }
+        }
+        setShowQuotaAlert(allUsers);
     }
+
     function removeReceiver(receiver_id, receiver_type) {
         //get receivers list
         let list = receiverList;
@@ -450,15 +359,30 @@ export default function Editor(props) {
         for (let i = 0; i < list.length; i++) {
             //check if receiver exists
             if (list[i].id === receiver_id && list[i].type === receiver_type) {
+
                 //remove receiver
                 list.splice(i, 1);
+
                 //update receivers list
                 setReceiverList(list);
+
                 //refresh ui
                 setReceiverList([...receiverList]);
+
+                // Check if only users are selected, if so show alert of not using quota
+                let allUsers = true;
+                for (let i = 0; i < receiverList.length; i++) {
+                    if (receiverList[i].type !== "1") {
+                        allUsers = false;
+                        break;
+                    }
+                }
+                setShowQuotaAlert(allUsers);
+
                 return;
             }
         }
+
     }
     function onReceiverSearchClick(event) {
         //get clicked element
@@ -496,15 +420,21 @@ export default function Editor(props) {
         //reset search input
         document.querySelector('.receivers-search-bar').value = "";
     }
+
+    function squealTextChanged(){
+        window.handleSquealTextChange(decreaseCharCount,isSquealTemporized, setVariablesList, variablesList);
+    }
+
     function convertToTemporizedSqueal(event) {
         setIsSquealTemporized(true);
-        //TODO UPDATE UI IF ALREADY VARIABLES
+        //squealTextChanged();
+
     }
     function revertToNormalSqueal(event) {
         setIsSquealTemporized(false);
         //clear variables
         setVariablesList([]);
-        //TODO UPDATE UI IF ALREADY VARIABLES
+        //squealTextChanged();
     }
     function onVariableSelectChange(event) {
         //get name of variable
@@ -595,7 +525,7 @@ export default function Editor(props) {
         setLocationLight(weatherResponse.current.is_day === 0 ? "night" : "day");
         //get location temperature
         setLocationWeatherTemperature(weatherResponse.current.temperature_2m);
-        //get json at helpers/WeatherInfo.json
+        //get json at helpers.js/WeatherInfo.json
         let weatherInfo = require('../helpers/WeatherInfo.json');
         //get weatherCode image
         setLocationWeatherImage(weatherInfo[weatherResponse.current.weathercode][weatherResponse.current.is_day === 0 ? "night" : "day"].image);
@@ -854,6 +784,10 @@ export default function Editor(props) {
                 </RadioGroup>
             </FormControl>
             <div id='chars-count-container' style={{backgroundColor: 'var(--light-bg)', transitionDuration:'0.3', marginTop:'20px', width:'calc(100% - 30px)', padding:'10px 15px', display:'flex', flexFlow:'column', gap:'10px', borderRadius:'10px'}}>
+
+                <Alert style={{display:showQuotaAlert ? "flex" : "none"}} severity="info">You are not using your quota
+                </Alert>
+
                 <div style={{display:'flex', justifyContent:'space-between', fontSize: '1.2rem'}}>
                     <span>Daily characters left:</span>
                     <span style={{textAlign: 'end'}}>{maxDayChars}</span>
@@ -871,7 +805,7 @@ export default function Editor(props) {
                     //check if squeal type is text
                     squealType === "text" ?
                         <div style={{width:'100%', position:'relative'}}>
-                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={handleSquealTextChange}/>
+                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={squealTextChanged}/>
                             <div id="editor-input-mask">
                                 <span id="masked-content"></span>
                             </div>

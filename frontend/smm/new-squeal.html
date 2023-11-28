@@ -15,10 +15,21 @@
     <!-- Axios -->
     <script type="text/javascript" src="/static/axios"></script>
 
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
     <!--View Models-->
     <script type="text/javascript" src="/static/viewModels/base"></script>
     <script type="text/javascript" src="/static/viewModels/squeal"></script>
     <script type="text/javascript" src="/static/viewModels/smm"></script>
+
+    <!--Helpers-->
+    <script src="/static/helpers"></script>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -72,7 +83,75 @@
 
                     <!-- Text -->
                     <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full ">
-                        <textarea id="squeal-text" class="w-full h-full  p-2 min-h-[100px]" type="text" placeholder="Type your squeal here" ></textarea>
+                        <textarea onkeyup="textInputChanged()" id="outlined-multiline-flexible" class="w-full h-full  p-2 min-h-[100px]" type="text" placeholder="Type your squeal here"></textarea>
+                        <div id='editor-input-mask' class="absolute top-0 w-full h-full" >
+                            <span id="masked-content"></span>
+                        </div>
+
+                        <!-- Temporized -->
+
+
+
+
+                        <div x-data="{ switchOn: false }" >
+                            <div class="flex items-center justify-center space-x-2">
+                                <label @click="$refs.switchButton.click(); $refs.switchButton.focus()" :id="$id('switch')"
+                                       :class="{ 'text-blue-600': !switchOn, 'text-gray-400':  switchOn }"
+                                       class="text-sm select-none"
+                                       x-cloak>
+                                    Default
+                                </label>
+
+                                <input id="a" type="checkbox" name="switch" class="hidden" :checked="switchOn">
+
+                                <button
+                                        x-ref="switchButton"
+                                        type="button"
+                                        @click="switchOn = ! switchOn; isSquealTemporized = switchOn; textInputChanged()"
+                                        :class="switchOn ? 'bg-blue-600' : 'bg-neutral-200'"
+                                        class="relative inline-flex h-6 py-0.5 ml-4 focus:outline-none rounded-full w-10"
+                                        x-cloak>
+                                    <span :class="switchOn ? 'translate-x-[18px]' : 'translate-x-0.5'" class="w-5 h-5 duration-200 ease-in-out bg-white rounded-full shadow-md"></span>
+                                </button>
+
+                                <label @click="$refs.switchButton.click(); $refs.switchButton.focus()" :id="$id('switch')"
+                                       :class="{ 'text-blue-600': switchOn, 'text-gray-400': ! switchOn }"
+                                       class="text-sm select-none"
+                                       x-cloak>
+                                    Temporizzato
+                                </label>
+
+                            </div>
+
+                            <!-- Dropdown menu -->
+                            <template x-if="switchOn">
+                                <div>
+                                    <div id="variables-container" class="mt-3 mb-3">
+                                    </div>
+                                    <div class="times-container">
+                                        <p>Per quanto tempo vuoi reinviare il messaggio?</p>
+                                        <div class="flex items-center mb-3 gap-3">
+                                            <input id="ttl-input" type="number" placeholder="Inserisci">
+                                            <p>Minuti</p>
+                                        </div>
+
+
+                                        <p>Ogni quanto vuoi reinviare il messaggio?</p>
+                                        <div class="flex items-center mb-3 gap-3">
+                                            <input id="et-input" type="number" placeholder="Inserisci">
+                                            <p>Secondi</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+
+                        </div>
+
+
+
+
+
                     </div>
 
                     <!-- Media -->
@@ -127,8 +206,70 @@
 
                     </div>
 
-                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative" x-cloak>
-                        Finally, this is the content for Tab3
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full" x-cloak>
+                        <div>
+                            <div style="height: 180px" id="map">
+                            </div>
+                            <script>
+
+                                var locationPoint = [51.05, -0.9];
+                                //get live location
+                                navigator.geolocation.getCurrentPosition(function(position) {
+                                    console.log("Latitude is :", position.coords.latitude);
+                                    console.log("Longitude is :", position.coords.longitude);
+                                    locationPoint = [position.coords.latitude, position.coords.longitude];
+                                }, function(error) {
+                                    alert("Error retrieving location");
+                                });
+
+
+                                var map = L.map('map').setView(locationPoint, 13);
+                                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    maxZoom: 19,
+                                }).addTo(map);
+
+                                var marker = L.marker(locationPoint).addTo(map);
+
+
+                                //when clicking on map point add marker on the clicked spot
+                                map.on('click', function(e) {
+
+                                    //remove markers if there are any
+                                    map.eachLayer(function (layer) {
+                                        if (layer instanceof L.Marker) {
+                                            map.removeLayer(layer);
+                                        }
+                                    });
+
+                                    L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+                                    locationPoint = [e.latlng.lat, e.latlng.lng];
+                                });
+
+                            </script>
+                            <style>
+                                .weather-info-container {
+                                    background: linear-gradient(261deg, #00affa 30%, #6cd1ff 70%);
+                                }
+                                .weather-info-container-night {
+                                    background: linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%);
+                                }
+                            </style>
+                            <!--template x-if="true">
+                                <div x-data="loadWeatherData(reply.mapPoints[0])" x-init="init" class="w-full">
+                                    <template x-if="current">
+                                        <div class="flex justify-between items-center py-3 px-4 " :class="{'weather-info-container' : current.is_day !== 0, 'weather-info-container-night' : current.is_day === 0}"}>
+                                            <template x-if="image && description">
+                                                <div class="flex items-center gap-2">
+                                                    <img class="w-[40px]" :src="image">
+                                                    <p class="text-white font-bold" x-text="description"></p>
+                                                </div>
+                                            </template>
+                                            <p class="text-white font-bold" x-text="current.temperature_2m + '°'"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template-->
+                        </div>
                     </div>
 
                 </div>
@@ -145,6 +286,11 @@
 </div>
 
 <script>
+
+
+
+
+
     $(document).ready(function () {
 
         // Public channels
@@ -210,11 +356,47 @@
         // Init squeal
         let squeal = {};
 
+        // Get selected channels
+        let selectedChannels = $('#public-channels').select2('data').map(function (item) {
+            return item.id;
+        });
+        // Append private channels from tagged users
+        $('#tagged-users').select2('data').map(function (item) {
+            selectedChannels.push(item.id);
+        });
+
         // Get selected media type
         switch (window.tabSelected) {
             default:
                 squeal.contentType = "text";
-                squeal.content = $('#squeal-text').val();
+                squeal["content"] = document.getElementById("masked-content").innerHTML;
+
+                if (isSquealTemporized) {
+                    function formattedTemporizedInputs() {
+                        let ttlInput = document.getElementById("ttl-input");
+                        let etInput = document.getElementById("et-input");
+
+                        return [ttlInput.value * 60 * 1000, etInput.value * 1000];
+                    }
+
+                    let temporizedValues = formattedTemporizedInputs();
+
+                    //check that variables are set
+                    for (let i = 0; i < variablesList.length; i++) {
+                        if (variablesList[i].type === "unset") {
+                            alert("Please set " + variablesList[i].name + " variable");
+                            return;
+                        }
+                    }
+                    console.log("temporized text");
+                    console.log("ttl", temporizedValues[0], "et", temporizedValues[1]);
+                    console.log(squeal);
+                    console.log(variablesList);
+                    alert('Warning, page reload or app exit will stop the temporized squeal posting');
+                    window.sendVariablesSqueal(temporizedValues[1], temporizedValues[0], squeal, 0, selectedChannels, variablesList);
+                    return;
+                }
+
                 break;
             case "2":
                 squeal.contentType = "media";
@@ -234,22 +416,169 @@
                 break;
         }
 
-        // Get selected channels
-        let selectedChannels = $('#public-channels').select2('data').map(function (item) {
-            return item.id;
-        });
-        // Append private channels from tagged users
-        $('#tagged-users').select2('data').map(function (item) {
-            selectedChannels.push(item.id);
-        });
+
 
         // Post squeal
-        postSqueal(squeal, selectedChannels);
+        postSqueal(squeal, selectedChannels, squeal.contentType === "location" ? [{
+            latitude: locationPoint[0],
+            longitude: locationPoint[1],
+        }] : []);
 
         console.log(squeal);
     }
 
+    function textInputChanged()
+    {
+        handleSquealTextChange(characterCountFunc, isSquealTemporized, setVariablesList, variablesList);
+    }
+
+    function characterCountFunc()
+    {
+
+    }
+
+    let variablesList = [];
+    function setVariablesList(variablesArray)
+    {
+        variablesList = variablesArray;
+        loadVariablesUI();
+    }
+
+    function loadVariablesUI()
+    {
+        let varContainer = document.getElementById("variables-container");
+
+        if (!varContainer) {
+            //set timer of 200ms to wait for the container to be loaded
+            setTimeout(loadVariablesUI, 200);
+            return;
+        }
+        //clear container
+        varContainer.innerHTML = "";
+
+        variablesList.forEach((variable, index) => {
+
+
+            let container = document.createElement("div");
+            container.style.display = "flex";
+            container.style.justifyContent = "space-between";
+            container.classList.add("mt-3");
+            container.classList.add("pl-3");
+            container.classList.add("pr-3");
+
+            let variableElement = document.createElement("div");
+            variableElement.classList.add("variable");
+            variableElement.innerText = variable.name;
+            container.appendChild(variableElement);
+
+
+            let dropdown = document.createElement("div");
+            console.log(`variable-select-${index}`);
+            console.log(variable.type);
+            //add html text to dropdown
+            dropdown.innerHTML = ` <div class="variable-type-container" >
+                                <select id=${"variable-select-" + index}>
+                                    <option value="unset" ${variable.type === "unset" ? "selected" : ""}>unset</option>
+                                    <option value="date" ${variable.type === "date" ? "selected" : ""}>date</option>
+                                    <option value="time" ${variable.type === "time" ? "selected" : ""}">time</option>
+                                    <option value="number" ${variable.type === "number" ? "selected" : ""}>number</option>
+                                </select>
+                            </div>`;
+
+            container.appendChild(dropdown);
+
+            varContainer.appendChild(container);
+
+            //add event listener to dropdown
+            document.getElementById("variable-select-" + index).addEventListener("change", (e) => {
+                console.log("chas");
+                variable.type = e.target.value;
+                console.log(variablesList);
+            });
+
+
+        });
+
+        console.log(variablesList);
+    }
+
+
+
+    let isSquealTemporized = false;
+
+
+
 </script>
+
+
+<style>
+
+    :root{
+        --primary: #23aaf5;
+    }
+
+    .times-container p {
+        color: black;
+        font-weight: bold;
+    }
+
+    .times-container input {
+        font-size: 1.2rem;
+    }
+
+
+    #editor-input-mask {
+        display: flex;
+        flex-flow: column;
+        color: black;
+        cursor: pointer;
+        padding: 8px;
+        pointer-events: none;
+        background-color: transparent;
+        border: none;
+        border-radius: 5px;
+        word-wrap: anywhere;
+        transition-duration: 0.3s;
+    }
+
+    #editor-input-mask .highlight {
+        color: var(--primary);
+    }
+
+    #editor-input-mask .selected {
+        background-color: var(--primary-bg);
+    }
+
+    #editor-input-mask .variable {
+        background: linear-gradient(
+                to right,
+                #7953cd 20%,
+                #00affa 30%,
+                #0190cd 70%,
+                #764ada 80%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-fill-color: transparent;
+        background-size: 500% auto;
+        animation: textShine 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes textShine {
+        0% {
+            background-position: 0% 50%;
+        }
+        100% {
+            background-position: 100% 50%;
+        }
+    }
+
+    #editor-input-mask .cursor {
+        color: var(--primary);
+    }
+
+</style>
 
 
 </body>
