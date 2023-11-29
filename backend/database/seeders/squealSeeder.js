@@ -1,33 +1,64 @@
 const Squeal = require('../../models/squealModel');
 const User = require('../../models/userModel');
-
+const Channel = require('../../models/channelModel');
+const Reaction = require('../../models/reactionModel');
 async function seed() {
 
     // Delete all squeals
     await Squeal.deleteMany({});
 
-    // Foreach squeal data, use the first available user id
-    let users = await User.find();
+    // Get first 50 users
+    const users = await User.find({}).limit(50);
 
-    // Set the user id for each squeal
-    squealData.forEach((squeal) => {
-        squeal.createdBy = users[0]._id;
+    // Post squeal from each user
+    const squeals = [];
+    let reactions = await Reaction.find();
+    let channel = await Channel.find();
+    users.forEach((user) => {
+
+        // Number of squeal for each user (from 5 to 20)
+        const squealNum = Math.floor(Math.random() * 15) + 5;
+
+        // Generate squeal data
+        for (let i = 0; i < squealNum; i++) {
+            let squealData = {
+                content: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>",
+                contentType: "text",
+                postedInChannels: [],
+                createdBy: user._id,
+                reactions: [],
+            };
+
+            // Add squeal to random channel
+            let randomChannel = channel[Math.floor(Math.random() * channel.length)];
+            squealData.postedInChannels.push(randomChannel._id.toHexString());
+
+            //Create new empty reactions array with 0 reactions for each reaction
+            reactions.forEach(reaction => {
+
+                let count = Math.floor(Math.random() * 10);
+                squealData.reactions.push({
+                    reactionId: reaction._id,
+                    users: [],
+                    count: count,
+                });
+
+                // Update positive/negative reactions count
+                if (reaction.positive === true) {
+                    squealData.positiveReactions = count;
+                } else {
+                    squealData.negativeReactions = count;
+                }
+            });
+
+            // Insert the squeal data
+            squeals.push(squealData);
+        }
     });
 
     // Insert the squeal data
-    await Squeal.insertMany(squealData);
+    await Squeal.insertMany(squeals);
 }
 
-const squealData = [
-    {
-        userId: "", // Set in seed()
-        content: "asf",
-        contentType: "text",
-        impressions: [],
-        positiveReactions: 0,
-        negativeReactions: 0,
-        popularity: 0,
-    }
-];
 
 module.exports = {seed};

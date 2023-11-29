@@ -75,6 +75,9 @@ exports.createSqueal = async (req, res, next) => {
                 return res.status(400).json({error: `Hai superato la quota ${quotaExceeded}`});
         }
 
+        // Add squeal to user's private channel
+        channelsArray.push(user.privateChannelId);
+
         // No quota was exceeded, create a new squeal
         let squeal = await createSqueal(squealData, user._id.toHexString(), channelsArray);
 
@@ -539,7 +542,7 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
         .populate('reactions')
         .select('+reactions.users')
         .lean()
-        .limit(50);
+        .limit(100);
 
     // Cycle on each squeal to perform various operations
     let squeals = await result.exec();
@@ -575,7 +578,7 @@ async function createFeedForUser(userId, filterChannels = null, searchInMentione
             });
 
             // Update count of reaction with delta adjusted from moderator
-            reaction.count += reaction.delta;
+            //reaction.count += reaction.delta;
 
             // Remove users array from reaction
             delete reaction.users;

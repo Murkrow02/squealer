@@ -6,28 +6,47 @@ async function seed(){
     // Delete all channels
     await Channel.deleteMany({});
 
-    // Add a lot of mock editorial channels to channelData
-    for (let i = 0; i < 100; i++) {
-        channelData.push({
-            name: "§MAIZ" + i,
-            category: "editorial",
-            admins: [],
-            description: "pila",
-        });
-    }
-
     // Insert channels
     return Channel.insertMany(channelData)
 }
 
 const channelData = [
 
-    // DO NOT REMOVE THIS IN PROD
     {
         name: "§CONTROVERSIAL",
         category: "editorial",
         admins: [],
         description: "Tutti gli squeal che stanno facendo discutere il mondo",
+    },
+    {
+        name: "$TOP_100",
+        category: "editorial",
+        admins: [],
+        description: "I migliori squeal del momento",
+    },
+    {
+        name: "§SPORT",
+        category: "editorial",
+        admins: [],
+        description: "Tutti gli squeal sul mondo dello sport",
+    },
+    {
+        name: "§NEWS",
+        category: "editorial",
+        admins: [],
+        description: "Tutti gli squeal sulle ultime notizie",
+    },
+    {
+        name: "§GOSSIP",
+        category: "editorial",
+        admins: [],
+        description: "Tutti gli squeal sul mondo del gossip",
+    },
+    {
+        name: "§TECH",
+        category: "editorial",
+        admins: [],
+        description: "Tutti gli squeal sul mondo della tecnologia",
     }
 ];
 

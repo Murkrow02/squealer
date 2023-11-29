@@ -41,9 +41,6 @@ function Feed(props) {
 
 
 
-
-
-
     //SEARCH TYPE HANDLING
     const [searchType, setSearchType] = useState("text");
     const [searchTypeText, setSearchTypeText] = useState("aA");
@@ -270,7 +267,6 @@ function Feed(props) {
                         />
                     </div>
                     <Stack style={{marginTop:'10px', padding:"0 10vw", marginBottom:'10px', justifyContent:'center'}} direction={'row'} spacing={1}>
-                        <Chip onClick={() => {filterSqueals('popular')}} label="Popular" />
                         <Chip onClick={() => {filterSqueals('controversial')}} label="Controversial" />
                     </Stack>
                     {
@@ -307,7 +303,7 @@ function Feed(props) {
 
             <div>
                 {
-                    displaySearchType === "squeal" ?
+                    displaySearchType === "squeal" && squeals ?
                         squeals.map((squeal) => (
                             <>
                                 <Squeal id={squeal._id}

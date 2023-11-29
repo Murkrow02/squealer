@@ -135,7 +135,8 @@ increasePopularAndUpdateQuota = async (userId) => {
 decreasePopularAndUpdateQuota = async (userId) => {
 
     let user = await User.findById(userId).select("+popularSquealCount");
-    user.popularSquealCount--;
+    if(user.popularSquealCount > 0)
+        user.popularSquealCount--;
 
     // Check if needs to be demoted (reached a tenth multiple - 1)
     if ((user.popularSquealCount + 1) % 10 === 0) {
@@ -161,7 +162,8 @@ increaseUnpopularAndUpdateQuota = async (userId) => {
 decreaseUnpopularAndUpdateQuota = async (userId) => {
 
     let user = await User.findById(userId).select("+unpopularSquealCount");
-    user.unpopularSquealCount--;
+    if(user.unpopularSquealCount > 0)
+        user.unpopularSquealCount--;
 
     // Check if needs to be demoted (reached a tenth multiple - 1)
     if ((user.unpopularSquealCount + 1) % 10 === 0) {

@@ -76,7 +76,7 @@ seeder.seed();
 var server = app.listen(port, () => {
     console.log(`Server is running`);
 });
-server.setTimeout(1000 * 60 * 1);
+server.setTimeout(1000 * 60 * 10);
 
 // Export the 'app' instance
 module.exports = app;

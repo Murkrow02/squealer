@@ -117,6 +117,8 @@
     border-radius: 10px;
     width: 80vw;
     height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .receivers-search-bar {
@@ -131,6 +133,7 @@
 
 .receivers-search-content-container {
     display: flex;
+    height: 100%;
     flex-flow: column;
     overflow: scroll;
     gap: 10px;

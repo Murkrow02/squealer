@@ -390,20 +390,28 @@ export default function Editor(props) {
         //get id
         const target_id = target.id;
         //split string by - character
-        const receiver_id = target_id.split('-')[2];
+        let receiver_id = target_id.split('-')[2];
         if (receiver_id === "none") {
             alert("Invalid receiver, no private channel found");
             return;
         }
+
+
         //get receiver name
-        const receiver_name = (target.childNodes[0].innerText).substring(1);
-        //add receiver to list
-        addReceiver(receiver_id, receiver_name, receiverTabValue);
+        let receiver_name = (target.childNodes[0].innerText).substring(1);
 
         if (receiverTabValue !== '3') {
             //fade add button
             target.childNodes[1].style.opacity = "0";
+        } else {
+            //add # to channel id
+            receiver_id = "#" + receiver_id;
         }
+
+        //add receiver to list
+        addReceiver(receiver_id, receiver_name, receiverTabValue);
+
+
     }
     //Triggered when + button near receivers list is clicked
     function showReceiverOverlay(event) {
@@ -695,12 +703,12 @@ export default function Editor(props) {
                         <ReplyRoundedIcon style={{color:'var(--black)'}}/>
                         <Typography>replying to @{replySquealUsername}</Typography>
                     </div>
-                : null
+                    : null
             }
             {
                 replySquealId != null && replySquealUsername != null ?
                     <Alert style={{marginTop:"10px"}} severity={"info"}>Receivers are inherited from the post that you are replying to</Alert>
-                :
+                    :
                     <div>
                         <Typography style={{textAlign:'center', color:'rgba(0,0,0,0.6)'}}>Receivers</Typography>
                         <div style={{display:"flex", gap:'10px', marginTop:'10px'}}>
@@ -802,60 +810,60 @@ export default function Editor(props) {
                 </div>
             </div>
             {
-                    //check if squeal type is text
-                    squealType === "text" ?
-                        <div style={{width:'100%', position:'relative'}}>
-                            <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={squealTextChanged}/>
-                            <div id="editor-input-mask">
-                                <span id="masked-content"></span>
-                            </div>
-                            <div style={{display:"flex", marginTop:'20px', justifyContent:'center', gap:'15px'}}>
-                                <div onClick={() => insertSymbol('@')} className={"symbol"}>@</div>
-                                <div onClick={() => insertSymbol('#')} className={"symbol"}>#</div>
-                                <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
-                            </div>
-                            {
-                                 isSquealTemporized ?
-                                     <div style={{marginTop:"20px"}}>
-                                         <Typography style={{color:'var(--text-light)', textAlign:'center'}}>Type $ to add a variable</Typography>
-                                         <div style={{marginTop:"20px"}}>
-                                             {
-                                                    variablesList.map((variable) => {
-                                                        return (
-                                                            <div className={"variable-item"} onClick={() => { document.getElementById("select-for-var-" + variable.name).click()}}>
-                                                                <span className={"variable-name"}>{variable.name}</span>
-                                                                <div style={{display:"flex", alignItems:'center', gap:'5px'}}>
-                                                                    <span style={{color:'var(--text-light)'}}>Type:</span>
-                                                                    <div className={"variable-type-container"} >
-                                                                        <select onChange={onVariableSelectChange} id={"select-for-var-" + variable.name}>
-                                                                            <option value="unset" selected={variable.type === "unset"} >unset</option>
-                                                                            <option value="date" selected={variable.type === "date"}>date</option>
-                                                                            <option value="time" selected={variable.type === "time"}>time</option>
-                                                                            <option value="number" selected={variable.type === "number"}>number</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })
-                                             }
-                                         </div>
-                                     </div>
-                                 : null
-                            }
-                            <div style={{margin: "20px -10px 0 -10px"}}>
-                                {
-                                    isSquealTemporized ?
-                                        <div onClick={revertToNormalSqueal}>
-                                            <ActionButton text={"Revert to default squeal"} type={"danger"}></ActionButton>
-                                        </div>
-                                    :
-                                        <div onClick={convertToTemporizedSqueal} >
-                                            <ActionButton text={"Convert to temporized squeal"} type={"secondary"}></ActionButton>
-                                        </div>
-                                }
-                            </div>
+                //check if squeal type is text
+                squealType === "text" ?
+                    <div style={{width:'100%', position:'relative'}}>
+                        <TextField onFocus={handleSquealTextFocus} style={{marginTop:'20px', backgroundColor: 'var(--light-bg)'}} id="outlined-multiline-flexible" fullWidth label="Squeal" multiline onChange={squealTextChanged}/>
+                        <div id="editor-input-mask">
+                            <span id="masked-content"></span>
                         </div>
+                        <div style={{display:"flex", marginTop:'20px', justifyContent:'center', gap:'15px'}}>
+                            <div onClick={() => insertSymbol('@')} className={"symbol"}>@</div>
+                            <div onClick={() => insertSymbol('#')} className={"symbol"}>#</div>
+                            <div onClick={() => insertSymbol('§')} className={"symbol"}>§</div>
+                        </div>
+                        {
+                            isSquealTemporized ?
+                                <div style={{marginTop:"20px"}}>
+                                    <Typography style={{color:'var(--text-light)', textAlign:'center'}}>Type $ to add a variable</Typography>
+                                    <div style={{marginTop:"20px"}}>
+                                        {
+                                            variablesList.map((variable) => {
+                                                return (
+                                                    <div className={"variable-item"} onClick={() => { document.getElementById("select-for-var-" + variable.name).click()}}>
+                                                        <span className={"variable-name"}>{variable.name}</span>
+                                                        <div style={{display:"flex", alignItems:'center', gap:'5px'}}>
+                                                            <span style={{color:'var(--text-light)'}}>Type:</span>
+                                                            <div className={"variable-type-container"} >
+                                                                <select onChange={onVariableSelectChange} id={"select-for-var-" + variable.name}>
+                                                                    <option value="unset" selected={variable.type === "unset"} >unset</option>
+                                                                    <option value="date" selected={variable.type === "date"}>date</option>
+                                                                    <option value="time" selected={variable.type === "time"}>time</option>
+                                                                    <option value="number" selected={variable.type === "number"}>number</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                                : null
+                        }
+                        <div style={{margin: "20px -10px 0 -10px"}}>
+                            {
+                                isSquealTemporized ?
+                                    <div onClick={revertToNormalSqueal}>
+                                        <ActionButton text={"Revert to default squeal"} type={"danger"}></ActionButton>
+                                    </div>
+                                    :
+                                    <div onClick={convertToTemporizedSqueal} >
+                                        <ActionButton text={"Convert to temporized squeal"} type={"secondary"}></ActionButton>
+                                    </div>
+                            }
+                        </div>
+                    </div>
                     : squealType === "image" ?
                         <div>
                             <FormControl style={{ width:'100%', marginTop:'20px'}}>
@@ -881,7 +889,7 @@ export default function Editor(props) {
                                                 { media ? "Click to change media" : "Click to upload a media" }
                                             </div>
                                         </div>
-                                    :
+                                        :
                                         <div>
                                             <input id={"image-uri-input"} style={{width:'calc(100% - 70px - 2px)', padding:'0 60px 0 10px', fontSize:"1rem", border:"solid 1px var(--text-light)", backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Media URL"  />
                                             <SearchRoundedIcon
@@ -907,60 +915,60 @@ export default function Editor(props) {
 
                             </div>
                         </div>
-                    : squealType === "location" ?
-                                <div>
-                                    <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
-                                        <MapContainer id="map" style={{ width: "100%", height: "300px" }} center={location} zoom={13} scrollWheelZoom={false}>
-                                            <TileLayer
-                                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                            />
-                                            <Marker position={location}>
-                                                <Popup>
-                                                    A pretty CSS3 popup. <br /> Easily customizable.
-                                                </Popup>
-                                            </Marker>
-                                            <MapEvents />
-                                        </MapContainer>
+                        : squealType === "location" ?
+                            <div>
+                                <div style={{height:'300px', overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
+                                    <MapContainer id="map" style={{ width: "100%", height: "300px" }} center={location} zoom={13} scrollWheelZoom={false}>
+                                        <TileLayer
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                        />
+                                        <Marker position={location}>
+                                            <Popup>
+                                                A pretty CSS3 popup. <br /> Easily customizable.
+                                            </Popup>
+                                        </Marker>
+                                        <MapEvents />
+                                    </MapContainer>
+                                </div>
+                                <div style={{display: isSquealWeather ? 'flex' : 'none', background: locationLight === "day" ? 'linear-gradient(261deg, #00affa 30%, #6cd1ff 70%)' : 'linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%)'}} className={"weather-info-container"}>
+                                    <div style={{display:'flex', alignItems:'center'}}>
+                                        <img src={locationWeatherImage}/>
+                                        <Typography id={"weather-info-label"}>{locationWeatherDescription}</Typography>
                                     </div>
-                                    <div style={{display: isSquealWeather ? 'flex' : 'none', background: locationLight === "day" ? 'linear-gradient(261deg, #00affa 30%, #6cd1ff 70%)' : 'linear-gradient(261deg, #4c70b1 30%, #162d37 70.17%)'}} className={"weather-info-container"}>
-                                        <div style={{display:'flex', alignItems:'center'}}>
-                                            <img src={locationWeatherImage}/>
-                                            <Typography id={"weather-info-label"}>{locationWeatherDescription}</Typography>
-                                        </div>
-                                        <Typography id={"weather-temperature-label"}>{locationWeatherTemperature}°</Typography>
-                                    </div>
-                                    <p style={{color:'var(--text-light)', textAlign:'center'}}>
-                                        {
-                                            isSquealWeather ?
-                                                "Click on the map to select a new point and get the weather forecast"
-                                            :
-                                                "Click on the map to select a new point"
-                                        }
-                                    </p>
+                                    <Typography id={"weather-temperature-label"}>{locationWeatherTemperature}°</Typography>
+                                </div>
+                                <p style={{color:'var(--text-light)', textAlign:'center'}}>
                                     {
                                         isSquealWeather ?
-                                            null
+                                            "Click on the map to select a new point and get the weather forecast"
+                                            :
+                                            "Click on the map to select a new point"
+                                    }
+                                </p>
+                                {
+                                    isSquealWeather ?
+                                        null
                                         :
-                                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                                                <Typography>Live location squeal</Typography>
-                                                <Switch checked={isLiveLocation} onChange={onLiveLocationSwitch} />
+                                        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                            <Typography>Live location squeal</Typography>
+                                            <Switch checked={isLiveLocation} onChange={onLiveLocationSwitch} />
+                                        </div>
+                                }
+                                <div style={{margin: "20px -10px 0 -10px"}}>
+                                    {
+                                        isSquealWeather ?
+                                            <div onClick={revertToLocationSqueal}>
+                                                <ActionButton text={"Revert to location squeal"} type={"danger"}></ActionButton>
+                                            </div>
+                                            :
+                                            <div onClick={convertToWeatherSqueal}>
+                                                <ActionButton text={"Create weather squeal"} type={"secondary"}></ActionButton>
                                             </div>
                                     }
-                                    <div style={{margin: "20px -10px 0 -10px"}}>
-                                        {
-                                            isSquealWeather ?
-                                                <div onClick={revertToLocationSqueal}>
-                                                    <ActionButton text={"Revert to location squeal"} type={"danger"}></ActionButton>
-                                                </div>
-                                            :
-                                                <div onClick={convertToWeatherSqueal}>
-                                                    <ActionButton text={"Create weather squeal"} type={"secondary"}></ActionButton>
-                                                </div>
-                                        }
-                                    </div>
                                 </div>
-                : null
+                            </div>
+                            : null
             }
             {
                 isSquealTemporized || isLiveLocation ?
@@ -980,7 +988,7 @@ export default function Editor(props) {
                             </div>
                         </div>
                     </div>
-                : null
+                    : null
             }
 
             <div onClick={postSquealClicked} style={{margin: '0 -10px'}}>
@@ -990,4 +998,3 @@ export default function Editor(props) {
         </div>
     )
 }
-
