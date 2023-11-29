@@ -233,6 +233,7 @@ function Feed(props) {
             <header style={{position:'relative', top:'0', zIndex:'1', backgroundColor:'white'}}>
                 <nav style={{ width:'100vw', display:"flex", paddingTop:'20px', flexFlow:"column", borderBottom: 'solid 2px #aaaaaa'}}>
                     <div style={{position:"relative"}}>
+                        <img src={'/logo512.png'} style={{position:"absolute" ,left:"10px", top:"50%", transform:"translateY(-50%)"}} width={40} height={40}/>
                         <h1 style={{margin: '0', textAlign:'center'}}>Squealer</h1>
                         <AddIcon onClick={handleChannelPopupVisibility} style={{color:"var(--primary)", cursor:"pointer", position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)"}}/>
                     </div>
@@ -347,10 +348,17 @@ function Feed(props) {
                     :
                         <div className={"channels-list"}>
                             {
+                                squeals &&
                                 squeals.map((channel) => (
                                     <div className={"channel-row-container"}>
                                         <p>{channel.name}</p>
-                                        <button className={channel.subscribed ? "channel-subscribed-button" : "channel-unsubscribed-button"} onClick={channel.subscribed ? () => { unsubscribeFromChannel(channel._id)} : () => { subscribeToChannel(channel._id)} }>{channel.subscribed ? "Unsubscribe" : "Subscribe"}</button>
+                                        <button
+                                            className={channel.subscribed ? "channel-subscribed-button" : "channel-unsubscribed-button"}
+                                            onClick={channel.subscribed ? () => {
+                                                unsubscribeFromChannel(channel._id)
+                                            } : () => {
+                                                subscribeToChannel(channel._id)
+                                            }}>{channel.subscribed ? "Unsubscribe" : "Subscribe"}</button>
                                     </div>
                                 ))
                             }

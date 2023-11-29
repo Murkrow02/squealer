@@ -1,6 +1,7 @@
 // userController.js
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
+const Squeal = require("../models/squealModel");
 
 // Only for moderator
 exports.getAllUsers = async (req, res, next) => {
@@ -74,6 +75,17 @@ exports.setSmm = async (req, res, next) => {
         // Check that target user is smm
         if (smm.type !== 'smm') {
             return res.status(400).json({error: `L'utente ${smm.username} non é un social media manager`});
+        }
+
+        // Check if adding himself as smm
+        if (smm._id.toHexString() == req.user.id) {
+            return res.status(400).json({error: `Non puoi impostarti come social media manager`});
+        }
+
+        // Check if smm already manages another user
+        let conflict = await User.findOne({smmId: smm._id});
+        if (conflict && conflict._id.toHexString() !== user._id.toHexString()) {
+            return res.status(400).json({error: `L'utente ${smm.username} giá gestisce un altro utente`});
         }
 
         // Set user as smm
@@ -160,12 +172,18 @@ exports.deleteProfile = async (req, res, next) => {
     try {
 
         // Get the user
-        let user = await User.findById(req.user.id);
+        let user = await User.findById(req.user.id).select("+privateChannelId");
 
         // Check if the user exists
         if (!user) {
             return res.status(401).json({message: 'Utente non trovato'});
         }
+
+        // Delete all squeals created by the user
+        await Squeal.deleteMany({createdBy: user._id.toHexString()});
+
+        // Search in every squeal if postedinchannels contains the user private channel
+        await Squeal.deleteMany({postedInChannels: user.privateChannelId});
 
         // Delete the user
         await user.deleteOne();

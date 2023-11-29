@@ -51,7 +51,7 @@ app.use("smm", express.static(smmBuildPath));
 app.get('/smm', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'index.html'));
 });
-app.get('/test', (req, res) => {
+app.get('/smm/newsqueal', (req, res) => {
     res.sendFile(path.join(smmBuildPath, 'new-squeal.html'));
 });
 

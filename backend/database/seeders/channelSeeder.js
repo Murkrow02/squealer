@@ -3,9 +3,6 @@ const mongoose = require("mongoose");
 
 async function seed(){
 
-    // Delete all channels
-    await Channel.deleteMany({});
-
     // Insert channels
     return Channel.insertMany(channelData)
 }

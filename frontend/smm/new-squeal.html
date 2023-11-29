@@ -433,7 +433,6 @@
             latitude: locationPoint[0],
             longitude: locationPoint[1],
         }] : []).then(function (response) {
-            console.log(response);
 
             if (response.status === 201) {
                 if (shouldSubmitMedia && squeal.contentType === "media" && mediaFile) {
@@ -441,9 +440,12 @@
                     console.log(resJson);
                     console.log(mediaFile);
                     window.postMediaToSqueal(resJson._id, mediaFile).then((response) => {
-                        console.log(response);
+
                     });
                 }
+
+                alert("Squeal posted successfully");
+                window.location.href = "/smm";
             }
 
         }).catch(function (error) {

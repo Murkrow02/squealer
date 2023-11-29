@@ -3,9 +3,6 @@ const mongoose = require("mongoose");
 
 async function seed(){
 
-    // Delete all reactions
-    await Reaction.deleteMany({});
-
     // Create reactions
     await Reaction.create([
         {

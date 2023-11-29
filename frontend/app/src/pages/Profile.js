@@ -87,9 +87,10 @@ function Profile(props) {
     const [hasSMM, setHasSMM] = useState(!!props.smm);
     function addSmm(smmId) {
         window.setSmm(smmId).then((response) => {
-            console.log(response.data);
-            alert("SMM added successfully");
-            window.location.reload();
+            if(response.status === 200){
+                alert("SMM added successfully");
+                window.location.reload();
+            }
             // setHasSMM(true);
             // handleSearchSMMOverlayVisibility();
         }).catch((error) => {

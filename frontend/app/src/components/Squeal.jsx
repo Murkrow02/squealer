@@ -200,14 +200,15 @@ const Squeal = (props) => {
                             <div dangerouslySetInnerHTML={{ __html: props.content }} />
                         </div>
                         : props.type === "media" ?
-                            /\.(jpg|jpeg|png|webp|avif|heic|gif|svg)$/.test(props.mediaUrl) ?
-                                <img className={"squeal-image"} src={props.mediaUrl}/>
-                            :
+                                /\.(MP4|AVI|MKV|MOV|WMV|FLV|MPEG|3GP|WebM|OGG)$/i.test(props.mediaUrl) ?
                                 <video className={"squeal-video"} controls>
                                     <source src={props.mediaUrl} type="video/mp4"/>
                                 </video>
+                            :
+                                <img className={"squeal-image"} src={props.mediaUrl}/>
 
-                        : props.type === "map" && props.mapPoints.length > 0 ?
+
+                                : props.type === "map" && props.mapPoints.length > 0 ?
                                     <div style={{height:'300px', width:"100%", overflow:"hidden", borderRadius:'10px', marginTop:"20px"}}>
                                         <MapContainer id={"map-" + props.id} style={{ width: "100%", height: "300px" }} center={[props.mapPoints[0]["latitude"], props.mapPoints[0]["longitude"]]} zoom={13} scrollWheelZoom={false}>
                                             <TileLayer

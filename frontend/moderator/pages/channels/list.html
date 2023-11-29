@@ -81,8 +81,11 @@
     async function addNewChannel(datatable, rowdata, success, error)
     {
         let result = await createChannel(rowdata[1], rowdata[2]);
-        if (result)
-            success();
+        if (result){
+            // Refresh page
+            location.reload();
+        }
+
     }
 
     async function deleteChannel(datatable, rowdata, success, error)

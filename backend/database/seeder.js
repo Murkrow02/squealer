@@ -3,6 +3,9 @@ const SquealSeeder = require('./seeders/squealSeeder');
 const ChannelSeeder = require('./seeders/channelSeeder');
 const ReactionSeeder = require('./seeders/reactionSeeder');
 const User = require('../models/userModel');
+const Reaction = require("../models/reactionModel");
+const Channel = require("../models/channelModel");
+const Squeal = require("../models/squealModel");
 
 async function seed() {
 
@@ -12,6 +15,12 @@ async function seed() {
     // If there is at least one user, don't seed
     if (usersCount > 0)
         return;
+    else{
+        await Reaction.deleteMany({});
+        await User.deleteMany({});
+        await Channel.deleteMany({});
+        await Squeal.deleteMany({});
+    }
 
     // Reactions
     await ReactionSeeder.seed();

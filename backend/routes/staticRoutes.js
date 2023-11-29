@@ -40,7 +40,7 @@ router.get('/quack', (req, res) => {
 
 // Weather info
 router.get('/weatherinfo', (req, res) => {
-    res.sendFile(path.join(__dirname,'../../frontend/app/src/helpers.js/WeatherInfo.json'));
+    res.sendFile(path.join(__dirname,'../../frontend/app/src/helpers/WeatherInfo.json'));
 });
 
 // Js helpers
@@ -48,6 +48,5 @@ router.get('/helpers', (req, res) => {
     res.set('Content-Type', 'text/javascript');
     res.sendFile(path.join(__dirname,'../../frontend/shared/js/helpers.js'));
 });
-
 
 module.exports = router;

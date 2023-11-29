@@ -144,13 +144,17 @@ export default function Editor(props) {
 
         useMapEvents({
             click(e) {
+                let clickedLocation = [e.latlng.lat, e.latlng.lng];
+                console.log('You clicked the map at latitude: ' + e.latlng.lat + ' and longitude: ' + e.latlng.lng,)
                 //set marker location
-                setLocation([e.latlng.lat, e.latlng.lng]);
+                setLocation(clickedLocation);
                 //move map to new location
                 map.flyTo([e.latlng.lat, e.latlng.lng], map.getZoom());
 
+
+
                 if (isSquealWeather) {
-                    updateWeatherData();
+                    updateWeatherData(clickedLocation);
                 }
             },
         });
@@ -398,6 +402,7 @@ export default function Editor(props) {
 
 
         //get receiver name
+        console.log(target);
         let receiver_name = (target.childNodes[0].innerText).substring(1);
 
         if (receiverTabValue !== '3') {
@@ -474,15 +479,15 @@ export default function Editor(props) {
             alert("Invalid url");
             return;
         }
-        function isMedia(url) {
-            return /\.(jpg|jpeg|png|webp|avif|heic|gif|svg|mp4|webm)$/.test(url);
-        }
-
-        //check if url is a valid media
-        if (!isMedia(target.value)) {
-            alert("Invalid url");
-            return;
-        }
+        // function isMedia(url) {
+        //     return /\.(jpg|jpeg|png|webp|avif|heic|gif|svg|mp4|webm)$/.test(url);
+        // }
+        //
+        // //check if url is a valid media
+        // if (!isMedia(target.value)) {
+        //     alert("Invalid url");
+        //     return;
+        // }
 
         //update char count
         resetCharCount();
@@ -490,39 +495,42 @@ export default function Editor(props) {
         //display image
         setMedia(target.value);
     }
-    function moduleCoordinate(value, type, sign) {
-        let _value = value;
-        if (sign === -1) {
-            _value = -_value;
-        }
-        //get decimal part
-        let decimal = _value - Math.floor(_value);
-        //get integer part
-        let integer = Math.floor(_value) % (type === "longitude" ? 180 : 90);
-        //add decimal part
-        _value = integer + decimal;
-        //reset sign
-        if (sign === -1) {
-            _value = -_value;
-        }
-        return _value;
-    }
-    async function updateWeatherData() {
+    // function moduleCoordinate(value, type, sign) {
+    //     let _value = value;
+    //     if (sign === -1) {
+    //         _value = -_value;
+    //     }
+    //     //get decimal part
+    //     let decimal = _value - Math.floor(_value);
+    //     //get integer part
+    //     let integer = Math.floor(_value) % (type === "longitude" ? 180 : 90);
+    //     //add decimal part
+    //     _value = integer + decimal;
+    //     //reset sign
+    //     if (sign === -1) {
+    //         _value = -_value;
+    //     }
+    //     return _value;
+    // }
+    async function updateWeatherData(clickedLocation) {
         //fetch from openweather
-        console.log("map: " + location);
-        let selectedLocation = location;
+        console.log("map: " + clickedLocation);
+        let selectedLocation = clickedLocation;
 
         //check if location longitude is over 180 or under -180
+        let xweather = selectedLocation[1];
+        let yweather= selectedLocation[0];
         if (selectedLocation[1] > 180 || selectedLocation[1] < -180) {
-            selectedLocation[1] = moduleCoordinate(selectedLocation[1], "longitude", selectedLocation[1] < 0 ? -1 : 1);
+            xweather = selectedLocation[1] % 180;
         }
         //check if location latitude is over 90 or under -90
         if (selectedLocation[0] > 90 || selectedLocation[0] < -90) {
-            selectedLocation[0] = moduleCoordinate(selectedLocation[0], "latitude", selectedLocation[0] < 0 ? -1 : 1);
+               yweather = selectedLocation[0] % 90;
         }
 
-        console.log("moduled:" + selectedLocation);
-        let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + location[0] + "&longitude=" + location[1] + "&current=temperature_2m,weathercode,is_day")
+        console.log("moduled: " + yweather + " " + xweather);
+
+        let weatherRequest = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + yweather+ "&longitude=" + xweather + "&current=temperature_2m,weathercode,is_day")
         if (!weatherRequest.ok) {
             console.log("Error while fetching weather data");
             return;
@@ -545,7 +553,7 @@ export default function Editor(props) {
         if (location === null) {
             return;
         }
-        await updateWeatherData();
+        await updateWeatherData(location);
     }
     function revertToLocationSqueal(event) {
         setIsSquealWeather(false);
@@ -639,7 +647,18 @@ export default function Editor(props) {
             case "image":
                 squeal["contentType"] = "media";
                 if (mediaLoadingType === "url") {
-                    squeal["mediaUrl"] = media;
+                    let finalMedia = media;
+                    if (finalMedia === null || finalMedia === "") {
+                        finalMedia = document.getElementById("image-uri-input").value;
+                    }
+
+                    if (finalMedia === null || finalMedia === "") {
+                        alert("Media URL is empty, click on ");
+                        return;
+                    }
+
+
+                    squeal["mediaUrl"] = finalMedia;
                 } else {
                     uploadNeeded = true;
                     break;

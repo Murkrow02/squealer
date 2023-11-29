@@ -5,9 +5,6 @@ const bcrypt = require('bcryptjs');
 
 async function seed(){
 
-    // Delete all users
-    await User.deleteMany({});
-
     // Create test users
     let usersData = [];
     let usersCount = 50;
