@@ -73,9 +73,10 @@ app.use(errorHandlingMiddleware);
 seeder.seed();
 
 // Start the server
-app.listen(port, () => {
+var server = app.listen(port, () => {
     console.log(`Server is running`);
 });
+server.setTimeout(1000 * 60 * 1);
 
 // Export the 'app' instance
 module.exports = app;

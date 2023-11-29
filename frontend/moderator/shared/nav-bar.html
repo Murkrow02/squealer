@@ -1,23 +1,34 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="/moderator">Moderator dashboard</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/moderator/pages/squeal/list.html">Squeal</a>
+                    <a class="nav-link squeal" href="/moderator/pages/squeal/list.html">Squeal</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item channels">
                     <a class="nav-link" href="/moderator/pages/channels/list.html">Canali</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item users">
                     <a class="nav-link" href="/moderator/pages/users/list.html">Utenti</a>
                 </li>
             </ul>
         </div>
+
+        <button onclick='localStorage.removeItem("token"); window.location.href = "/static/auth";'>
+            Logout
+        </button>
     </div>
 </nav>
+
+<style>
+    .active {
+        color: black;
+        font-weight: bold;
+    }
+</style>
 
 <div id="spacer" class="my-3"></div>

@@ -3,7 +3,7 @@ import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {Popover, Typography} from "@mui/material";
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {Circle, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -24,10 +24,53 @@ const Squeal = (props) => {
     const [locationWeatherDescription, setLocationWeatherDescription] = React.useState("");
     const [locationWeatherTemperature, setLocationWeatherTemperature] = React.useState(0);
 
+    const myComponentRef = useRef(null);
+
     useEffect(() => {
         setAvaiableReactions(props.avaiableReactions);
         setReactions(props.reactions);
         updateWeatherData();
+
+        // When component is in view, trigger function to increase impressions
+        const inViewCallback = (entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+
+                    // Check if all channels are private (start with @)
+                    let allChannelsPrivate = true;
+                    for (let i = 0; i < props.channels.length; i++) {
+                        if (!props.channels[i].startsWith("@")) {
+                            allChannelsPrivate = false;
+                            break;
+                        }
+                    }
+
+                    // Do not trigger impression if all channels are private
+                    if (allChannelsPrivate) {
+                        return;
+                    }
+
+                    // Component is in view, trigger impression
+                    window.addImpression(props.id).then((response) => {
+                    });
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(inViewCallback, {
+            root: null, // use the viewport as the root
+            rootMargin: '0px',
+            threshold: 0.5, // callback when 50% of the component is visible
+        });
+        if (myComponentRef.current) {
+            observer.observe(myComponentRef.current);
+        }
+        // Cleanup observer on component unmount
+        return () => {
+            observer.disconnect();
+        };
+
+
     }, []);
 
 
@@ -131,7 +174,7 @@ const Squeal = (props) => {
 
 
     return(
-        <div style={{width: '100%', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
+        <div ref={myComponentRef} style={{width: '100%', marginTop: '10px', position:'relative', zIndex:'0' , display:'flex', justifyContent:'center'}}>
             <div style={{width: '90vw', borderRadius:'10px', boxShadow:'0 0 42px -4px rgba(0,0,0,0.24)', height: 'fit-content', padding:'15px', backgroundColor:"white",}}>
                 <div style={{display:'flex', gap:"5px"}}>
                     <span>Posted by</span>
@@ -157,7 +200,7 @@ const Squeal = (props) => {
                             <div dangerouslySetInnerHTML={{ __html: props.content }} />
                         </div>
                         : props.type === "media" ?
-                            /\.(jpg|jpeg|png|webp|avif|heic|gif)$/.test(props.mediaUrl) ?
+                            /\.(jpg|jpeg|png|webp|avif|heic|gif|svg)$/.test(props.mediaUrl) ?
                                 <img className={"squeal-image"} src={props.mediaUrl}/>
                             :
                                 <video className={"squeal-video"} controls>

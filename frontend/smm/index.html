@@ -33,7 +33,7 @@
 <div class="flex flex-col items-center justify-center w-full max-w-full sm:p-5 p-2" x-data="pageData()" x-init="init">
 
     <!-- Welcome card -->
-    <div class="max-w-2xl bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60 grow">
+    <div class="max-w-2xl bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60 grow" aria-labelledby="welcome-card">
         <template x-if="administratedUser">
             <div>
                 <div class="flex justify-between items-center">
@@ -154,8 +154,8 @@
     <!-- Squeals -->
     <template x-if="squeals">
         <div class="p-4 overflow-x-scroll max-w-full">
-            <h1 class="text-left mb-2 font-bold text-lg">Gli squeal di <strong x-text="administratedUser.username"></strong></h1>
-            <div class="flex flex-col">
+            <h1 aria-labelledby="squeals-title" class="text-left mb-2 font-bold text-lg">Gli squeal di <strong x-text="administratedUser.username"></strong></h1>
+            <div aria-labelledby="squeals-table" class="flex flex-col">
                 <div class="overflow-x-auto">
                     <div class="inline-block min-w-full">
                         <div class="overflow-hidden border rounded-lg">
@@ -251,7 +251,7 @@
                                             </template>
                                         </td>
                                         <td class="px-5 py-4 text-sm font-medium text-right whitespace-nowrap">
-                                            <div x-data="{
+                                            <div aria-labelledby="squeals-replies-section" x-data="{
                                                     slideOverOpen: false
                                                 }"
                                                  class="relative z-50 w-auto h-auto">
@@ -297,7 +297,7 @@
                                                                                             <div x-data="loadReplies(squeal._id)" x-init="init" class="flex flex-col gap-3">
                                                                                                 <template x-if="replies">
                                                                                                     <template x-for="reply in replies">
-                                                                                                        <div class="rounded-lg overflow-hidden border border-neutral-200/60 bg-white text-neutral-700 shadow-sm w-[380px]">
+                                                                                                        <div class="rounded-lg overflow-hidden border border-neutral-200/60 bg-white text-neutral-700 shadow-sm w-[200px] sm:w-[380px]">
                                                                                                             <template x-if="reply.contentType === 'media'">
                                                                                                                 <div class="relative">
                                                                                                                     <img :src="reply.mediaUrl" class="w-full h-auto" />
@@ -351,7 +351,7 @@
                                                                                                             <div class="p-7">
                                                                                                                 <h2 class="mb-2 text-lg font-bold leading-none tracking-tight" x-text="'@' + reply.createdBy.username"></h2>
                                                                                                                 <template x-if="reply.contentType === 'text'">
-                                                                                                                    <p class="mb-2 text-neutral-500" x-text="reply.content"></p>
+                                                                                                                    <p class="mb-2 text-neutral-500" x-html="reply.content"></p>
                                                                                                                 </template>
                                                                                                                 <div class="flex mb-4 items-center">
                                                                                                                     <template x-for="(reaction, index) in reactions">

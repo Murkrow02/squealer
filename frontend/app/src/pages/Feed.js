@@ -14,18 +14,16 @@ import PropTypes from "prop-types";
 import AddIcon from "@mui/icons-material/Add";
 import CreateChannel from "../components/CreateChannel";
 
-function 1Feed(props) {
+function Feed(props) {
 
     const [squeals, setSqueals] = useState([]);
     const [avaiableReactions, setAvaiableReactions] = useState([])
     useEffect(() => {
         window.getFeed().then((response) =>{
-            console.log(response.data)
             setSqueals(response.data)
         });
 
         window.getAllReactions().then((response) =>{
-            console.log(response.data)
             setAvaiableReactions(response.data)
         });
     },[]);

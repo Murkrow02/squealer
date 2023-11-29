@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,16 +53,16 @@
         <div class="p-4">
 
             <!-- Channels -->
-            <div class="flex flex-row">
+            <div class="flex flex-col sm:flex-row">
                 <label class="flex flex-col p-2 flex-1">
                     Canali pubblici
-                    <select id="public-channels" multiple="multiple">
+                    <select id="public-channels" multiple="multiple" aria-label="Seleziona canali pubblici">
                     </select>
                 </label>
 
                 <label class="flex flex-col p-2 flex-1">
                     Tagga utenti
-                    <select id="tagged-users" multiple="multiple">
+                    <select id="tagged-users" multiple="multiple" aria-label="tagga utenti">
                     </select>
                 </label>
             </div>
@@ -71,18 +71,18 @@
             <div class="relative w-full mt-4" x-data="{        tabSelected: 1,        tabId: $id('tabs'),        tabButtonClicked(tabButton){            this.tabSelected = tabButton.id.replace(this.tabId + '-', '');  window.tabSelected = this.tabSelected;           this.tabRepositionMarker(tabButton);        },        tabRepositionMarker(tabButton){            this.$refs.tabMarker.style.width=tabButton.offsetWidth + 'px';            this.$refs.tabMarker.style.height=tabButton.offsetHeight + 'px';            this.$refs.tabMarker.style.left=tabButton.offsetLeft + 'px';        },        tabContentActive(tabContent){            return this.tabSelected == tabContent.id.replace(this.tabId + '-content-', '');        },        tabButtonActive(tabContent){            const tabId = tabContent.id.split('-').slice(-1);            return this.tabSelected == tabId;        }    }" x-init="tabRepositionMarker($refs.tabButtons.firstElementChild);" >
 
                 <!-- Tabs buttons -->
-                <div x-ref="tabButtons" class="relative inline-grid items-center justify-center w-full h-10 grid-cols-3 p-1 text-gray-500 bg-white border border-gray-100 rounded-lg select-none">
-                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Text</button>
-                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Media</button>
-                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap">Location</button>
+                <div x-ref="tabButtons" class="relative inline-grid items-center justify-center w-full h-10 grid-cols-3 p-1 text-gray-500 bg-white border border-gray-100 rounded-lg select-none" aria-labelledby="tab-buttons">
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap" role="tab" aria-selected="true" tabindex="0">Text</button>
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap" role="tab" aria-selected="false" tabindex="1">Media</button>
+                    <button :id="$id(tabId)" @click="tabButtonClicked($el);" type="button" :class="{ 'bg-gray-100 text-gray-700' : tabButtonActive($el) }" class="relative z-20 inline-flex items-center justify-center w-full h-8 px-3 text-sm font-medium transition-all rounded-md cursor-pointer whitespace-nowrap" role="tab" aria-selected="false" tabindex="2">Location</button>
                     <div x-ref="tabMarker" class="absolute left-0 z-10 w-1/2 h-full duration-300 ease-out" x-cloak><div class="w-full h-full bg-gray-100 rounded-md shadow-sm"></div></div>
                 </div>
 
                 <!-- Tabs content -->
-                <div class="relative flex items-center justify-center w-full  mt-2 text-xs text-gray-400 border rounded-md content border-gray-200/70">
+                <div class="relative flex items-center justify-center w-full  mt-2 text-xs text-gray-400 border rounded-md content border-gray-200/70" role="tabpanel" aria-labelledby="new-squeal-heading">
 
                     <!-- Text -->
-                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full ">
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full "  aria-hidden="false">
                         <textarea onkeyup="textInputChanged()" id="outlined-multiline-flexible" class="w-full h-full  p-2 min-h-[100px]" type="text" placeholder="Type your squeal here"></textarea>
                         <div id='editor-input-mask' class="absolute top-0 w-full h-full" >
                             <span id="masked-content"></span>
@@ -155,15 +155,16 @@
                     </div>
 
                     <!-- Media -->
-                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative p-4 w-full" x-cloak>
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative p-4 w-full" x-cloak aria-hidden="true">
                         <div x-data="{ switchOn: false }" class="w-full">
 
                             <!-- Switch media or url -->
-                            <div class="mb-4 flex items-center justify-center space-x-2">
+                            <div id="switchControlsContainer" class="mb-4 flex items-center justify-center space-x-2">
                                 <input id="thisId" type="checkbox" name="switch" class="hidden" :checked="switchOn">
 
                                 <label @click="$refs.switchButton.click(); $refs.switchButton.focus()"
                                        :id="$id('switch')"
+                                       id="urlSwitchLabel"
                                        :class="{ 'text-blue-600': !switchOn, 'text-gray-400': switchOn }"
                                        class="text-sm select-none"
                                        x-cloak>
@@ -191,13 +192,13 @@
 
                             <!-- Url -->
                             <div class="w-full max-w-xs mx-auto" :class="{ 'hidden': switchOn }">
-                                <input type="text" placeholder="Insert url"
+                                <input id="urlInput" type="text" placeholder="Insert url"
                                        class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"/>
                             </div>
 
                             <!-- Upload -->
                             <div class="w-full max-w-xs mx-auto" :class="{ 'hidden': !switchOn }">
-                                <input type="file" placeholder="File"
+                                <input id="mediaInput" type="file" placeholder="File"
                                        class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"/>
                             </div>
 
@@ -206,7 +207,7 @@
 
                     </div>
 
-                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full" x-cloak>
+                    <div :id="$id(tabId + '-content')" x-show="tabContentActive($el)" class="relative w-full" x-cloak aria-hidden="true">
                         <div>
                             <div style="height: 180px" id="map">
                             </div>
@@ -356,6 +357,11 @@
         // Init squeal
         let squeal = {};
 
+        // Check if user uploaded an image
+        let shouldSubmitMedia = false;
+        let mediaFile = null;
+
+
         // Get selected channels
         let selectedChannels = $('#public-channels').select2('data').map(function (item) {
             return item.id;
@@ -402,27 +408,47 @@
                 squeal.contentType = "media";
 
                 // Check if url or file
-                if ($('#switch').hasClass('text-blue-600')) {
+                if ($('#switchControlsContainer').children()[1].classList.contains('text-blue-600')) {
                     console.log('url');
-                    //squeal.content = $('#thisId').val();
+                    squeal["mediaUrl"] = $('#urlInput').val();
                 } else {
-                    console.log('file');
-                    squeal.content = $('#thisId').val();
+                    mediaFile = $("#mediaInput").get()[0].files[0]
+                    if (!mediaFile) {
+                        alert("Please select a file");
+                        return;
+                    }
+                    shouldSubmitMedia = true;
                 }
 
                 break;
             case "3":
-                squeal.contentType = "location";
+                squeal.contentType = "map";
                 break;
         }
 
 
 
         // Post squeal
-        postSqueal(squeal, selectedChannels, squeal.contentType === "location" ? [{
+        postSqueal(squeal, selectedChannels, squeal.contentType === "map" ? [{
             latitude: locationPoint[0],
             longitude: locationPoint[1],
-        }] : []);
+        }] : []).then(function (response) {
+            console.log(response);
+
+            if (response.status === 201) {
+                if (shouldSubmitMedia && squeal.contentType === "media" && mediaFile) {
+                    let resJson = response.data;
+                    console.log(resJson);
+                    console.log(mediaFile);
+                    window.postMediaToSqueal(resJson._id, mediaFile).then((response) => {
+                        console.log(response);
+                    });
+                }
+            }
+
+        }).catch(function (error) {
+            console.log(error);
+        });
 
         console.log(squeal);
     }

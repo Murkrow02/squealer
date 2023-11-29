@@ -104,6 +104,10 @@ exports.addMediaToSqueal = async (req, res, next) => {
     }
 
     // Update squeal mediaUrl
+    if(!req.file)
+    {
+        return res.status(400).json({error: 'Nessun file caricato'});
+    }
     squeal.mediaUrl = "/storage/" + path.basename(req.file.path);
 
     // Save squeal
@@ -407,7 +411,12 @@ exports.updateSqueal = async (req, res, next) => {
 
     // Add fake reactions
     for (let i = 0; i < req.body.reactions.length; i++) {
-        squeal.reactions.filter(reaction => reaction.reactionId.toHexString() === req.body.reactions[i].reactionId)[0].count = req.body.reactions[i].count;
+        if(!req.body.reactions[i])
+            continue;
+        let target = squeal.reactions.filter(reaction => reaction.reactionId.toHexString() === req.body.reactions[i].reactionId)[0];
+        if (target) {
+            target.count = req.body.reactions[i].count;
+        }
     }
 
     // Save squeal

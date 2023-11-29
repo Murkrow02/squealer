@@ -10,8 +10,6 @@ class CreateChannel extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("prevProps", prevProps);
-        console.log("this.props", this.props);
         if (prevProps.show !== this.props.show) {
             this.updateAndNotify();
         }

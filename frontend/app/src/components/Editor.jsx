@@ -884,7 +884,11 @@ export default function Editor(props) {
                                     :
                                         <div>
                                             <input id={"image-uri-input"} style={{width:'calc(100% - 70px - 2px)', padding:'0 60px 0 10px', fontSize:"1rem", border:"solid 1px var(--text-light)", backgroundColor:'var(--light-bg)', marginTop:'20px', height:'50px'}} type="text" placeholder="Media URL"  />
-                                            <SearchRoundedIcon onClick={imageSearchClicked} style={{position:'absolute', right:'10px', top:'35px', cursor:'pointer'}}/>
+                                            <SearchRoundedIcon
+                                                alt="Search icon"
+                                                onClick={imageSearchClicked}
+                                                style={{ position: 'absolute', right: '10px', top: '35px', cursor: 'pointer' }}
+                                            />
                                         </div>
                                 }
 

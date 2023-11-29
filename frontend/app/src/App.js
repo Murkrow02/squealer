@@ -24,9 +24,15 @@ function App() {
     const [profileType, setProfileType] = React.useState("guest");
     const [profileSMM, setProfileSMM] = React.useState(null);
     const ref = React.useRef(null);
+    const [alreadyLoadedProfile, setAlreadyLoadedProfile] = React.useState(false);
+
 
     useEffect(() => {
+        if (alreadyLoadedProfile) {
+            return;
+        }
         window.getProfile().then((response) =>{
+            setAlreadyLoadedProfile(true);
             setProfileType(response.data.type);
             setProfileSMM(response.data.smmId);
             setIsLoading(false);
