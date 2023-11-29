@@ -6,8 +6,7 @@ exports.updateSquealTrend = async (squealId) => {
 
     // Retrieve squeal from the database
     const squeal = await Squeal.findById(squealId)
-        .select('+impressions +positiveReactions +negativeReactions +markedAsPopular +markedAsUnpopular +postedInChannels +createdBy')
-        .populate('postedInChannels');
+        .select('+impressions +positiveReactions +negativeReactions +markedAsPopular +markedAsUnpopular +postedInChannels +createdBy');
 
     // Calculate critical mass based on impressions
     const criticalMass = calculateCriticalMass(squeal.impressions.length);
@@ -18,7 +17,8 @@ exports.updateSquealTrend = async (squealId) => {
     // Check the previous states
     const wasPopular = squeal.markedAsPopular;
     const wasUnpopular = squeal.markedAsUnpopular;
-    const wasControversial = squeal.postedInChannels.includes("§CONTROVERSIAL");
+    const controversialChannelId = (await Channel.findOne({name: "§CONTROVERSIAL"}))._id.toHexString();
+    const wasControversial = squeal.postedInChannels.includes(controversialChannelId);
 
     if (squeal.positiveReactions > criticalMass) {
         // Mark the squeal as popular or controversial

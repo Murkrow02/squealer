@@ -5,6 +5,12 @@ async function seed(){
     // Delete all users
     await User.deleteMany({});
 
+    // Create test users
+    let usersData = [];
+    for (let i = 0; i < usersData.length; i++) {
+
+    }
+
     // Insert users
     return User.insertMany(usersData);
 }

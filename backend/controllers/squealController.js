@@ -338,6 +338,8 @@ exports.addImpression = async (req, res, next) => {
         // Add logged user to impressions (if not already present)
         if (!squeal.impressions.includes(req.user.id)) {
             squeal.impressions.push(req.user.id);
+        }else{
+            return res.status(200).json();
         }
 
         // Save squeal
@@ -347,7 +349,7 @@ exports.addImpression = async (req, res, next) => {
         await SquealTrendHelper.updateSquealTrend(squealId);
 
         // Return squeal as response
-        return res.status(200).json(await Squeal.findById(squealId));
+        return res.status(200).json();
 
     } catch (error) {
         next(error);

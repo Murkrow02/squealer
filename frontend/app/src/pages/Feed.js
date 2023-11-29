@@ -138,6 +138,29 @@ function Feed(props) {
         });
     }
 
+    const [activeFilter, setActiveFilter] = useState("");
+
+    function filterSqueals(filter) {
+
+        if (activeFilter === filter) {
+            setActiveFilter("");
+            window.getFeed().then((response) =>{
+                setSqueals(response.data)
+            });
+            return;
+        }
+
+
+        setActiveFilter(filter);
+
+        window.searchByChannelName("channel", filter, "posted").then((response) =>{
+            console.log(response.data);
+            setSqueals(response.data)
+        });
+    }
+
+
+
     async function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -247,8 +270,8 @@ function Feed(props) {
                         />
                     </div>
                     <Stack style={{marginTop:'10px', padding:"0 10vw", marginBottom:'10px', justifyContent:'center'}} direction={'row'} spacing={1}>
-                        <Chip label="Popular" />
-                        <Chip label="Controversed" />
+                        <Chip onClick={() => {filterSqueals('popular')}} label="Popular" />
+                        <Chip onClick={() => {filterSqueals('controversial')}} label="Controversial" />
                     </Stack>
                     {
                         searchType !== "text" ?
