@@ -97,7 +97,7 @@ exports.register = async (req, res, next) => {
         await newUser.save();
 
         // Create personal channel for the user for private messaging and subscribe to it (only if not guest)
-        if(!guest) {
+        //if(!guest) { CRASHES WITHOUT
             const personalChannel = new Channel({
                 category: "private",
                 name: newUser._id + " private",
@@ -106,7 +106,7 @@ exports.register = async (req, res, next) => {
             newUser.privateChannelId = personalChannel._id;
             newUser.subscribedChannels.push(personalChannel._id);
             await newUser.save();
-        }
+       // }
 
         // Return token
         let token = await createTokenForUser(newUser);
