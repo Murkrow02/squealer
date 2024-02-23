@@ -1,5 +1,6 @@
 # Squealer
-
+Web Technologies project for UNIBO year 2022/2023
+[Logo](./frontend/app/public/logo512.png)
 ## Autenticazione
 
 ### Logica
@@ -85,61 +86,7 @@ Essendo che anche i canali privati (usati per inviare privatamente utente-utente
 al momento della registrazione di un utente, viene creato un canale privato, salvato nel suo profilo e nella tabella canali.
 Ovviamente il nuovo utente é automaticamente iscritto al suo canale privato.
 
-### Cose
-
-- [ ] Quando si ricevono gli squeal, se esiste una categoria privata nei canali postati
-  allora vuol dire che era mandato privatamente per lui
-
-
-E guarda come porcodio si fanno gli utenti su MongoDB
-
-- [ ] mongosh "mongodb://root:example_password@localhost:27017/admin"
-- [ ] use squealer
-- [ ] db.createUser({
-  user: 'admin',
-pwd: 'password',
-roles: [{ role: 'readWrite', db: 'squealer' }]
- })
-
-
-### TODO
-- [ ] Quando viene postato uno squeal fai parsing dei canali (menzioni hashtag) che sono stati menzionati per fare ricerche dopo
-- [ ] Chiamata per aumentare di un delta la quota 
-- [ ] Canali editoriali da mettere (controversial, altri > 3 nostri)
-- [ ] Messaggi generati automaticamente
-  - TIPI
-    - [ ] Meteo: ti manda coordinate come se fosse la mappa e chiama api METEO da quelle coordinate
-    - [ ] Immagine: immagine a caso da lorem picsum
-- [ ] RESET PASSWORD POI VEDI
-- [ ] Un utente puo gestire canale pubblico
-- [ ] Quando ti viene postato un canale con hashtag, crea un nuovo canale nel caso in cui non esista
-
-## FRONT
-
-- [x] Componente destinatari squeal
-- [x] Controlla se mostra errore quando superata quota
-- [ ] Quando uno squeal viene visualizzato (a meno che non privato) manda impression
-- [ ] Scarica lista emoji
-- [ ] monta reazioni con chiamata
-- [x] Monta caso video squeal
-- [ ] Manda codifica per messaggio temporizzato testuale
-- [ ] Quando manda messaggio mappa puo decidere di farlo temporizzato con previsioni meteo
-- [ ] Quando parte messaggio temporizzato di "Manda posizione live": mostra banner sopra che puo interrompere e 
-- [ ] Monta ricerca utenti e scelta/rimozione SMM
-- [ ] Schermata profilo quando non é loggato
-- [ ] Monta iscrizione/disiscrizione a canale
-- [ ] Link immagine da internet
-- [ ] Monta creazione e gestione canali privati
-- [ ] Scheduling dei messaggi temporizzati 
-- [ ] Se mi mandi "mediaUrl" nello squeal puoi allegare link a video o immagine
-- [ ] Se noti che il campo "mediaUrl" non inizia con http* allora é un link sullo stesso sito e devi solo mettere il dominio prima dell'url
-- [ ] Se uno squeal ha il campo replyTo, allora é una risposta ad un altro squeal e andrebbe mostrato come tale (ti mando tutto lo squeal a cui risponde)
-- [ ] Per rispondere ad uno squeal, basta che tu mandi un campo replyTo con l'id dello squeal a cui vuoi rispondere, copia i canali identici non farli selezionare
-- [ ] Nel profilo vengono ritornati anche i canali creati
-- [ ] Quando entra come guest, chiama la createGuestUser per loggarti come guest
-  - Disabilita le funzioni che non puo fare quando é guest
-- [ ] Se un utente ha reagito ad uno squeal, nelle reazioni ti ritorno "userReacted":true, altrimenti nulla. Mostra reazioni in base a questo
-- Metti che puoi bannare un utente quando sei admin di un canale
+## Location sharing
 ``` javascript
 
 
@@ -172,12 +119,3 @@ function sendLiveLocation(sendAfterMs, sendForMs, lastSentSqueal, squealSentCoun
 
         
 ```
-
-## Moderator dashboard
-- [ ] Moderator dashboard
-  - [ ] Elencare utenti e filtrarli per nome, tipo (utente, smm, admin) e popolarita (?)
-    - [ ] Puo bannare, riabilitare e aumentare i caratteri residui
-  - [ ] Elencare squeal e filtrarli per utente, data e destinatari
-    - [ ] Ne puo cambiare i destinatari
-    - [ ] OPZIONALE, cambiare numero reazioni
-  - [ ] Elencare canali ufficiali squealer, aggiungerli, toglierli e modificarli  
