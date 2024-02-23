@@ -1,6 +1,8 @@
 # Squealer
 Web Technologies project for UNIBO year 2022/2023
-[Logo](./frontend/app/public/logo512.png)
+
+![Logo](./frontend/app/public/logo512.png)
+
 ## Autenticazione
 
 ### Logica
